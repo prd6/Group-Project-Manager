@@ -23,8 +23,8 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/Dashboard" element={<Dashboard />} />
-      <Route path="/Create_Grp" element={<Create_Grp />} />
-      <Route path="/Join_Grp" element={<Join_Grp />} />
+      <Route path="/create-group" element={<Create_Grp />} />
+      <Route path="/join-group" element={<Join_Grp />} />
     </Routes>
   );
 }

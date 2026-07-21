@@ -1,6 +1,8 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+    const navigate = useNavigate();
     return (
         <div className="min-h-screen bg-gray-100">
 
@@ -28,11 +30,17 @@ const Dashboard = () => {
                     {/* Buttons */}
                     <div className="flex gap-4 mb-8">
 
-                        <button className="bg-blue-500 text-white px-4 py-2 rounded">
+                        <button
+                            onClick={() => navigate("/create-group")}
+                            className="bg-blue-500 text-white px-4 py-2 rounded"
+                        >
                             Create Group
                         </button>
 
-                        <button className="bg-green-500 text-white px-4 py-2 rounded">
+                        <button
+                            onClick={() => navigate("/join-group")} 
+                            className="bg-green-500 text-white px-4 py-2 rounded"
+                         >       
                             Join Group
                         </button>
 
