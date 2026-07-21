@@ -6,6 +6,7 @@ import Navbar from "./Components/Navbar";
 import Home from "./Pages/Home";
 import Login from "./AuthPages/Login";
 import Signup from "./AuthPages/Signup";
+import Admin from "./Pages/Admin"
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
       <Route path="/Dashboard" element={<Dashboard />} />
       <Route path="/create-group" element={<Create_Grp />} />
       <Route path="/join-group" element={<Join_Grp />} />
+      <Route path="/admin" element={<Admin />} />
     </Routes>
   );
 }
