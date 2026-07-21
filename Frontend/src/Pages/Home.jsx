@@ -5,7 +5,7 @@ function Home() {
         <div className="min-h-[calc(100vh-5rem)] bg-violet-50 flex items-center justify-center px-6">
             <div className="max-w-3xl text-center">
                 <h1 className="text-5xl font-bold text-violet-900 mb-6">
-                    Manage Your Group Projects Easily
+                    Manage Your Group Projects Easil
                 </h1>
 
                 <p className="text-lg text-gray-900 leading-8 mb-10">
