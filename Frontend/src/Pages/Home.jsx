@@ -1,6 +1,8 @@
+import { Link } from "react-router-dom";
+
 function Home() {
     return (
-        <main className="min-h-[calc(100vh-5rem)] bg-violet-50 flex items-center justify-center px-6">
+        <div className="min-h-[calc(100vh-5rem)] bg-violet-50 flex items-center justify-center px-6">
             <div className="max-w-3xl text-center">
                 <h1 className="text-5xl font-bold text-violet-900 mb-6">
                     Manage Your Group Projects Easily
@@ -14,16 +16,20 @@ function Home() {
                 </p>
 
                 <div className="flex justify-center gap-6">
-                    <button className="bg-violet-800 hover:bg-violet-900 text-white text-lg font-semibold px-8 py-4 rounded-xl transition duration-300">
-                        Get Started
-                    </button>
+                    <Link to="/signup">
+                        <button className="bg-violet-800 hover:bg-violet-900 text-white text-lg font-semibold px-8 py-4 rounded-xl transition duration-300">
+                            Get Started
+                        </button>
+                    </Link>
 
-                    <button className="border-2 border-violet-800 text-violet-800 hover:bg-violet-800 hover:text-white text-lg font-semibold px-8 py-4 rounded-xl transition duration-300">
-                        Login
-                    </button>
+                    <Link to="/login">
+                        <button className="border-2 border-violet-800 text-violet-800 hover:bg-violet-800 hover:text-white text-lg font-semibold px-8 py-4 rounded-xl transition duration-300">
+                            Login
+                        </button>
+                    </Link>
                 </div>
             </div>
-        </main>
+        </div>
     );
 }
 
