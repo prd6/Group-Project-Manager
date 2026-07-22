@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Create_Grp = () => {
+  const navigate = useNavigate();
+
   const [groupData, setGroupData] = useState({
     groupName: "",
     projectName: "",
@@ -112,6 +115,7 @@ const Create_Grp = () => {
 
             <button
               type="button"
+              onClick={() => navigate(-1)}
               className="px-5 py-2 rounded-lg border border-gray-300 hover:bg-gray-100"
             >
               Cancel
