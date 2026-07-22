@@ -24,11 +24,11 @@ function App() {
 
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
-      <Route path="/Dashboard" element={<Dashboard />} />
+      <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/Create_Grp" element={<Create_Grp />} />
       <Route path="/Join_Grp" element={<Join_Grp />} />
       <Route path="/admin" element={<Admin />} />
-      <Route path="/Workspace" element={<Workspace />} />
+      <Route path="/workspace/:id" element={<Workspace />} />
     </Routes>
   );
 }

@@ -1,6 +1,49 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 const Workspace = () => {
+  const { id } = useParams();
+
+  const [group, setGroup] = useState(null);
+
+  // Fetch group details
+  const fetchGroup = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(
+        `http://localhost:5000/api/groups/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setGroup(data);
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGroup();
+  }, []);
+
+  if (!group) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <h1 className="text-2xl font-bold">Loading...</h1>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-100">
 
@@ -9,6 +52,7 @@ const Workspace = () => {
         <h1 className="text-3xl font-bold">
           Project Workspace
         </h1>
+
         <p className="text-sm mt-1">
           Manage your project and collaborate with your teammates.
         </p>
@@ -20,40 +64,51 @@ const Workspace = () => {
         <div className="bg-white rounded-lg shadow p-6 mb-6">
 
           <h2 className="text-2xl font-bold mb-4">
-            Software Engineering Project
+            {group.projectName || "No Project Name"}
           </h2>
 
           <div className="grid md:grid-cols-2 gap-4">
 
             <div>
               <p className="font-semibold">Group Name</p>
-              <p>Team Alpha</p>
+              <p>{group.groupName}</p>
             </div>
 
             <div>
               <p className="font-semibold">Join Code</p>
-              <p>ABX93K</p>
+              <p>{group.joinCode}</p>
             </div>
 
             <div>
               <p className="font-semibold">Owner</p>
-              <p>Sabarna Das</p>
+              <p>
+                {
+                  group.members.find(
+                    (member) => member.role === "Owner"
+                  )?.user?.name
+                }
+              </p>
             </div>
 
             <div>
               <p className="font-semibold">Deadline</p>
-              <p>25 August 2026</p>
+              <p>
+                {group.deadline
+                  ? new Date(group.deadline).toLocaleDateString()
+                  : "No Deadline"}
+              </p>
             </div>
 
           </div>
 
           <div className="mt-5">
 
-            <p className="font-semibold">Description</p>
+            <p className="font-semibold">
+              Description
+            </p>
 
             <p className="text-gray-600 mt-2">
-              This project is developed to help students manage group projects,
-              share files, maintain versions, and collaborate efficiently.
+              {group.description || "No description added."}
             </p>
 
           </div>
@@ -70,22 +125,30 @@ const Workspace = () => {
 
           <ul className="space-y-3">
 
-            <li className="border rounded p-3 flex justify-between">
-              <span>Sabarna Das</span>
-              <span className="text-blue-600 font-semibold">
-                Owner
-              </span>
-            </li>
+            {group.members.map((member) => (
 
-            <li className="border rounded p-3 flex justify-between">
-              <span>Rahul Sharma</span>
-              <span>Member</span>
-            </li>
+              <li
+                key={member.user._id}
+                className="border rounded p-3 flex justify-between"
+              >
 
-            <li className="border rounded p-3 flex justify-between">
-              <span>Priya Roy</span>
-              <span>Member</span>
-            </li>
+                <span>
+                  {member.user.name}
+                </span>
+
+                <span
+                  className={
+                    member.role === "Owner"
+                      ? "text-blue-600 font-semibold"
+                      : ""
+                  }
+                >
+                  {member.role}
+                </span>
+
+              </li>
+
+            ))}
 
           </ul>
 

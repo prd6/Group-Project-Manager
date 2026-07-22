@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API from "../services/auth";
 
+
 export default function Signup() {
   const navigate = useNavigate();
 

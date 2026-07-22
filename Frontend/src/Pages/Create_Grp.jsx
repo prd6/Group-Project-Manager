@@ -18,19 +18,52 @@ const Create_Grp = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  // Create Group
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(groupData);
+    try {
+      const token = localStorage.getItem("token");
 
-    // API call here
+      const response = await fetch(
+        "http://localhost:5000/api/groups/create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(groupData),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Group Created Successfully!");
+
+        // Clear the form
+        setGroupData({
+          groupName: "",
+          projectName: "",
+          description: "",
+          deadline: "",
+        });
+
+        // Go to Dashboard
+        navigate("/dashboard");
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong!");
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-5">
-
       <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg p-8">
-
         <h1 className="text-3xl font-bold text-center text-blue-600">
           Create New Group
         </h1>
@@ -40,9 +73,7 @@ const Create_Grp = () => {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-
           {/* Group Name */}
-
           <div>
             <label className="block mb-2 font-medium">
               Group Name *
@@ -60,7 +91,6 @@ const Create_Grp = () => {
           </div>
 
           {/* Project Name */}
-
           <div>
             <label className="block mb-2 font-medium">
               Project Name
@@ -77,7 +107,6 @@ const Create_Grp = () => {
           </div>
 
           {/* Description */}
-
           <div>
             <label className="block mb-2 font-medium">
               Description
@@ -90,11 +119,10 @@ const Create_Grp = () => {
               value={groupData.description}
               onChange={handleChange}
               className="w-full border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            ></textarea>
+            />
           </div>
 
           {/* Deadline */}
-
           <div>
             <label className="block mb-2 font-medium">
               Deadline
@@ -110,9 +138,7 @@ const Create_Grp = () => {
           </div>
 
           {/* Buttons */}
-
           <div className="flex justify-end gap-4 pt-4">
-
             <button
               type="button"
               onClick={() => navigate(-1)}
@@ -127,13 +153,9 @@ const Create_Grp = () => {
             >
               Create Group
             </button>
-
           </div>
-
         </form>
-
       </div>
-
     </div>
   );
 };

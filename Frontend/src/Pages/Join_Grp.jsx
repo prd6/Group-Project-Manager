@@ -1,16 +1,47 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const Join_Grp= () => {
+const Join_Grp = () => {
   const [joinCode, setJoinCode] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Join Code:", joinCode);
+    try {
+      const token = localStorage.getItem("token");
 
-    // API call to join group
+      const response = await fetch(
+        "http://localhost:5000/api/groups/join",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            joinCode,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Joined Successfully!");
+
+        // Clear the input
+        setJoinCode("");
+
+        // Redirect to Dashboard
+        navigate("/dashboard");
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong!");
+    }
   };
 
   return (
@@ -29,7 +60,7 @@ const Join_Grp= () => {
         <form onSubmit={handleSubmit} className="space-y-6">
 
           <div>
-            <label className="font-medium mb-2 flex justify-center items-center">
+            <label className="font-medium mb-2 flex justify-center">
               Group Code
             </label>
 
