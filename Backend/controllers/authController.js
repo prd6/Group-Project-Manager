@@ -1,7 +1,10 @@
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import OTP from "../models/OTP.js";
+import sendEmail from "../utils/sendEmail.js";
 
+// Signup Controller
 // Signup Controller
 export const signup = async (req, res) => {
   try {
@@ -31,7 +34,7 @@ export const signup = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role: "user"
+      role: "user",
     });
 
     res.status(201).json({
@@ -119,4 +122,92 @@ export const login = async (req, res) => {
       message: "Server Error",
     });
   }
+};
+
+// OTP
+
+export const sendOTP = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: "Email is required",
+            });
+        }
+
+        const code = Math.floor(
+            100000 + Math.random() * 900000
+        ).toString();
+
+        await OTP.deleteMany({ email });
+
+        await OTP.create({
+            email,
+            code,
+            expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+        });
+
+        await sendEmail(
+            email,
+            "Email Verification Code",
+            `
+            <h2>Group Project Manager</h2>
+            <p>Your verification code is:</p>
+
+            <h1>${code}</h1>
+
+            <p>This code will expire in 5 minutes.</p>
+            `
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Verification code sent successfully",
+        });
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+export const verifyOTP = async (req, res) => {
+    try {
+        const { email, code } = req.body;
+
+        const otp = await OTP.findOne({ email });
+
+        if (!otp) {
+            return res.status(400).json({
+                success: false,
+                message: "OTP not found or expired",
+            });
+        }
+
+        if (otp.code !== code) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid OTP",
+            });
+        }
+
+        await OTP.deleteOne({ _id: otp._id });
+
+        res.status(200).json({
+            success: true,
+            message: "OTP Verified",
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
 };
