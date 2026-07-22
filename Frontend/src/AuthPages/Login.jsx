@@ -20,10 +20,17 @@ export default function Login() {
 
       localStorage.setItem("token", res.data.token);
 
+      // Optional: Save user information
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
       setMessage("Login Successful!");
 
       setTimeout(() => {
-        navigate("/dashboard");
+        if (res.data.user.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/dashboard");
+        }
       }, 1000);
     } catch (error) {
       setMessage(

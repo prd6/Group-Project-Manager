@@ -73,6 +73,13 @@ export const login = async (req, res) => {
       });
     }
 
+    // CheckBAN
+    if (user.isBanned) {
+      return res.status(403).json({
+        message: "Your account has been banned.",
+      });
+    }
+
     // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
 
@@ -86,6 +93,7 @@ export const login = async (req, res) => {
     const token = jwt.sign(
       {
         id: user._id,
+        role: user.role,
       },
       process.env.JWT_KEY,
       {

@@ -8,6 +8,9 @@ import Home from "./Pages/Home";
 import Login from "./AuthPages/Login";
 import Signup from "./AuthPages/Signup";
 import Admin from "./Pages/Admin"
+import Users from "./Pages/Users";
+import Groups from "./Pages/Groups";
+import AdminRoute from "./Components/AdminRoute";
 
 function App() {
   return (
@@ -27,8 +30,31 @@ function App() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/Create_Grp" element={<Create_Grp />} />
       <Route path="/Join_Grp" element={<Join_Grp />} />
-      <Route path="/admin" element={<Admin />} />
       <Route path="/workspace/:id" element={<Workspace />} />
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <Admin />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <AdminRoute>
+            <Users />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/groups"
+        element={
+          <AdminRoute>
+            <Groups />
+          </AdminRoute>
+        }
+      />
     </Routes>
   );
 }
