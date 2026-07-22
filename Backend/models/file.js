@@ -27,6 +27,11 @@ const fileSchema = new mongoose.Schema(
       required: true,
     },
 
+    version: {
+      type: Number,
+      default: 1,
+    },
+
     uploadedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

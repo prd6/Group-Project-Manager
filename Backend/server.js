@@ -5,6 +5,8 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import groupRoutes from "./routes/groupRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import fileRoutes from "./routes/fileRoutes.js";
+import path from "path";
 
 dotenv.config();
 
@@ -18,6 +20,8 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/groups", groupRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/files", fileRoutes);
+app.use("/uploads", express.static("uploads"));
 
 app.get("/", (req, res) => {
     res.send("Backend is running...");

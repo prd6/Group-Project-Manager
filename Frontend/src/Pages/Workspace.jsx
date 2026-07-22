@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import FileManager from "../Components/FileManager";
 
 const Workspace = () => {
   const { id } = useParams();
@@ -164,9 +165,7 @@ const Workspace = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
 
-            <button className="bg-blue-500 hover:bg-blue-600 text-white py-3 rounded">
-              Upload Files
-            </button>
+            <FileManager groupId={group._id} />
 
             <button className="bg-green-500 hover:bg-green-600 text-white py-3 rounded">
               View Files
