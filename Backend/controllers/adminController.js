@@ -1,6 +1,6 @@
 import User from "../models/User.js";
 import Group from "../models/Group.js";
-import File from "../models/file.js";
+import File from "../models/File.js";
 
 const dashboard = async (req, res) => {
   try {
