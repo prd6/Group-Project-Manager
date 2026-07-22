@@ -31,14 +31,14 @@ const Dashboard = () => {
                     <div className="flex gap-4 mb-8">
 
                         <button
-                            onClick={() => navigate("/create-group")}
+                            onClick={() => navigate("/Create_Grp")}
                             className="bg-blue-500 text-white px-4 py-2 rounded"
                         >
                             Create Group
                         </button>
 
                         <button
-                            onClick={() => navigate("/join-group")} 
+                            onClick={() => navigate("/Join_Grp")} 
                             className="bg-green-500 text-white px-4 py-2 rounded"
                          >       
                             Join Group
