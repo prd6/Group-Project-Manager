@@ -81,6 +81,9 @@ const FilesPage = () => {
         0
     );
 
+    const getFileUrl = (fileId) =>
+  `http://localhost:5000/api/files/view/${fileId}`;
+
     return (
         <div className="min-h-screen bg-gray-100 p-6">
             <div className="bg-white rounded-xl shadow-lg h-[85vh] flex overflow-hidden">
@@ -274,7 +277,7 @@ const FilesPage = () => {
                                     </button>
 
                                     <a
-                                        href={`http://localhost:5000/${selectedFile.fileUrl}`}
+                                        href={getFileUrl(selectedFile.fileUrl)}
                                         download
                                         className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg transition"
                                     >
@@ -297,7 +300,7 @@ const FilesPage = () => {
                                 ) : previewFile.fileType.startsWith("image/") ? (
 
                                     <img
-                                        src={`http://localhost:5000/${previewFile.fileUrl}`}
+                                        src={getFileUrl(previewFile.fileUrl)}
                                         alt={previewFile.originalName}
                                         className="max-w-full max-h-full mx-auto rounded-lg shadow"
                                     />
@@ -305,7 +308,7 @@ const FilesPage = () => {
                                 ) : previewFile.fileType.includes("pdf") ? (
 
                                     <iframe
-                                        src={`http://localhost:5000/${previewFile.fileUrl}`}
+                                        src={getFileUrl(previewFile.fileUrl)}
                                         title="PDF Preview"
                                         className="w-full h-full rounded-lg bg-white"
                                     />
@@ -321,7 +324,7 @@ const FilesPage = () => {
                                         </p>
 
                                         <a
-                                            href={`http://localhost:5000/${previewFile.fileUrl}`}
+                                            href={getFileUrl(previewFile.fileUrl)}
                                             download
                                             className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
                                         >

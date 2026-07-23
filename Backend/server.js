@@ -8,12 +8,18 @@ import groupRoutes from "./routes/groupRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import fileRoutes from "./routes/fileRoutes.js";
 import path from "path";
+import { initGridFS } from "./config/gridfs.js";
+import mongoose from "mongoose";
 
 dotenv.config();
 
 const app = express();
 
 connectDB();
+
+mongoose.connection.once("open", () => {
+  initGridFS();
+});
 
 app.use(cors());
 app.use(express.json());
