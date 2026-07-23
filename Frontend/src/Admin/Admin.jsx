@@ -80,13 +80,16 @@ function Admin() {
             Manage Users
           </button>
 
-          <button 
-          onClick={() => navigate("/admin/groups")}
-          className="bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition">
+          <button
+            onClick={() => navigate("/admin/groups")}
+            className="bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition">
             Manage Groups
           </button>
 
-          <button className="bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition">
+          <button
+            onClick={() => navigate("/admin/files")}
+            className="bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition"
+          >
             View Files
           </button>
 

@@ -189,4 +189,27 @@ const deleteGroup = async (req, res) => {
     }
 };
 
-export { dashboard, getAllUsers, toggleBanUser, deleteUser, editUser, getAllGroups, deleteGroup };
+// Files
+
+const getFiles = async (req, res) => {
+  try {
+    const files = await File.find()
+      .populate("uploadedBy", "name email")
+      .populate("group", "groupName")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      files,
+    });
+  } catch (error) {
+    console.error("Get files error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch files",
+    });
+  }
+};
+
+export { dashboard, getAllUsers, toggleBanUser, deleteUser, editUser, getAllGroups, deleteGroup, getFiles };

@@ -7,9 +7,10 @@ import Navbar from "./Components/Navbar";
 import Home from "./Pages/Home";
 import Login from "./AuthPages/Login";
 import Signup from "./AuthPages/Signup";
-import Admin from "./Pages/Admin"
-import Users from "./Pages/Users";
-import Groups from "./Pages/Groups";
+import Admin from "./Admin/Admin"
+import Users from "./Admin/Users";
+import Groups from "./Admin/Groups";
+import Files from "./Admin/Files";
 import AdminRoute from "./Components/AdminRoute";
 import ForgotPassword from "./AuthPages/ForgotPassword";
 import FilesPage from "./Pages/FilesPage";
@@ -57,6 +58,14 @@ function App() {
         element={
           <AdminRoute>
             <Groups />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/files"
+        element={
+          <AdminRoute>
+            <Files />
           </AdminRoute>
         }
       />
