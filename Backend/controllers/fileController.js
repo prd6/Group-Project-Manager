@@ -1,6 +1,9 @@
 import File from "../models/File.js";
 import Group from "../models/Group.js";
-import fs from "fs";
+import { Readable } from "stream";
+import { getGridFSBucket } from "../config/gridfs.js";
+import mongoose from "mongoose";
+import mime from "mime-types";
 
 export const uploadFile = async (req, res) => {
   try {
@@ -29,17 +32,34 @@ export const uploadFile = async (req, res) => {
         message: "You are not a member of this group",
     });
     }
+    const bucket = getGridFSBucket();
 
-    const file = await File.create({
-      fileName: req.file.filename,
-      originalName: req.file.originalname,
-      fileUrl: req.file.path,
-      fileType: req.file.mimetype,
-      fileSize: req.file.size,
-      uploadedBy: req.user.id,
-      group: groupId,
-      version: 1,
-    });
+console.log("Original Name:", req.file.originalname);
+console.log("MIME Type:", req.file.mimetype);
+
+const uploadStream = bucket.openUploadStream(req.file.originalname, {
+  contentType: req.file.mimetype,
+});
+
+const readableStream = Readable.from(req.file.buffer);
+
+await new Promise((resolve, reject) => {
+  readableStream
+    .pipe(uploadStream)
+    .on("error", reject)
+    .on("finish", resolve);
+});
+
+const file = await File.create({
+  fileName: uploadStream.id.toString(),
+  originalName: req.file.originalname,
+  fileUrl: uploadStream.id.toString(),
+  fileType: req.file.mimetype,
+  fileSize: req.file.size,
+  uploadedBy: req.user.id,
+  group: groupId,
+  version: 1,
+});
 
     res.status(201).json({
       message: "File uploaded successfully",
@@ -92,6 +112,39 @@ export const getFiles = async (req, res) => {
   }
 };
 
+export const viewFile = async (req, res) => {
+  try {
+    const bucket = getGridFSBucket();
+
+    const fileId = new mongoose.Types.ObjectId(req.params.fileId);
+
+    const files = await bucket.find({ _id: fileId }).toArray();
+
+    console.log(files[0]);
+
+    if (!files.length) {
+      return res.status(404).json({
+        message: "File not found",
+      });
+    }
+
+    res.set({
+        "Content-Type": mime.lookup(files[0].filename) || "application/octet-stream",
+        "Content-Length": files[0].length,
+        "Content-Disposition": `inline; filename="${files[0].filename}"`,
+    });
+    
+    bucket.openDownloadStream(fileId).pipe(res);
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Server Error",
+    });
+  }
+};
+
 export const deleteFile = async (req, res) => {
   try {
     const { fileId } = req.params;
@@ -126,9 +179,9 @@ export const deleteFile = async (req, res) => {
       });
     }
 
-    if (fs.existsSync(file.fileUrl)) {
-      fs.unlinkSync(file.fileUrl);
-    }
+    const bucket = getGridFSBucket();
+
+    await bucket.delete(new mongoose.Types.ObjectId(file.fileUrl));
 
     await File.findByIdAndDelete(fileId);
 

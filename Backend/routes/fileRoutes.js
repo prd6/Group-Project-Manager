@@ -1,6 +1,7 @@
 import express from "express";
 import authMiddleware from "../middleware/authMiddleware.js";
 import upload from "../config/multer.js";
+import { viewFile } from "../controllers/fileController.js";
 import {
   uploadFile,
   getFiles,
@@ -14,6 +15,8 @@ router.post(
   upload.single("file"),
   uploadFile
 );
+
+router.get("/view/:fileId", viewFile);
 
 router.get(
   "/:groupId",
