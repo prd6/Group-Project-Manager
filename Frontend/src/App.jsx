@@ -12,6 +12,7 @@ import Users from "./Pages/Users";
 import Groups from "./Pages/Groups";
 import AdminRoute from "./Components/AdminRoute";
 import ForgotPassword from "./AuthPages/ForgotPassword";
+import FilesPage from "./Pages/FilesPage";
 
 function App() {
   return (
@@ -33,6 +34,8 @@ function App() {
       <Route path="/Join_Grp" element={<Join_Grp />} />
       <Route path="/workspace/:id" element={<Workspace />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/workspace/:groupId/files" element={<FilesPage />} />
+ 
       <Route
         path="/admin"
         element={

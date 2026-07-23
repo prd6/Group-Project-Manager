@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const FileManager = ({ groupId }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [files, setFiles] = useState([]);
+  const navigate = useNavigate();
 
   // Load files
   const fetchFiles = async () => {
@@ -119,13 +121,12 @@ const FileManager = ({ groupId }) => {
                 </p>
               </div>
 
-              <a
-                href={`http://localhost:5000/${file.fileUrl}`}
-                download
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition"
+              <button
+                onClick={() => navigate(`/workspace/${groupId}/files`)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition"
               >
-                Download
-              </a>
+                View Files
+              </button>
             </div>
           ))}
         </div>

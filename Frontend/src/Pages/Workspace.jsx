@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import FileManager from "../Components/FileManager";
 
 const Workspace = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [group, setGroup] = useState(null);
 
@@ -130,28 +131,28 @@ const Workspace = () => {
               .filter((member) => member.user)
               .map((member) => (
 
-              <li
-                key={member.user._id}
-                className="border rounded p-3 flex justify-between"
-              >
-
-                <span>
-                  {member.user.name}
-                </span>
-
-                <span
-                  className={
-                    member.role === "Owner"
-                      ? "text-blue-600 font-semibold"
-                      : ""
-                  }
+                <li
+                  key={member.user._id}
+                  className="border rounded p-3 flex justify-between"
                 >
-                  {member.role}
-                </span>
 
-              </li>
+                  <span>
+                    {member.user.name}
+                  </span>
 
-            ))}
+                  <span
+                    className={
+                      member.role === "Owner"
+                        ? "text-blue-600 font-semibold"
+                        : ""
+                    }
+                  >
+                    {member.role}
+                  </span>
+
+                </li>
+
+              ))}
 
           </ul>
 
@@ -165,29 +166,42 @@ const Workspace = () => {
             Project Features
           </h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 gap-6 items-start">
 
-            <FileManager groupId={group._id} />
+            {/* Upload Files */}
+            <div>
+              <FileManager groupId={group._id} />
+            </div>
 
-            <button className="bg-green-500 hover:bg-green-600 text-white py-3 rounded">
-              View Files
-            </button>
+            {/* Feature Buttons */}
+            <div className="grid grid-cols-2 gap-4 mt-20">
 
-            <button className="bg-purple-500 hover:bg-purple-600 text-white py-3 rounded">
-              Version History
-            </button>
+              <button
+                onClick={() => navigate(`/workspace/${group._id}/files`)}
+                className="bg-green-500 hover:bg-green-600 text-white py-6 rounded-lg font-semibold transition"
+              >
+                📁 View Files
+              </button>
 
-            <button className="bg-orange-500 hover:bg-orange-600 text-white py-3 rounded">
-              Code Showcase
-            </button>
+              <button
+                className="bg-purple-500 hover:bg-purple-600 text-white py-6 rounded-lg font-semibold transition"
+              >
+                🕘 Version History
+              </button>
 
-            <button className="bg-indigo-500 hover:bg-indigo-600 text-white py-3 rounded">
-              Publish Project
-            </button>
+              <button
+                className="bg-orange-500 hover:bg-orange-600 text-white py-6 rounded-lg font-semibold transition"
+              >
+                💻 Code Showcase
+              </button>
 
-            <button className="bg-gray-700 hover:bg-black text-white py-3 rounded">
-              GitHub Guide
-            </button>
+              <button
+                className="bg-indigo-500 hover:bg-indigo-600 text-white py-6 rounded-lg font-semibold transition"
+              >
+                🚀 Publish Project
+              </button>
+
+            </div>
 
           </div>
 
