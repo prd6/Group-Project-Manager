@@ -102,6 +102,14 @@ export default function Login() {
             Sign Up
           </Link>
         </p>
+          <div className="flex justify-center mt-2">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-violet-600 hover:underline"
+            >
+              Forgot Password?
+            </Link>
+        </div>
       </div>
     </div>
   );

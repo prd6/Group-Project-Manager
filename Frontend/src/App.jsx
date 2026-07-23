@@ -11,6 +11,7 @@ import Admin from "./Pages/Admin"
 import Users from "./Pages/Users";
 import Groups from "./Pages/Groups";
 import AdminRoute from "./Components/AdminRoute";
+import ForgotPassword from "./AuthPages/ForgotPassword";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
       <Route path="/Create_Grp" element={<Create_Grp />} />
       <Route path="/Join_Grp" element={<Join_Grp />} />
       <Route path="/workspace/:id" element={<Workspace />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route
         path="/admin"
         element={
