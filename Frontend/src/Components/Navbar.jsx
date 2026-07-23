@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
+import Logo from "../assets/logo.svg?react"
 
 function Navbar() {
     return (
         <div className="bg-violet-800 text-white w-full h-20 mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Logo</h1>
+            <h1 className="text-2xl font-bold">
+                <Logo className="w-12 h-12 text-white" />
+            </h1>
 
             <div className="flex justify-end gap-10">
                 <div className="flex items-center gap-10">
