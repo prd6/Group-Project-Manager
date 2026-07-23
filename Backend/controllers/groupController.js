@@ -147,6 +147,8 @@ export const getSingleGroup = async (req, res) => {
       });
     }
 
+    console.log(JSON.stringify(group, null, 2));
+
     res.status(200).json(group);
   } catch (error) {
     console.error(error);

@@ -62,12 +62,10 @@ const FileManager = ({ groupId }) => {
         alert("File Uploaded Successfully!");
 
         setSelectedFile(null);
-
         fetchFiles();
       } else {
         alert(data.message);
       }
-
     } catch (error) {
       console.log(error);
     }
@@ -75,13 +73,11 @@ const FileManager = ({ groupId }) => {
 
   return (
     <div className="bg-white rounded-xl shadow mt-6 p-6">
-
       <h2 className="text-2xl font-bold mb-4">
         Files
       </h2>
 
       <div className="flex gap-3 mb-6">
-
         <input
           type="file"
           onChange={(e) => setSelectedFile(e.target.files[0])}
@@ -90,11 +86,10 @@ const FileManager = ({ groupId }) => {
 
         <button
           onClick={handleUpload}
-          className="bg-blue-600 text-white px-5 rounded"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-5 rounded transition"
         >
           Upload
         </button>
-
       </div>
 
       <h3 className="font-semibold mb-3">
@@ -104,37 +99,37 @@ const FileManager = ({ groupId }) => {
       {files.length === 0 ? (
         <p>No files uploaded.</p>
       ) : (
-        files.map((file) => (
-          <div
-            key={file._id}
-            className="border rounded-lg p-4 mb-3 flex justify-between items-center"
-          >
-            <div>
-              <h4 className="font-semibold">
-                {file.originalName}
-              </h4>
+        <div className="max-h-50 overflow-y-auto pr-2 space-y-3">
+          {files.map((file) => (
+            <div
+              key={file._id}
+              className="border rounded-lg p-4 flex justify-between items-center"
+            >
+              <div>
+                <h4 className="font-semibold">
+                  {file.originalName}
+                </h4>
 
-              <p className="text-sm text-gray-500">
-                Uploaded By : {file.uploadedBy.name}
-              </p>
+                <p className="text-sm text-gray-500">
+                  Uploaded By : {file.uploadedBy?.name || "Unknown User"}
+                </p>
 
-              <p className="text-sm text-gray-500">
-                {(file.fileSize / 1024).toFixed(2)} KB
-              </p>
-            </div>
+                <p className="text-sm text-gray-500">
+                  {(file.fileSize / 1024).toFixed(2)} KB
+                </p>
+              </div>
 
-            <a
+              <a
                 href={`http://localhost:5000/${file.fileUrl}`}
                 download
-                className="bg-green-600 text-white px-4 py-2 rounded"
-            >
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition"
+              >
                 Download
-            </a>
-
-          </div>
-        ))
+              </a>
+            </div>
+          ))}
+        </div>
       )}
-
     </div>
   );
 };

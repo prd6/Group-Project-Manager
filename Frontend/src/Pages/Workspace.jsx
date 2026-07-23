@@ -126,7 +126,9 @@ const Workspace = () => {
 
           <ul className="space-y-3">
 
-            {group.members.map((member) => (
+            {group.members
+              .filter((member) => member.user)
+              .map((member) => (
 
               <li
                 key={member.user._id}
