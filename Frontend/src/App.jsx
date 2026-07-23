@@ -11,6 +11,7 @@ import Admin from "./Admin/Admin"
 import Users from "./Admin/Users";
 import Groups from "./Admin/Groups";
 import Files from "./Admin/Files";
+import Storage from "./Admin/Storage";
 import AdminRoute from "./Components/AdminRoute";
 import ForgotPassword from "./AuthPages/ForgotPassword";
 import FilesPage from "./Pages/FilesPage";
@@ -36,7 +37,7 @@ function App() {
       <Route path="/workspace/:id" element={<Workspace />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/workspace/:groupId/files" element={<FilesPage />} />
- 
+
       <Route
         path="/admin"
         element={
@@ -66,6 +67,14 @@ function App() {
         element={
           <AdminRoute>
             <Files />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/storage"
+        element={
+          <AdminRoute>
+            <Storage />
           </AdminRoute>
         }
       />
