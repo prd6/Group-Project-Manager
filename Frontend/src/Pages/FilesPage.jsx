@@ -82,7 +82,10 @@ const FilesPage = () => {
     );
 
     const getFileUrl = (fileId) =>
-  `http://localhost:5000/api/files/view/${fileId}`;
+        `http://localhost:5000/api/files/view/${fileId}`;
+
+    const getDownloadUrl = (fileId) =>
+        `http://localhost:5000/api/files/download/${fileId}`;
 
     return (
         <div className="min-h-screen bg-gray-100 p-6">
@@ -277,8 +280,7 @@ const FilesPage = () => {
                                     </button>
 
                                     <a
-                                        href={getFileUrl(selectedFile.fileUrl)}
-                                        download
+                                        href={getDownloadUrl(selectedFile.fileUrl)}
                                         className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg transition"
                                     >
                                         Download
@@ -324,8 +326,7 @@ const FilesPage = () => {
                                         </p>
 
                                         <a
-                                            href={getFileUrl(previewFile.fileUrl)}
-                                            download
+                                            href={getDownloadUrl(previewFile.fileUrl)}
                                             className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
                                         >
                                             Download File

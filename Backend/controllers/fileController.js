@@ -133,6 +133,39 @@ export const viewFile = async (req, res) => {
         "Content-Length": files[0].length,
         "Content-Disposition": `inline; filename="${files[0].filename}"`,
     });
+
+    bucket.openDownloadStream(fileId).pipe(res);
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Server Error",
+    });
+  }
+};
+
+export const downloadFile = async (req, res) => {
+  try {
+    const bucket = getGridFSBucket();
+
+    const fileId = new mongoose.Types.ObjectId(req.params.fileId);
+
+    const files = await bucket.find({ _id: fileId }).toArray();
+
+    console.log(files[0]);
+
+    if (!files.length) {
+      return res.status(404).json({
+        message: "File not found",
+      });
+    }
+
+    res.set({
+        "Content-Type": mime.lookup(files[0].filename) || "application/octet-stream",
+        "Content-Length": files[0].length,
+        "Content-Disposition": `attachment; filename="${files[0].filename}"`,
+    });
     
     bucket.openDownloadStream(fileId).pipe(res);
 
