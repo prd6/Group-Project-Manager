@@ -134,7 +134,7 @@ export default function Signup() {
       setMessage(res.data.message);
 
       setTimeout(() => {
-        navigate("/login");
+        navigate("/dashboard");
       }, 1200);
 
     } catch (error) {
