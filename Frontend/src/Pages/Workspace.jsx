@@ -4,225 +4,358 @@ import FileManager from "../Components/FileManager";
 import UserAvatar from "../Components/UserAvatar";
 
 const Workspace = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+    const { groupId } = useParams();
+    const navigate = useNavigate();
 
-  const [group, setGroup] = useState(null);
+    const [group, setGroup] = useState(null);
 
-  // Fetch group details
-  const fetchGroup = async () => {
-    try {
-      const token = localStorage.getItem("token");
+    // =========================
+    // FETCH GROUP DETAILS
+    // =========================
 
-      const response = await fetch(
-        `http://localhost:5000/api/groups/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    useEffect(() => {
+        const fetchGroup = async () => {
+            try {
+                const token = localStorage.getItem("token");
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setGroup(data);
-      } else {
-        alert(data.message);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchGroup();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  if (!group) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <h1 className="text-2xl font-bold">Loading...</h1>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-100">
-
-      {/* Header */}
-      <div className="bg-blue-600 text-white p-5 shadow">
-        <h1 className="text-3xl font-bold">
-          Project Workspace
-        </h1>
-
-        <p className="text-sm mt-1">
-          Manage your project and collaborate with your teammates.
-        </p>
-      </div>
-
-      <div className="max-w-6xl mx-auto p-6">
-
-        {/* Project Details */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-
-          <h2 className="text-2xl font-bold mb-4">
-            {group.projectName || "No Project Name"}
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-4">
-
-            <div>
-              <p className="font-semibold">Group Name</p>
-              <p>{group.groupName}</p>
-            </div>
-
-            <div>
-              <p className="font-semibold">Join Code</p>
-              <p>{group.joinCode}</p>
-            </div>
-
-            <div>
-              <p className="font-semibold">Owner</p>
-              <div className="mt-2 flex items-center gap-2">
-                <UserAvatar
-                  user={group.members.find((member) => member.role === "Owner")?.user}
-                  size="sm"
-                />
-                <p>
-                  {
-                    group.members.find(
-                      (member) => member.role === "Owner"
-                    )?.user?.name
-                  }
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <p className="font-semibold">Deadline</p>
-              <p>
-                {group.deadline
-                  ? new Date(group.deadline).toLocaleDateString()
-                  : "No Deadline"}
-              </p>
-            </div>
-
-          </div>
-
-          <div className="mt-5">
-
-            <p className="font-semibold">
-              Description
-            </p>
-
-            <p className="text-gray-600 mt-2">
-              {group.description || "No description added."}
-            </p>
-
-          </div>
-
-        </div>
-
-        {/* Members */}
-
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-
-          <h2 className="text-xl font-bold mb-4">
-            Members
-          </h2>
-
-          <ul className="space-y-3">
-
-            {group.members
-              .filter((member) => member.user)
-              .map((member) => (
-
-                <li
-                  key={member.user._id}
-                  className="border rounded p-3 flex justify-between items-center gap-3"
-                >
-
-                  <div className="flex min-w-0 items-center gap-3">
-                    <UserAvatar user={member.user} size="sm" />
-                    <span className="truncate">
-                      {member.user.name}
-                    </span>
-                  </div>
-
-                  <span
-                    className={
-                      member.role === "Owner"
-                        ? "text-blue-600 font-semibold"
-                        : ""
+                const response = await fetch(
+                    `http://localhost:5000/api/groups/${groupId}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
                     }
-                  >
-                    {member.role}
-                  </span>
+                );
 
-                </li>
+                const data = await response.json();
 
-              ))}
+                if (response.ok) {
+                    setGroup(data);
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error("Failed to fetch group:", error);
+            }
+        };
 
-          </ul>
+        if (groupId) {
+            fetchGroup();
+        }
+    }, [groupId]);
 
-        </div>
+    // =========================
+    // LOADING
+    // =========================
 
-        {/* Quick Actions */}
+    if (!group) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <h1 className="text-2xl font-bold">
+                    Loading...
+                </h1>
+            </div>
+        );
+    }
 
-        <div className="bg-white rounded-lg shadow p-6">
+    const owner = group.members?.find(
+        (member) => member.role === "Owner"
+    )?.user;
 
-          <h2 className="text-xl font-bold mb-5">
-            Project Features
-          </h2>
+    return (
+        <div className="min-h-screen bg-gray-100">
 
-          <div className="grid md:grid-cols-2 gap-6 items-start">
+            {/* =========================
+                HEADER
+            ========================== */}
 
-            {/* Upload Files */}
-            <div>
-              <FileManager groupId={group._id} />
+            <div className="bg-blue-600 text-white p-5 shadow">
+
+                <h1 className="text-3xl font-bold">
+                    Project Workspace
+                </h1>
+
+                <p className="text-sm mt-1">
+                    Manage your project and collaborate with your teammates.
+                </p>
+
             </div>
 
-            {/* Feature Buttons */}
-            <div className="grid grid-cols-2 gap-4 mt-20">
 
-              <button
-                onClick={() => navigate(`/workspace/${group._id}/files`)}
-                className="bg-green-500 hover:bg-green-600 text-white py-6 rounded-lg font-semibold transition"
-              >
-                📁 View Files
-              </button>
+            <div className="max-w-6xl mx-auto p-6">
 
-              <button
-                className="bg-purple-500 hover:bg-purple-600 text-white py-6 rounded-lg font-semibold transition"
-              >
-                🕘 Version History
-              </button>
+                {/* =========================
+                    PROJECT DETAILS
+                ========================== */}
 
-              <button
-                className="bg-orange-500 hover:bg-orange-600 text-white py-6 rounded-lg font-semibold transition"
-              >
-                💻 Code Showcase
-              </button>
+                <div className="bg-white rounded-lg shadow p-6 mb-6">
 
-              <button
-                className="bg-indigo-500 hover:bg-indigo-600 text-white py-6 rounded-lg font-semibold transition"
-              >
-                🚀 Publish Project
-              </button>
+                    <h2 className="text-2xl font-bold mb-4">
+                        {group.projectName || "No Project Name"}
+                    </h2>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+
+                        {/* Group Name */}
+
+                        <div>
+                            <p className="font-semibold">
+                                Group Name
+                            </p>
+
+                            <p>
+                                {group.groupName}
+                            </p>
+                        </div>
+
+
+                        {/* Join Code */}
+
+                        <div>
+                            <p className="font-semibold">
+                                Join Code
+                            </p>
+
+                            <p>
+                                {group.joinCode}
+                            </p>
+                        </div>
+
+
+                        {/* Owner */}
+
+                        <div>
+                            <p className="font-semibold">
+                                Owner
+                            </p>
+
+                            <div className="mt-2 flex items-center gap-2">
+
+                                <UserAvatar
+                                    user={owner}
+                                    size="sm"
+                                />
+
+                                <p>
+                                    {owner?.name || "Unknown"}
+                                </p>
+
+                            </div>
+                        </div>
+
+
+                        {/* Deadline */}
+
+                        <div>
+                            <p className="font-semibold">
+                                Deadline
+                            </p>
+
+                            <p>
+                                {group.deadline
+                                    ? new Date(
+                                          group.deadline
+                                      ).toLocaleDateString()
+                                    : "No Deadline"}
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    {/* Description */}
+
+                    <div className="mt-5">
+
+                        <p className="font-semibold">
+                            Description
+                        </p>
+
+                        <p className="text-gray-600 mt-2">
+                            {group.description ||
+                                "No description added."}
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                {/* =========================
+                    MEMBERS
+                ========================== */}
+
+                <div className="bg-white rounded-lg shadow p-6 mb-6">
+
+                    <h2 className="text-xl font-bold mb-4">
+                        Members
+                    </h2>
+
+                    <ul className="space-y-3">
+
+                        {group.members
+                            ?.filter((member) => member.user)
+                            .map((member) => (
+
+                                <li
+                                    key={member.user._id}
+                                    className="
+                                        border
+                                        rounded
+                                        p-3
+                                        flex
+                                        justify-between
+                                        items-center
+                                        gap-3
+                                    "
+                                >
+
+                                    {/* User */}
+
+                                    <div className="flex min-w-0 items-center gap-3">
+
+                                        <UserAvatar
+                                            user={member.user}
+                                            size="sm"
+                                        />
+
+                                        <span className="truncate">
+                                            {member.user.name}
+                                        </span>
+
+                                    </div>
+
+
+                                    {/* Role */}
+
+                                    <span
+                                        className={
+                                            member.role === "Owner"
+                                                ? "text-blue-600 font-semibold"
+                                                : ""
+                                        }
+                                    >
+                                        {member.role}
+                                    </span>
+
+                                </li>
+
+                            ))}
+
+                    </ul>
+
+                </div>
+
+
+                {/* =========================
+                    PROJECT FEATURES
+                ========================== */}
+
+                <div className="bg-white rounded-lg shadow p-6">
+
+                    <h2 className="text-xl font-bold mb-5">
+                        Project Features
+                    </h2>
+
+                    <div className="grid md:grid-cols-2 gap-6 items-start">
+
+                        {/* =========================
+                            FILE UPLOAD
+                        ========================== */}
+
+                        <div>
+                            <FileManager groupId={group._id} />
+                        </div>
+
+
+                        {/* =========================
+                            FEATURE BUTTONS
+                        ========================== */}
+
+                        <div className="grid grid-cols-2 gap-4 mt-20">
+
+                            {/* View Files */}
+
+                            <button
+                                onClick={() =>
+                                    navigate(
+                                        `/workspace/${groupId}/files`
+                                    )
+                                }
+                                className="
+                                    bg-green-500
+                                    hover:bg-green-600
+                                    text-white
+                                    py-6
+                                    rounded-lg
+                                    font-semibold
+                                    transition
+                                "
+                            >
+                                📁 View Files
+                            </button>
+
+
+                            {/* Version History */}
+
+                            <button
+                                className="
+                                    bg-purple-500
+                                    hover:bg-purple-600
+                                    text-white
+                                    py-6
+                                    rounded-lg
+                                    font-semibold
+                                    transition
+                                "
+                            >
+                                🕘 Version History
+                            </button>
+
+
+                            {/* Code Showcase */}
+
+                            <button
+                                className="
+                                    bg-orange-500
+                                    hover:bg-orange-600
+                                    text-white
+                                    py-6
+                                    rounded-lg
+                                    font-semibold
+                                    transition
+                                "
+                            >
+                                💻 Code Showcase
+                            </button>
+
+
+                            {/* Publish */}
+
+                            <button
+                                className="
+                                    bg-indigo-500
+                                    hover:bg-indigo-600
+                                    text-white
+                                    py-6
+                                    rounded-lg
+                                    font-semibold
+                                    transition
+                                "
+                            >
+                                🚀 Publish Project
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
-          </div>
-
         </div>
-
-      </div>
-
-    </div>
-  );
+    );
 };
 
 export default Workspace;
