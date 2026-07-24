@@ -18,6 +18,7 @@ const FilesPage = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [previewFile, setPreviewFile] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
     const fetchFiles = async () => {
         try {
@@ -43,6 +44,48 @@ const FilesPage = () => {
             console.log(error);
         }
     };
+
+    const handleDelete = async () => {
+    if (!selectedFile) return;
+
+    const confirmDelete = window.confirm(
+        `Are you sure you want to delete "${selectedFile.originalName}"?`
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(
+            `http://localhost:5000/api/files/${selectedFile._id}`,
+            {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert(data.message);
+
+            // Remove preview
+            setSelectedFile(null);
+            setPreviewFile(null);
+
+            // Refresh file list
+            fetchFiles();
+        } else {
+            alert(data.message);
+        }
+    } catch (error) {
+        console.error(error);
+        alert("Something went wrong.");
+    }
+};
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -90,9 +133,16 @@ const FilesPage = () => {
     const getDownloadUrl = (fileId) =>
         `http://localhost:5000/api/files/download/${fileId}`;
 
+    const canDelete =
+        selectedFile &&
+        (
+            selectedFile.currentUserRole === "Owner" ||
+            selectedFile.uploadedBy?._id === currentUser?._id
+        );
+
     return (
-        <div className="min-h-screen bg-gray-100 p-6">
-            <div className="bg-white rounded-xl shadow-lg h-[85vh] flex overflow-hidden">
+        <div className="min-h-screen bg-gray-100 pt-2 pl-2 pr-2">
+            <div className="bg-white rounded-xl shadow-lg h-[95vh] flex overflow-hidden">
 
                 {/* Left Panel */}
                 <div className="w-[28%] border-r bg-gray-50 flex flex-col">
@@ -139,7 +189,7 @@ const FilesPage = () => {
                         />
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-3 space-y-3">
+                    <div className="flex-1 overflow-y-auto py-3 pl-3 space-y-3">
                         {files.length === 0 ? (
                             <p className="text-gray-500">
                                 No files found.
@@ -206,7 +256,7 @@ const FilesPage = () => {
                 </div>
 
                 {/* Right Panel */}
-                <div className="flex-1 p-8">
+                <div className="flex-1 pr-8 pl-8 pt-4 pb-0">
 
                     {!selectedFile ? (
                         <div className="h-full flex items-center justify-center">
@@ -224,81 +274,108 @@ const FilesPage = () => {
                         <div className="h-full flex flex-col bg-white rounded-xl overflow-hidden shadow">
 
                             {/* Header */}
-                            <div className="border-b p-6">
+                            <div className="border-b px-5 py-3 bg-white">
 
-                                <div className="flex items-center gap-4">
+                                <div className="flex justify-between items-start gap-8">
 
-                                    {getFileIcon(selectedFile.fileType)}
+                                    {/* Left Side */}
+                                    <div className="flex-1">
 
-                                    <div>
-                                        <h2 className="text-2xl font-bold break-all">
-                                            {selectedFile.originalName}
-                                        </h2>
+                                        {/* File Name */}
+                                        <div className="flex items-center gap-3">
 
-                                        <p className="text-gray-500">
-                                            Project Document
-                                        </p>
-                                    </div>
+                                            {getFileIcon(selectedFile.fileType)}
 
-                                </div>
+                                            <h2 className="text-xl font-bold break-all">
+                                                {selectedFile.originalName}
+                                            </h2>
 
-                                <div className="grid grid-cols-2 gap-5 mt-6">
-
-                                    <div>
-                                        <p className="text-sm text-gray-500">Uploaded By</p>
-                                        <div className="mt-1 flex items-center gap-2">
-                                            <UserAvatar user={selectedFile.uploadedBy} size="sm" />
-                                            <p className="font-semibold">
-                                                {selectedFile.uploadedBy?.name || "Unknown User"}
-                                            </p>
                                         </div>
+
+                                        {/* Buttons */}
+                                        <div className="flex gap-3 mt-3">
+
+                                            <button
+                                                onClick={() => setPreviewFile(selectedFile)}
+                                                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg transition"
+                                            >
+                                                Open File
+                                            </button>
+
+                                            <a
+                                                href={getDownloadUrl(selectedFile.fileUrl)}
+                                                className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition"
+                                            >
+                                                Download
+                                            </a>
+
+                                            {canDelete && (
+                                                <button
+                                                    onClick={handleDelete}
+                                                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition"
+                                                >
+                                                    Delete
+                                                </button>
+                                            )}
+
+                                        </div>
+
                                     </div>
 
-                                    <div>
-                                        <p className="text-sm text-gray-500">File Size</p>
-                                        <p className="font-semibold">
-                                            {(selectedFile.fileSize / 1024).toFixed(2)} KB
-                                        </p>
+                                    {/* Right Side */}
+                                    <div className="min-w-[520px] text-sm">
+
+                                        <div className="grid grid-cols-2 gap-x-10 gap-y-3">
+
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-gray-500 font-medium whitespace-nowrap">
+                                                    Uploaded By :
+                                                </span>
+
+                                                <UserAvatar user={selectedFile.uploadedBy} size="sm" />
+
+                                                <span className="font-semibold">
+                                                    {selectedFile.uploadedBy?.name || "Unknown User"}
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <span className="text-gray-500 font-medium">
+                                                    Uploaded On :
+                                                </span>{" "}
+                                                <span className="font-semibold">
+                                                    {new Date(selectedFile.createdAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <span className="text-gray-500 font-medium">
+                                                    File Size :
+                                                </span>{" "}
+                                                <span className="font-semibold">
+                                                    {(selectedFile.fileSize / 1024).toFixed(2)} KB
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <span className="text-gray-500 font-medium">
+                                                    File Type :
+                                                </span>{" "}
+                                                <span className="font-semibold">
+                                                    {selectedFile.fileType}
+                                                </span>
+                                            </div>
+
+                                        </div>
+
                                     </div>
-
-                                    <div>
-                                        <p className="text-sm text-gray-500">Uploaded On</p>
-                                        <p className="font-semibold">
-                                            {new Date(selectedFile.createdAt).toLocaleString()}
-                                        </p>
-                                    </div>
-
-                                    <div>
-                                        <p className="text-sm text-gray-500">File Type</p>
-                                        <p className="font-semibold break-all">
-                                            {selectedFile.fileType}
-                                        </p>
-                                    </div>
-
-                                </div>
-
-                                <div className="flex gap-3 mt-6">
-
-                                    <button
-                                        onClick={() => setPreviewFile(selectedFile)}
-                                        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg transition"
-                                    >
-                                        Open File
-                                    </button>
-
-                                    <a
-                                        href={getDownloadUrl(selectedFile.fileUrl)}
-                                        className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg transition"
-                                    >
-                                        Download
-                                    </a>
 
                                 </div>
 
                             </div>
 
                             {/* Preview */}
-                            <div className="flex-1 bg-gray-100 p-6 overflow-auto">
+                            <div className="flex-1 bg-gray-100 p-3 overflow-auto">
 
                                 {!previewFile ? (
 
@@ -311,7 +388,7 @@ const FilesPage = () => {
                                     <img
                                         src={getFileUrl(previewFile.fileUrl)}
                                         alt={previewFile.originalName}
-                                        className="max-w-full max-h-full mx-auto rounded-lg shadow"
+                                        className="w-full h-full object-contain rounded-lg shadow"
                                     />
 
                                 ) : previewFile.fileType.includes("pdf") ? (

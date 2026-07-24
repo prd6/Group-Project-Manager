@@ -18,48 +18,48 @@ export const uploadFile = async (req, res) => {
     const group = await Group.findById(groupId);
 
     if (!group) {
-    return res.status(404).json({
+      return res.status(404).json({
         message: "Group not found",
-    });
+      });
     }
 
     const isMember = group.members.some(
-    (member) => member.user.toString() === req.user.id
+      (member) => member.user.toString() === req.user.id
     );
 
     if (!isMember) {
-    return res.status(403).json({
+      return res.status(403).json({
         message: "You are not a member of this group",
-    });
+      });
     }
     const bucket = getGridFSBucket();
 
-console.log("Original Name:", req.file.originalname);
-console.log("MIME Type:", req.file.mimetype);
+    console.log("Original Name:", req.file.originalname);
+    console.log("MIME Type:", req.file.mimetype);
 
-const uploadStream = bucket.openUploadStream(req.file.originalname, {
-  contentType: req.file.mimetype,
-});
+    const uploadStream = bucket.openUploadStream(req.file.originalname, {
+      contentType: req.file.mimetype,
+    });
 
-const readableStream = Readable.from(req.file.buffer);
+    const readableStream = Readable.from(req.file.buffer);
 
-await new Promise((resolve, reject) => {
-  readableStream
-    .pipe(uploadStream)
-    .on("error", reject)
-    .on("finish", resolve);
-});
+    await new Promise((resolve, reject) => {
+      readableStream
+        .pipe(uploadStream)
+        .on("error", reject)
+        .on("finish", resolve);
+    });
 
-const file = await File.create({
-  fileName: uploadStream.id.toString(),
-  originalName: req.file.originalname,
-  fileUrl: uploadStream.id.toString(),
-  fileType: req.file.mimetype,
-  fileSize: req.file.size,
-  uploadedBy: req.user.id,
-  group: groupId,
-  version: 1,
-});
+    const file = await File.create({
+      fileName: uploadStream.id.toString(),
+      originalName: req.file.originalname,
+      fileUrl: uploadStream.id.toString(),
+      fileType: req.file.mimetype,
+      fileSize: req.file.size,
+      uploadedBy: req.user.id,
+      group: groupId,
+      version: 1,
+    });
 
     res.status(201).json({
       message: "File uploaded successfully",
@@ -101,7 +101,16 @@ export const getFiles = async (req, res) => {
       group: groupId,
     }).populate("uploadedBy", "name profilePicture");
 
-    res.status(200).json(files);
+    const currentMember = group.members.find(
+      (member) => member.user.toString() === req.user.id
+    );
+
+    const filesWithRole = files.map((file) => ({
+      ...file.toObject(),
+      currentUserRole: currentMember.role,
+    }));
+
+    res.status(200).json(filesWithRole);
 
   } catch (error) {
     console.log(error);
@@ -129,9 +138,9 @@ export const viewFile = async (req, res) => {
     }
 
     res.set({
-        "Content-Type": mime.lookup(files[0].filename) || "application/octet-stream",
-        "Content-Length": files[0].length,
-        "Content-Disposition": `inline; filename="${files[0].filename}"`,
+      "Content-Type": mime.lookup(files[0].filename) || "application/octet-stream",
+      "Content-Length": files[0].length,
+      "Content-Disposition": `inline; filename="${files[0].filename}"`,
     });
 
     bucket.openDownloadStream(fileId).pipe(res);
@@ -162,11 +171,11 @@ export const downloadFile = async (req, res) => {
     }
 
     res.set({
-        "Content-Type": mime.lookup(files[0].filename) || "application/octet-stream",
-        "Content-Length": files[0].length,
-        "Content-Disposition": `attachment; filename="${files[0].filename}"`,
+      "Content-Type": mime.lookup(files[0].filename) || "application/octet-stream",
+      "Content-Length": files[0].length,
+      "Content-Disposition": `attachment; filename="${files[0].filename}"`,
     });
-    
+
     bucket.openDownloadStream(fileId).pipe(res);
 
   } catch (error) {
