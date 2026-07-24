@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import UserAvatar from "../Components/UserAvatar";
+import CreateGroupModal from "./CreateGroupModal";
+import JoinGroupModal from "./JoinGroupModal";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -8,6 +10,8 @@ const Dashboard = () => {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [showJoinGroup, setShowJoinGroup] = useState(false);
   const [user, setUser] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("user")) || null;
@@ -115,20 +119,20 @@ const Dashboard = () => {
           <div className="flex items-center gap-4">
             <UserAvatar user={user} size="lg" />
             <div className="min-w-0">
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Welcome back{user?.name ? `, ${user.name}` : ""}
-            </h1>
+              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                Welcome back{user?.name ? `, ${user.name}` : ""}
+              </h1>
 
-            <p className="mt-2 text-gray-500">
-              Pick up where you left off.
-            </p>
+              <p className="mt-2 text-gray-500">
+                Pick up where you left off.
+              </p>
             </div>
           </div>
 
           <div className="flex gap-3">
 
             <button
-              onClick={() => navigate("/Create_Grp")}
+              onClick={() => setShowCreateGroup(true)}
               className="
                     rounded-xl
                     bg-violet-600
@@ -142,7 +146,7 @@ const Dashboard = () => {
             </button>
 
             <button
-              onClick={() => navigate("/Join_Grp")}
+              onClick={() => setShowJoinGroup(true)}
               className="
                     rounded-xl
                     border border-white/10
@@ -242,7 +246,7 @@ const Dashboard = () => {
               </p>
 
               <button
-                onClick={() => navigate("/Create_Grp")}
+                onClick={() => setShowCreateGroup(true)}
                 className="mt-5 text-sm font-medium text-violet-400 hover:text-violet-300"
               >
                 Create your first group →
@@ -425,6 +429,34 @@ const Dashboard = () => {
         </section>
 
       </main>
+
+      {/* ==========================================
+    CREATE GROUP MODAL
+=========================================== */}
+
+      {showCreateGroup && (
+        <CreateGroupModal
+          onClose={() => setShowCreateGroup(false)}
+          onCreated={() => {
+            fetchGroups();
+          }}
+        />
+      )}
+
+
+      {/* ==========================================
+    JOIN GROUP MODAL
+=========================================== */}
+
+      {showJoinGroup && (
+        <JoinGroupModal
+          onClose={() => setShowJoinGroup(false)}
+          onJoined={() => {
+            fetchGroups();
+          }}
+        />
+      )}
+
     </div>
   );
 };
