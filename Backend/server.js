@@ -1,47 +1,98 @@
 import express from "express";
 import dotenv from "dotenv";
-import "./config/env.js";
 import cors from "cors";
+import http from "http";
+import { Server } from "socket.io";
+
 import connectDB from "./config/db.js";
+
 import authRoutes from "./routes/authRoutes.js";
 import groupRoutes from "./routes/groupRoutes.js";
-import adminRoutes from "./routes/adminRoutes.js";
-import fileRoutes from "./routes/fileRoutes.js";
-import communityRoutes from "./routes/communityRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-import contactRoutes from "./routes/contactRoutes.js";
-import path from "path";
-import { initGridFS } from "./config/gridfs.js";
-import mongoose from "mongoose";
+import chatRoutes from "./routes/chatRoutes.js";
 
+// Load environment variables
 dotenv.config();
+
+// Connect MongoDB
+connectDB();
 
 const app = express();
 
-connectDB();
+// Create HTTP server
+const server = http.createServer(app);
 
-mongoose.connection.once("open", () => {
-  initGridFS();
-});
+// Middleware
+app.use(
+    cors({
+        origin: "http://localhost:5173",
+        credentials: true,
+    })
+);
 
-app.use(cors());
 app.use(express.json());
 
+// API Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
 app.use("/api/groups", groupRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/files", fileRoutes);
-app.use("/api/community", communityRoutes);
-app.use("/uploads", express.static("uploads"));
-app.use("/api/contact", contactRoutes);
+app.use("/api/chat", chatRoutes);
+app.use("/api/users", userRoutes);
 
-app.get("/", (req, res) => {
-    res.send("Backend is running...");
+
+// ================================
+// SOCKET.IO
+// ================================
+
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:5173",
+        methods: ["GET", "POST"],
+        credentials: true,
+    },
 });
+
+io.on("connection", (socket) => {
+
+    console.log("User connected:", socket.id);
+
+    // User joins a specific group chat room
+    socket.on("join-group", (groupId) => {
+
+        socket.join(groupId);
+
+        console.log(
+            `User ${socket.id} joined group ${groupId}`
+        );
+    });
+
+
+    // User sends a message
+    socket.on("send-message", (data) => {
+
+        const { groupId, message } = data;
+
+        // Send message to everyone in this group
+        io.to(groupId).emit("receive-message", message);
+
+    });
+
+
+    // User disconnects
+    socket.on("disconnect", () => {
+
+        console.log("User disconnected:", socket.id);
+
+    });
+
+});
+
+
+// ================================
+// SERVER
+// ================================
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-    console.log(`🚀 Server is running on port ${PORT}`);
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
