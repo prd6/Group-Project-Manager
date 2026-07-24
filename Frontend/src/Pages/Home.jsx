@@ -493,7 +493,7 @@ function Home() {
                             className="
                     rounded-3xl
                     border border-white/10
-                    bg-white/[0.03]
+                    bg-white/3
                     p-8
                     text-center
                     hover:border-violet-500/40
@@ -554,7 +554,7 @@ function Home() {
                             className="
                     rounded-3xl
                     border border-white/10
-                    bg-white/[0.03]
+                    bg-white/3
                     p-8
                     text-center
                     hover:border-violet-500/40
@@ -659,7 +659,7 @@ function Home() {
                         </div>
 
 
-                        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-center">
+                        <div className="rounded-3xl border border-white/10 bg-white/3 p-8 text-center">
                             <p className="text-gray-400">
                                 No community feedback yet.
                             </p>

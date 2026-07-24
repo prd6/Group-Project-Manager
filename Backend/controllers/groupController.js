@@ -116,19 +116,36 @@ export const joinGroup = async (req, res) => {
 
 // Get My Groups
 export const getMyGroups = async (req, res) => {
-  try {
-    const groups = await Group.find({
-      "members.user": req.user.id,
-    });
+    try {
+        const groups = await Group.find({
+            "members.user": req.user.id,
+        });
 
-    res.status(200).json(groups);
-  } catch (error) {
-    console.error(error);
+        const groupsWithRole = groups.map((group) => {
 
-    res.status(500).json({
-      message: "Server Error",
-    });
-  }
+            // Find logged-in user inside members
+            const currentMember = group.members.find(
+                (member) =>
+                    member.user.toString() === req.user.id.toString()
+            );
+
+            return {
+                ...group.toObject(),
+
+                // Add current user's role
+                myRole: currentMember?.role,
+            };
+        });
+
+        res.status(200).json(groupsWithRole);
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            message: "Server Error",
+        });
+    }
 };
 
 // Get Single Group
@@ -157,4 +174,48 @@ export const getSingleGroup = async (req, res) => {
       message: "Server Error",
     });
   }
+};
+
+export const deleteGroup = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const group = await Group.findById(id);
+
+        if (!group) {
+            return res.status(404).json({
+                success: false,
+                message: "Group not found",
+            });
+        }
+
+        // Check if logged-in user is the owner
+        const isOwner = group.members.some(
+            (member) =>
+                member.user.toString() === req.user.id.toString() &&
+                member.role === "Owner"
+        );
+
+        if (!isOwner) {
+            return res.status(403).json({
+                success: false,
+                message: "Only the group owner can delete this group",
+            });
+        }
+
+        await Group.findByIdAndDelete(id);
+
+        return res.status(200).json({
+            success: true,
+            message: "Group deleted successfully",
+        });
+
+    } catch (error) {
+        console.error("Delete group error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to delete group",
+        });
+    }
 };
