@@ -1,4 +1,4 @@
-import File from "../models/File.js";
+import File from "../models/file.js";
 import Group from "../models/Group.js";
 import { Readable } from "stream";
 import { getGridFSBucket } from "../config/gridfs.js";

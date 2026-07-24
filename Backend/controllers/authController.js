@@ -149,18 +149,7 @@ export const sendOTP = async (req, res) => {
             expiresAt: new Date(Date.now() + 5 * 60 * 1000),
         });
 
-        await sendEmail(
-            email,
-            "Email Verification Code",
-            `
-            <h2>Group Project Manager</h2>
-            <p>Your verification code is:</p>
-
-            <h1>${code}</h1>
-
-            <p>This code will expire in 5 minutes.</p>
-            `
-        );
+        await sendEmail(email, code, "signup");
 
         res.status(200).json({
             success: true,
@@ -247,31 +236,19 @@ export const forgotPassword = async (req, res) => {
         });
 
         // Send Email
-        await sendEmail(
-            email,
-            "Password Reset OTP",
-            `
-            <h2>Group Project Manager</h2>
-
-            <p>Your password reset code is:</p>
-
-            <h1>${code}</h1>
-
-            <p>This code expires in 5 minutes.</p>
-            `
-        );
+        await sendEmail(email, code, "forgot-password");
 
         res.status(200).json({
             message: "OTP sent successfully",
         });
 
     } catch (error) {
-        console.log(error);
+    console.error("FORGOT PASSWORD ERROR:", error);
 
-        res.status(500).json({
-            message: "Server Error",
-        });
-    }
+    res.status(500).json({
+        message: error.message,
+    });
+}
 };
 
 export const verifyResetOTP = async (req, res) => {
