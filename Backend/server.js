@@ -9,6 +9,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import fileRoutes from "./routes/fileRoutes.js";
 import communityRoutes from "./routes/communityRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import contactRoutes from "./routes/contactRoutes.js";
 import path from "path";
 import { initGridFS } from "./config/gridfs.js";
 import mongoose from "mongoose";
@@ -33,6 +34,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/files", fileRoutes);
 app.use("/api/community", communityRoutes);
 app.use("/uploads", express.static("uploads"));
+app.use("/api/contact", contactRoutes);
 
 app.get("/", (req, res) => {
     res.send("Backend is running...");

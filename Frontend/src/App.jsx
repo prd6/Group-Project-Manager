@@ -6,6 +6,12 @@ import Dashboard from "./Pages/Dashboard";
 import Workspace from "./Pages/Workspace";
 import FilesPage from "./Pages/FilesPage";
 import Profile from "./Pages/Profile";
+// Error page
+import ErrorPage from "./Pages/ErrorPage";
+// Protected
+import ProtectedRoute from "./Components/ProtectedRoute";
+// Public
+import PublicRoute from "./Components/PublicRoute";
 
 // Auth Pages
 import Login from "./AuthPages/Login";
@@ -17,6 +23,7 @@ import Users from "./Admin/Users";
 import Groups from "./Admin/Groups";
 import Files from "./Admin/Files";
 import Storage from "./Admin/Storage";
+import Messages from "./Admin/Messages";
 
 // Components
 import Navbar from "./Components/Navbar";
@@ -41,16 +48,35 @@ function App() {
                 }
             />
 
-            <Route path="/login" element={<Login />} />
+            <Route
+                path="/login"
+                element={
+                    <PublicRoute>
+                        <Login />
+                    </PublicRoute>
+                }
+            />
 
-            <Route path="/signup" element={<Signup />} />
+            <Route
+                path="/signup"
+                element={
+                    <PublicRoute>
+                        <Signup />
+                    </PublicRoute>
+                }
+            />
 
             {/* ========================================
                 DASHBOARD LAYOUT
             ========================================= */}
 
-            <Route element={<DashboardLayout />}>
-
+            <Route
+                element={
+                    <ProtectedRoute>
+                        <DashboardLayout />
+                    </ProtectedRoute>
+                }
+            >
                 <Route
                     path="/dashboard"
                     element={<Dashboard />}
@@ -65,7 +91,6 @@ function App() {
                     path="/workspace/:groupId/files"
                     element={<FilesPage />}
                 />
-
             </Route>
 
 
@@ -75,7 +100,11 @@ function App() {
 
             <Route
                 path="/profile"
-                element={<Profile />}
+                element={
+                    <ProtectedRoute>
+                        <Profile />
+                    </ProtectedRoute>
+                }
             />
 
 
@@ -127,6 +156,17 @@ function App() {
                     </AdminRoute>
                 }
             />
+
+            <Route
+                path="/admin/messages"
+                element={
+                    <AdminRoute>
+                        <Messages />
+                    </AdminRoute>
+                }
+            />
+
+            <Route path="*" element={<ErrorPage />} />
 
         </Routes>
     );
