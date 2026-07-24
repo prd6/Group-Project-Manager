@@ -12,7 +12,6 @@ import Profile from "./Pages/Profile";
 // Auth Pages
 import Login from "./AuthPages/Login";
 import Signup from "./AuthPages/Signup";
-import ForgotPassword from "./AuthPages/ForgotPassword";
 
 // Admin Pages
 import Admin from "./Admin/Admin";
@@ -47,12 +46,6 @@ function App() {
             <Route path="/login" element={<Login />} />
 
             <Route path="/signup" element={<Signup />} />
-
-            <Route
-                path="/forgot-password"
-                element={<ForgotPassword />}
-            />
-
 
             {/* ========================================
                 DASHBOARD LAYOUT

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import ForgotPasswordModal from "../AuthPages/ForgotPasswordModal";
 import API from "../services/auth";
 import Hyperspeed from "../Styles/Hyperspeed";
 
@@ -73,6 +74,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loggingIn, setLoggingIn] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   // ================= CAROUSEL =================
 
@@ -152,7 +154,7 @@ export default function Login() {
     } catch (error) {
       setMessage(
         error.response?.data?.message ||
-          "Something went wrong"
+        "Something went wrong"
       );
     } finally {
       setLoggingIn(false);
@@ -307,9 +309,8 @@ export default function Login() {
                     ease-in-out
                   "
                   style={{
-                    transform: `translateX(-${
-                      activeSlide * 100
-                    }%)`,
+                    transform: `translateX(-${activeSlide * 100
+                      }%)`,
                   }}
                 >
                   {slides.map((slide, index) => (
@@ -366,19 +367,17 @@ export default function Login() {
                     onClick={() =>
                       setActiveSlide(index)
                     }
-                    aria-label={`Go to slide ${
-                      index + 1
-                    }`}
+                    aria-label={`Go to slide ${index + 1
+                      }`}
                     className={`
                       h-1.5
                       rounded-full
                       transition-all
                       duration-300
 
-                      ${
-                        activeSlide === index
-                          ? "w-10 bg-white"
-                          : `
+                      ${activeSlide === index
+                        ? "w-10 bg-white"
+                        : `
                             w-8
                             bg-white/30
                             hover:bg-white/60
@@ -573,17 +572,19 @@ export default function Login() {
               {/* FORGOT PASSWORD */}
 
               <div className="flex justify-end">
-                <Link
-                  to="/forgot-password"
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
                   className="
-                    text-sm
-                    text-[#b69cff]
-                    hover:text-white
-                    transition
-                  "
+            cursor-pointer
+            text-sm
+            text-[#b69cff]
+            transition
+            hover:text-white
+        "
                 >
                   Forgot password?
-                </Link>
+                </button>
               </div>
 
               {/* LOGIN BUTTON */}
@@ -666,6 +667,13 @@ export default function Login() {
           </div>
         </div>
       </div>
+
+      {showForgotPassword && (
+        <ForgotPasswordModal
+          onClose={() => setShowForgotPassword(false)}
+        />
+      )}
+
     </div>
   );
 }
