@@ -1,7 +1,8 @@
 import axios from "axios";
+import { API_ORIGIN } from "./apiConfig";
 
 const API = axios.create({
-    baseURL: "http://localhost:5000/api/auth",
+    baseURL: `${API_ORIGIN}/api/auth`,
 });
 
 export default API;

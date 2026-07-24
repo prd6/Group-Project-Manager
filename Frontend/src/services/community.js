@@ -1,7 +1,8 @@
 import axios from "axios";
+import { API_ORIGIN } from "./apiConfig";
 
 const CommunityAPI = axios.create({
-  baseURL: "http://localhost:5000/api/community",
+  baseURL: `${API_ORIGIN}/api/community`,
 });
 
 export default CommunityAPI;

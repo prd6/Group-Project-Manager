@@ -21,10 +21,10 @@ router.post(
 );
 
 // View File (Preview)
-router.get("/view/:fileId", viewFile);
+router.get("/view/:fileId", authMiddleware, viewFile);
 
 // Download File
-router.get("/download/:fileId", downloadFile);
+router.get("/download/:fileId", authMiddleware, downloadFile);
 
 // Get All Files of a Group
 router.get(

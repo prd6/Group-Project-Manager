@@ -2,20 +2,25 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import http from "http";
+import multer from "multer";
 import { Server } from "socket.io";
 
 import connectDB from "./config/db.js";
 
 import authRoutes from "./routes/authRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import communityRoutes from "./routes/communityRoutes.js";
+import contactRoutes from "./routes/contactRoutes.js";
 import groupRoutes from "./routes/groupRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
+import fileRoutes from "./routes/fileRoutes.js";
 
 // Load environment variables
 dotenv.config();
 
 // Connect MongoDB
-connectDB();
+await connectDB();
 
 const app = express();
 
@@ -34,9 +39,44 @@ app.use(express.json());
 
 // API Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/community", communityRoutes);
+app.use("/api/contact", contactRoutes);
 app.use("/api/groups", groupRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/files", fileRoutes);
+
+app.use("/api", (req, res) => {
+    res.status(404).json({
+        success: false,
+        message: "API route not found",
+    });
+});
+
+app.use((error, req, res, next) => {
+    if (error instanceof multer.MulterError) {
+        if (error.code === "LIMIT_FILE_SIZE") {
+            return res.status(413).json({
+                message: "File is too large. Maximum file size is 10 MB.",
+            });
+        }
+
+        return res.status(400).json({
+            message: error.message || "File upload failed",
+        });
+    }
+
+    if (error) {
+        console.error(error);
+
+        return res.status(error.status || 500).json({
+            message: error.message || "Server Error",
+        });
+    }
+
+    next();
+});
 
 
 // ================================

@@ -39,8 +39,7 @@ const Workspace = () => {
                 setLoading(true);
                 setError("");
 
-                const token =
-                    localStorage.getItem("token");
+                const token = localStorage.getItem("token");
 
                 const response = await fetch(
                     `http://localhost:5000/api/groups/${groupId}`,
@@ -55,21 +54,16 @@ const Workspace = () => {
 
                 if (!response.ok) {
                     throw new Error(
-                        data.message ||
-                            "Failed to load workspace."
+                        data.message || "Failed to load workspace."
                     );
                 }
 
                 setGroup(data);
             } catch (error) {
-                console.error(
-                    "Failed to fetch group:",
-                    error
-                );
+                console.error("Failed to fetch group:", error);
 
                 setError(
-                    error.message ||
-                        "Failed to load workspace."
+                    error.message || "Failed to load workspace."
                 );
             } finally {
                 setLoading(false);
@@ -89,9 +83,7 @@ const Workspace = () => {
         if (!group?.joinCode) return;
 
         try {
-            await navigator.clipboard.writeText(
-                group.joinCode
-            );
+            await navigator.clipboard.writeText(group.joinCode);
 
             setCopied(true);
 
@@ -99,10 +91,7 @@ const Workspace = () => {
                 setCopied(false);
             }, 2000);
         } catch (error) {
-            console.error(
-                "Failed to copy join code:",
-                error
-            );
+            console.error("Failed to copy join code:", error);
         }
     };
 
@@ -113,14 +102,11 @@ const Workspace = () => {
     const formatDate = (date) => {
         if (!date) return "No deadline";
 
-        return new Date(date).toLocaleDateString(
-            "en-IN",
-            {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-            }
-        );
+        return new Date(date).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+        });
     };
 
     // ==========================================
@@ -175,9 +161,7 @@ const Workspace = () => {
                     </p>
 
                     <button
-                        onClick={() =>
-                            navigate("/dashboard")
-                        }
+                        onClick={() => navigate("/dashboard")}
                         className="
                             mt-6
                             rounded-xl
@@ -215,9 +199,7 @@ const Workspace = () => {
     return (
         <div className="min-h-screen bg-[#08080d] text-white">
 
-            {/* ==================================
-                BACKGROUND
-            ================================== */}
+            {/* BACKGROUND */}
 
             <div className="pointer-events-none fixed inset-0 overflow-hidden">
 
@@ -251,16 +233,12 @@ const Workspace = () => {
 
             <main className="relative mx-auto max-w-7xl px-5 py-7 sm:px-8 lg:px-10">
 
-                {/* ==================================
-                    TOP NAV
-                ================================== */}
+                {/* TOP NAV */}
 
                 <div className="mb-6 flex items-center justify-between">
 
                     <button
-                        onClick={() =>
-                            navigate("/dashboard")
-                        }
+                        onClick={() => navigate("/dashboard")}
                         className="
                             inline-flex
                             items-center
@@ -283,7 +261,7 @@ const Workspace = () => {
                     </button>
 
                     <div className="hidden items-center gap-2 text-xs text-gray-600 sm:flex">
-                        <span>Dashboard</span>
+                        <span>WorkSpace</span>
                         <span>/</span>
                         <span className="text-gray-400">
                             {group.groupName}
@@ -292,9 +270,7 @@ const Workspace = () => {
 
                 </div>
 
-                {/* ==================================
-                    HERO
-                ================================== */}
+                {/* HERO */}
 
                 <section
                     className="
@@ -307,8 +283,6 @@ const Workspace = () => {
                         bg-white/[0.03]
                     "
                 >
-
-                    {/* HERO GLOW */}
 
                     <div
                         className="
@@ -327,8 +301,6 @@ const Workspace = () => {
                     <div className="relative p-6 sm:p-8 lg:p-10">
 
                         <div className="flex flex-col gap-8 xl:flex-row xl:items-center xl:justify-between">
-
-                            {/* LEFT */}
 
                             <div className="flex min-w-0 flex-1 flex-col gap-6 sm:flex-row sm:items-center">
 
@@ -358,53 +330,18 @@ const Workspace = () => {
 
                                     <div className="mb-3 flex flex-wrap items-center gap-2">
 
-                                        <span
-                                            className="
-                                                rounded-full
-                                                border
-                                                border-violet-500/20
-                                                bg-violet-500/10
-                                                px-3
-                                                py-1
-                                                text-xs
-                                                font-medium
-                                                text-violet-300
-                                            "
-                                        >
+                                        <span className="rounded-full border border-violet-500/20 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-300">
                                             {group.groupName}
                                         </span>
 
-                                        <span
-                                            className="
-                                                inline-flex
-                                                items-center
-                                                gap-1.5
-                                                rounded-full
-                                                border
-                                                border-emerald-500/15
-                                                bg-emerald-500/[0.07]
-                                                px-3
-                                                py-1
-                                                text-xs
-                                                text-emerald-400
-                                            "
-                                        >
+                                        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/15 bg-emerald-500/[0.07] px-3 py-1 text-xs text-emerald-400">
                                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                                             Active
                                         </span>
 
                                     </div>
 
-                                    <h1
-                                        className="
-                                            truncate
-                                            text-3xl
-                                            font-bold
-                                            tracking-tight
-                                            sm:text-4xl
-                                            lg:text-5xl
-                                        "
-                                    >
+                                    <h1 className="truncate text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
                                         {group.projectName ||
                                             "Untitled Project"}
                                     </h1>
@@ -423,6 +360,7 @@ const Workspace = () => {
                             <div className="flex flex-col gap-3 sm:flex-row xl:flex-col">
 
                                 <button
+                                    type="button"
                                     onClick={() =>
                                         navigate(
                                             `/workspace/${groupId}/files?upload=true`
@@ -450,6 +388,7 @@ const Workspace = () => {
                                 </button>
 
                                 <button
+                                    type="button"
                                     onClick={() =>
                                         navigate(
                                             `/workspace/${groupId}/files`
@@ -494,9 +433,7 @@ const Workspace = () => {
                             <InfoCard
                                 icon={CalendarDays}
                                 label="Deadline"
-                                value={formatDate(
-                                    group.deadline
-                                )}
+                                value={formatDate(group.deadline)}
                             />
 
                             <InfoCard
@@ -510,24 +447,14 @@ const Workspace = () => {
                                         />
 
                                         <span className="truncate text-sm font-medium text-gray-200">
-                                            {owner?.name ||
-                                                "Unknown"}
+                                            {owner?.name || "Unknown"}
                                         </span>
                                     </div>
                                 }
                             />
 
-                            {/* JOIN CODE */}
+                            <div className="rounded-2xl border border-white/[0.06] bg-black/20 p-4">
 
-                            <div
-                                className="
-                                    rounded-2xl
-                                    border
-                                    border-white/[0.06]
-                                    bg-black/20
-                                    p-4
-                                "
-                            >
                                 <p className="text-xs text-gray-600">
                                     Join Code
                                 </p>
@@ -535,29 +462,13 @@ const Workspace = () => {
                                 <div className="mt-2 flex items-center justify-between gap-3">
 
                                     <p className="truncate font-mono text-sm font-semibold tracking-[0.18em] text-gray-200">
-                                        {group.joinCode ||
-                                            "N/A"}
+                                        {group.joinCode || "N/A"}
                                     </p>
 
                                     <button
                                         type="button"
-                                        onClick={
-                                            copyJoinCode
-                                        }
-                                        className="
-                                            flex
-                                            h-8
-                                            w-8
-                                            shrink-0
-                                            items-center
-                                            justify-center
-                                            rounded-lg
-                                            bg-white/[0.05]
-                                            text-gray-500
-                                            transition
-                                            hover:bg-violet-500/10
-                                            hover:text-violet-300
-                                        "
+                                        onClick={copyJoinCode}
+                                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.05] text-gray-500 transition hover:bg-violet-500/10 hover:text-violet-300"
                                     >
                                         {copied ? (
                                             <Check
@@ -565,9 +476,7 @@ const Workspace = () => {
                                                 className="text-emerald-400"
                                             />
                                         ) : (
-                                            <Copy
-                                                size={14}
-                                            />
+                                            <Copy size={14} />
                                         )}
                                     </button>
 
@@ -579,27 +488,15 @@ const Workspace = () => {
                     </div>
                 </section>
 
-                {/* ==================================
-                    CONTENT
-                ================================== */}
+                {/* CONTENT */}
 
                 <div className="mb-6 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
 
                     {/* PROJECT OVERVIEW */}
 
-                    <section
-                        className="
-                            rounded-3xl
-                            border
-                            border-white/[0.08]
-                            bg-white/[0.03]
-                            p-6
-                            sm:p-7
-                        "
-                    >
+                    <section className="rounded-3xl border border-white/[0.08] bg-white/[0.03] p-6 sm:p-7">
 
                         <div className="flex items-center justify-between">
-
                             <div>
                                 <p className="text-xs font-medium uppercase tracking-widest text-violet-400">
                                     Overview
@@ -636,9 +533,7 @@ const Workspace = () => {
 
                             <Detail
                                 label="Deadline"
-                                value={formatDate(
-                                    group.deadline
-                                )}
+                                value={formatDate(group.deadline)}
                             />
 
                             <Detail
@@ -647,21 +542,11 @@ const Workspace = () => {
                             />
 
                         </div>
-
                     </section>
 
                     {/* TEAM */}
 
-                    <section
-                        className="
-                            rounded-3xl
-                            border
-                            border-white/[0.08]
-                            bg-white/[0.03]
-                            p-6
-                            sm:p-7
-                        "
-                    >
+                    <section className="rounded-3xl border border-white/[0.08] bg-white/[0.03] p-6 sm:p-7">
 
                         <div className="mb-5 flex items-center justify-between">
 
@@ -675,132 +560,74 @@ const Workspace = () => {
                                 </h2>
                             </div>
 
-                            <span
-                                className="
-                                    rounded-lg
-                                    bg-white/[0.04]
-                                    px-2.5
-                                    py-1
-                                    text-xs
-                                    text-gray-500
-                                "
-                            >
+                            <span className="rounded-lg bg-white/[0.04] px-2.5 py-1 text-xs text-gray-500">
                                 {validMembers.length}
                             </span>
 
                         </div>
 
-                        <div
-                            className="
-                                max-h-80
-                                space-y-2
-                                overflow-y-auto
-                                pr-1
-                            "
-                        >
+                        <div className="max-h-80 space-y-2 overflow-y-auto pr-1">
 
-                            {validMembers.map(
-                                (member) => (
-                                    <div
-                                        key={
-                                            member.user._id
-                                        }
-                                        className="
-                                            flex
-                                            items-center
-                                            justify-between
-                                            gap-3
-                                            rounded-2xl
-                                            border
-                                            border-white/[0.05]
-                                            bg-black/20
-                                            p-3.5
-                                            transition
-                                            hover:border-violet-500/15
-                                            hover:bg-violet-500/[0.025]
-                                        "
-                                    >
+                            {validMembers.map((member) => (
+                                <div
+                                    key={member.user._id}
+                                    className="flex items-center justify-between gap-3 rounded-2xl border border-white/[0.05] bg-black/20 p-3.5 transition hover:border-violet-500/15 hover:bg-violet-500/[0.025]"
+                                >
 
-                                        <div className="flex min-w-0 items-center gap-3">
+                                    <div className="flex min-w-0 items-center gap-3">
 
-                                            <UserAvatar
-                                                user={
-                                                    member.user
-                                                }
-                                                size="sm"
-                                            />
+                                        <UserAvatar
+                                            user={member.user}
+                                            size="sm"
+                                        />
 
-                                            <div className="min-w-0">
+                                        <div className="min-w-0">
 
-                                                <p className="truncate text-sm font-medium text-gray-200">
-                                                    {
-                                                        member
-                                                            .user
-                                                            .name
-                                                    }
-                                                </p>
+                                            <p className="truncate text-sm font-medium text-gray-200">
+                                                {member.user.name}
+                                            </p>
 
-                                                <p className="mt-0.5 truncate text-xs text-gray-600">
-                                                    {
-                                                        member
-                                                            .user
-                                                            .email
-                                                    }
-                                                </p>
-
-                                            </div>
+                                            <p className="mt-0.5 truncate text-xs text-gray-600">
+                                                {member.user.email}
+                                            </p>
 
                                         </div>
-
-                                        <span
-                                            className={`
-                                                shrink-0
-                                                rounded-lg
-                                                border
-                                                px-2.5
-                                                py-1
-                                                text-xs
-
-                                                ${
-                                                    member.role?.toLowerCase() ===
-                                                    "owner"
-                                                        ? "border-violet-500/15 bg-violet-500/10 text-violet-300"
-                                                        : "border-white/[0.06] bg-white/[0.03] text-gray-500"
-                                                }
-                                            `}
-                                        >
-                                            {member.role}
-                                        </span>
-
                                     </div>
-                                )
-                            )}
+
+                                    <span
+                                        className={`
+                                            shrink-0
+                                            rounded-lg
+                                            border
+                                            px-2.5
+                                            py-1
+                                            text-xs
+                                            ${
+                                                member.role?.toLowerCase() ===
+                                                "owner"
+                                                    ? "border-violet-500/15 bg-violet-500/10 text-violet-300"
+                                                    : "border-white/[0.06] bg-white/[0.03] text-gray-500"
+                                            }
+                                        `}
+                                    >
+                                        {member.role}
+                                    </span>
+
+                                </div>
+                            ))}
 
                         </div>
-
                     </section>
 
                 </div>
 
-                {/* ==================================
-                    WORKSPACE TOOLS
-                ================================== */}
+                {/* WORKSPACE TOOLS */}
 
-                <section
-                    className="
-                        rounded-3xl
-                        border
-                        border-white/[0.08]
-                        bg-white/[0.03]
-                        p-6
-                        sm:p-7
-                    "
-                >
+                <section className="rounded-3xl border border-white/[0.08] bg-white/[0.03] p-6 sm:p-7">
 
                     <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
 
                         <div>
-
                             <p className="text-xs font-medium uppercase tracking-widest text-violet-400">
                                 Workspace
                             </p>
@@ -810,10 +637,8 @@ const Workspace = () => {
                             </h2>
 
                             <p className="mt-2 text-sm text-gray-600">
-                                Everything your team needs
-                                in one place.
+                                Everything your team needs in one place.
                             </p>
-
                         </div>
 
                         <div className="flex items-center gap-2 text-xs text-gray-600">
@@ -858,46 +683,15 @@ const Workspace = () => {
                         />
 
                     </div>
-
                 </section>
 
-                {/* ==================================
-                    FILE UPLOAD NOTE
-                ================================== */}
+                {/* FILE UPLOAD NOTE */}
 
-                <div
-                    className="
-                        mt-5
-                        flex
-                        flex-col
-                        gap-3
-                        rounded-2xl
-                        border
-                        border-violet-500/10
-                        bg-violet-500/[0.035]
-                        px-5
-                        py-4
-                        sm:flex-row
-                        sm:items-center
-                        sm:justify-between
-                    "
-                >
+                <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-violet-500/10 bg-violet-500/[0.035] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
 
                     <div className="flex items-center gap-3">
 
-                        <div
-                            className="
-                                flex
-                                h-9
-                                w-9
-                                shrink-0
-                                items-center
-                                justify-center
-                                rounded-xl
-                                bg-violet-500/10
-                                text-violet-300
-                            "
-                        >
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-violet-300">
                             <Upload size={16} />
                         </div>
 
@@ -907,29 +701,20 @@ const Workspace = () => {
                             </p>
 
                             <p className="mt-0.5 text-xs text-gray-600">
-                                Maximum file size: 1 MB per
-                                upload
+                                Maximum file size: 10 MB per upload
                             </p>
                         </div>
 
                     </div>
 
                     <button
+                        type="button"
                         onClick={() =>
                             navigate(
                                 `/workspace/${groupId}/files?upload=true`
                             )
                         }
-                        className="
-                            inline-flex
-                            items-center
-                            gap-2
-                            text-sm
-                            font-medium
-                            text-violet-400
-                            transition
-                            hover:text-violet-300
-                        "
+                        className="inline-flex items-center gap-2 text-sm font-medium text-violet-400 transition hover:text-violet-300"
                     >
                         Upload a file
                         <ArrowRight size={14} />
@@ -966,15 +751,8 @@ function InfoCard({
     customValue,
 }) {
     return (
-        <div
-            className="
-                rounded-2xl
-                border
-                border-white/[0.06]
-                bg-black/20
-                p-4
-            "
-        >
+        <div className="rounded-2xl border border-white/[0.06] bg-black/20 p-4">
+
             <div className="flex items-center gap-2 text-xs text-gray-600">
                 <Icon size={13} />
                 {label}
@@ -987,6 +765,7 @@ function InfoCard({
                     </p>
                 )}
             </div>
+
         </div>
     );
 }
@@ -1046,7 +825,6 @@ function ToolCard({
                 text-left
                 transition-all
                 duration-300
-
                 ${
                     comingSoon
                         ? "cursor-default opacity-60"
@@ -1056,42 +834,12 @@ function ToolCard({
         >
 
             {comingSoon && (
-                <span
-                    className="
-                        absolute
-                        right-4
-                        top-4
-                        rounded-full
-                        border
-                        border-white/[0.06]
-                        bg-white/[0.04]
-                        px-2
-                        py-1
-                        text-[9px]
-                        font-medium
-                        uppercase
-                        tracking-wider
-                        text-gray-600
-                    "
-                >
+                <span className="absolute right-4 top-4 rounded-full border border-white/[0.06] bg-white/[0.04] px-2 py-1 text-[9px] font-medium uppercase tracking-wider text-gray-600">
                     Soon
                 </span>
             )}
 
-            <div
-                className="
-                    flex
-                    h-11
-                    w-11
-                    items-center
-                    justify-center
-                    rounded-xl
-                    bg-violet-500/10
-                    text-violet-300
-                    transition
-                    group-hover:bg-violet-500/15
-                "
-            >
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-500/10 text-violet-300 transition group-hover:bg-violet-500/15">
                 <Icon size={19} />
             </div>
 
@@ -1106,6 +854,7 @@ function ToolCard({
             {!comingSoon && (
                 <div className="mt-5 flex items-center gap-2 text-xs font-medium text-violet-400">
                     Open
+
                     <ArrowRight
                         size={13}
                         className="transition-transform group-hover:translate-x-1"

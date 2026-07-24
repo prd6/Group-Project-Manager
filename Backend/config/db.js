@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import OTP from "../models/OTP.js";
+import { initGridFS } from "./gridfs.js";
 
 const syncOTPIndexes = async () => {
     try {
@@ -41,6 +42,7 @@ const connectDB = async () => {
         await mongoose.connect(process.env.MONGODB_URL);
 
         console.log("MongoDB Connected Successfully");
+        initGridFS();
         await syncOTPIndexes();
     } catch (error) {
         console.error("MongoDB Connection Failed");
