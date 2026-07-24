@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardNavbar from "../Components/DashboardNavbar";
+import UserAvatar from "../Components/UserAvatar";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -8,6 +9,13 @@ const Dashboard = () => {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user")) || null;
+    } catch {
+      return null;
+    }
+  });
 
   // Fetch user's groups
   const fetchGroups = async () => {
@@ -81,7 +89,20 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchGroups();
+  }, []);
+
+  useEffect(() => {
+    const handleUserUpdated = (event) => {
+      setUser(event.detail);
+    };
+
+    window.addEventListener("user-updated", handleUserUpdated);
+
+    return () => {
+      window.removeEventListener("user-updated", handleUserUpdated);
+    };
   }, []);
 
   return (
@@ -94,14 +115,17 @@ const Dashboard = () => {
         {/* Header */}
         <section className="mb-12 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
 
-          <div>
+          <div className="flex items-center gap-4">
+            <UserAvatar user={user} size="lg" />
+            <div className="min-w-0">
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Welcome back 👋
+              Welcome back{user?.name ? `, ${user.name}` : ""}
             </h1>
 
             <p className="mt-2 text-gray-500">
               Pick up where you left off.
             </p>
+            </div>
           </div>
 
           <div className="flex gap-3">

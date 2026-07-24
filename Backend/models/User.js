@@ -26,6 +26,12 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user"
     },
+
+    profilePicture: {
+      type: String,
+      default: "",
+    },
+
     isBanned: {
       type: Boolean,
       default: false

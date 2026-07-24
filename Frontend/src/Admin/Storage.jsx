@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import UserAvatar from "../Components/UserAvatar";
 
 function Storage() {
   const [stats, setStats] = useState({
@@ -223,14 +224,17 @@ function Storage() {
                       {/* User Info */}
                       <div className="flex justify-between items-center mb-4">
 
-                        <div>
-                          <p className="font-semibold text-gray-900">
-                            {user.name || "Unknown User"}
-                          </p>
+                        <div className="flex min-w-0 items-center gap-3">
+                          <UserAvatar user={user} size="sm" />
+                          <div className="min-w-0">
+                            <p className="truncate font-semibold text-gray-900">
+                              {user.name || "Unknown User"}
+                            </p>
 
-                          <p className="text-sm text-gray-500 mt-1">
-                            {user.email || "No email"}
-                          </p>
+                            <p className="mt-1 truncate text-sm text-gray-500">
+                              {user.email || "No email"}
+                            </p>
+                          </div>
                         </div>
 
                         <div className="text-right">
@@ -265,7 +269,7 @@ function Storage() {
                         </span>
 
                         <span>
-                          {formatStorage(user.storageUsed)} / 500 MB
+                          {formatStorage(user.storageUsed)} / {USER_STORAGE_LIMIT/1024/1024} MB
                         </span>
                       </div>
 

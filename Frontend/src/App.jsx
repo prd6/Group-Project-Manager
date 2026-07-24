@@ -15,6 +15,7 @@ import Storage from "./Admin/Storage";
 import AdminRoute from "./Components/AdminRoute";
 import ForgotPassword from "./AuthPages/ForgotPassword";
 import FilesPage from "./Pages/FilesPage";
+import Profile from "./Pages/Profile";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
       <Route path="/Create_Grp" element={<Create_Grp />} />
       <Route path="/Join_Grp" element={<Join_Grp />} />
       <Route path="/workspace/:id" element={<Workspace />} />
+      <Route path="/profile" element={<Profile />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/workspace/:groupId/files" element={<FilesPage />} />
 

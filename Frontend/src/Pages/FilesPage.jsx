@@ -9,6 +9,7 @@ import {
     FaFileArchive,
     FaFileAlt,
 } from "react-icons/fa";
+import UserAvatar from "../Components/UserAvatar";
 
 const FilesPage = () => {
     const { groupId } = useParams();
@@ -44,7 +45,9 @@ const FilesPage = () => {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchFiles();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const getFileIcon = (fileType) => {
@@ -177,9 +180,10 @@ const FilesPage = () => {
 
                                             <div className="mt-2 space-y-1 text-sm text-gray-500">
 
-                                                <p>
-                                                    👤 {file.uploadedBy?.name || "Unknown User"}
-                                                </p>
+                                                <div className="flex items-center gap-2">
+                                                    <UserAvatar user={file.uploadedBy} size="sm" />
+                                                    <span>{file.uploadedBy?.name || "Unknown User"}</span>
+                                                </div>
 
                                                 <p>
                                                     💾 {(file.fileSize / 1024).toFixed(2)} KB
@@ -242,9 +246,12 @@ const FilesPage = () => {
 
                                     <div>
                                         <p className="text-sm text-gray-500">Uploaded By</p>
-                                        <p className="font-semibold">
-                                            {selectedFile.uploadedBy?.name || "Unknown User"}
-                                        </p>
+                                        <div className="mt-1 flex items-center gap-2">
+                                            <UserAvatar user={selectedFile.uploadedBy} size="sm" />
+                                            <p className="font-semibold">
+                                                {selectedFile.uploadedBy?.name || "Unknown User"}
+                                            </p>
+                                        </div>
                                     </div>
 
                                     <div>

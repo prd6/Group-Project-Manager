@@ -8,6 +8,7 @@ import groupRoutes from "./routes/groupRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import fileRoutes from "./routes/fileRoutes.js";
 import communityRoutes from "./routes/communityRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import path from "path";
 import { initGridFS } from "./config/gridfs.js";
 import mongoose from "mongoose";
@@ -26,6 +27,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/groups", groupRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/files", fileRoutes);

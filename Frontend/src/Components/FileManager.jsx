@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import UserAvatar from "./UserAvatar";
 
 const FileManager = ({ groupId }) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -31,7 +32,9 @@ const FileManager = ({ groupId }) => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchFiles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Upload
@@ -112,9 +115,10 @@ const FileManager = ({ groupId }) => {
                   {file.originalName}
                 </h4>
 
-                <p className="text-sm text-gray-500">
-                  Uploaded By : {file.uploadedBy?.name || "Unknown User"}
-                </p>
+                <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+                  <UserAvatar user={file.uploadedBy} size="sm" />
+                  <span>Uploaded By : {file.uploadedBy?.name || "Unknown User"}</span>
+                </div>
 
                 <p className="text-sm text-gray-500">
                   {(file.fileSize / 1024).toFixed(2)} KB

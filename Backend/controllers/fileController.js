@@ -99,7 +99,7 @@ export const getFiles = async (req, res) => {
 
     const files = await File.find({
       group: groupId,
-    }).populate("uploadedBy", "name");
+    }).populate("uploadedBy", "name profilePicture");
 
     res.status(200).json(files);
 

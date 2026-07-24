@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import FileManager from "../Components/FileManager";
+import UserAvatar from "../Components/UserAvatar";
 
 const Workspace = () => {
   const { id } = useParams();
@@ -35,7 +36,9 @@ const Workspace = () => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchGroup();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!group) {
@@ -83,13 +86,19 @@ const Workspace = () => {
 
             <div>
               <p className="font-semibold">Owner</p>
-              <p>
-                {
-                  group.members.find(
-                    (member) => member.role === "Owner"
-                  )?.user?.name
-                }
-              </p>
+              <div className="mt-2 flex items-center gap-2">
+                <UserAvatar
+                  user={group.members.find((member) => member.role === "Owner")?.user}
+                  size="sm"
+                />
+                <p>
+                  {
+                    group.members.find(
+                      (member) => member.role === "Owner"
+                    )?.user?.name
+                  }
+                </p>
+              </div>
             </div>
 
             <div>
@@ -133,12 +142,15 @@ const Workspace = () => {
 
                 <li
                   key={member.user._id}
-                  className="border rounded p-3 flex justify-between"
+                  className="border rounded p-3 flex justify-between items-center gap-3"
                 >
 
-                  <span>
-                    {member.user.name}
-                  </span>
+                  <div className="flex min-w-0 items-center gap-3">
+                    <UserAvatar user={member.user} size="sm" />
+                    <span className="truncate">
+                      {member.user.name}
+                    </span>
+                  </div>
 
                   <span
                     className={

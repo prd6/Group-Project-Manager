@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import OTP from "../models/OTP.js";
 import sendEmail from "../utils/sendEmail.js";
+import { serializeUser } from "./userController.js";
 
 // Signup Controller
 // Signup Controller
@@ -39,11 +40,7 @@ export const signup = async (req, res) => {
 
     res.status(201).json({
       message: "User registered successfully",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
+      user: serializeUser(user),
     });
 
   } catch (error) {
@@ -107,12 +104,7 @@ export const login = async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      },
+      user: serializeUser(user),
     });
 
   } catch (error) {

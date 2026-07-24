@@ -1,8 +1,63 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../assets/logo.svg?react";
+import UserAvatar from "./UserAvatar";
+import { API_ORIGIN } from "../services/apiConfig";
 
-const DashboardNavbar = () => {
+const DashboardNavbar = ({ fetchProfile = true }) => {
     const navigate = useNavigate();
+    const [user, setUser] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem("user")) || null;
+        } catch {
+            return null;
+        }
+    });
+
+    useEffect(() => {
+        const handleUserUpdated = (event) => {
+            setUser(event.detail);
+        };
+
+        window.addEventListener("user-updated", handleUserUpdated);
+
+        return () => {
+            window.removeEventListener("user-updated", handleUserUpdated);
+        };
+    }, []);
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            const token = localStorage.getItem("token");
+
+            if (!token || !fetchProfile) return;
+
+            try {
+                const response = await fetch(`${API_ORIGIN}/api/users/profile`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                if (response.status === 401) {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                    navigate("/login");
+                    return;
+                }
+
+                if (!response.ok) return;
+
+                const data = await response.json();
+                setUser(data.user);
+                localStorage.setItem("user", JSON.stringify(data.user));
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        fetchProfile();
+    }, [fetchProfile, navigate]);
 
     return (
         <nav
@@ -38,11 +93,11 @@ const DashboardNavbar = () => {
                     onClick={() => navigate("/profile")}
                     className="
                         mr-10
-                        flex h-10 w-10
-                        items-center justify-center
+                        flex items-center gap-3
                         rounded-full
                         border border-violet-500/30
                         bg-violet-500/10
+                        px-1.5 py-1
                         text-sm font-semibold
                         text-violet-300
                         transition-all duration-200
@@ -51,7 +106,10 @@ const DashboardNavbar = () => {
                         hover:shadow-[0_0_20px_rgba(139,92,246,0.25)]
                     "
                 >
-                    P
+                    <UserAvatar user={user} size="sm" />
+                    <span className="hidden max-w-32 truncate pr-3 text-gray-200 sm:block">
+                        {user?.name || "Profile"}
+                    </span>
                 </button>
             </div>
         </nav>

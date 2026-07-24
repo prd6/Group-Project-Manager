@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import AdminAPI from "../services/admin";
+import UserAvatar from "../Components/UserAvatar";
 
 function Users() {
     const [users, setUsers] = useState([]);
@@ -137,7 +138,12 @@ function Users() {
                     <tbody>
                         {users.map((user) => (
                             <tr key={user._id} className="border-b hover:bg-gray-50">
-                                <td className="p-4">{user.name}</td>
+                                <td className="p-4">
+                                    <div className="flex items-center gap-3">
+                                        <UserAvatar user={user} size="sm" />
+                                        <span>{user.name}</span>
+                                    </div>
+                                </td>
                                 <td className="p-4">{user.email}</td>
                                 <td className="p-4 capitalize">{user.role}</td>
 

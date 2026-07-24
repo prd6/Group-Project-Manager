@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import AdminAPI from "../services/admin";
+import UserAvatar from "../Components/UserAvatar";
 
 function Groups() {
     const [groups, setGroups] = useState([]);
@@ -79,7 +80,15 @@ function Groups() {
                                 </td>
 
                                 <td className="p-4">
-                                    {group.members?.find(m => m.role === "Owner")?.user?.name || "Unknown"}
+                                    <div className="flex items-center gap-2">
+                                        <UserAvatar
+                                            user={group.members?.find(m => m.role === "Owner")?.user}
+                                            size="sm"
+                                        />
+                                        <span>
+                                            {group.members?.find(m => m.role === "Owner")?.user?.name || "Unknown"}
+                                        </span>
+                                    </div>
                                 </td>
 
                                 <td className="p-4 text-center">

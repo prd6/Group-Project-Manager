@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "../assets/logo.svg?react";
 
@@ -8,7 +8,7 @@ function Navbar() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const sections = ["home", "about", "guide", "community"];
+    const sections = useMemo(() => ["home", "about", "guide", "community"], []);
 
     // Detect currently visible section
     useEffect(() => {
@@ -38,7 +38,7 @@ function Navbar() {
         return () => {
             window.removeEventListener("scroll", handleScroll);
         };
-    }, []);
+    }, [sections]);
 
     // Scroll to section
     const scrollToSection = (section) => {

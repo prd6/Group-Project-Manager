@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import UserAvatar from "../Components/UserAvatar";
 
 function Files() {
   const [files, setFiles] = useState([]);
@@ -170,13 +171,18 @@ function Files() {
 
                     {/* Uploaded By */}
                     <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-gray-800">
-                        {file.uploadedBy?.name || "Unknown"}
-                      </p>
+                      <div className="flex items-center gap-3">
+                        <UserAvatar user={file.uploadedBy} size="sm" />
+                        <div>
+                          <p className="text-sm font-medium text-gray-800">
+                            {file.uploadedBy?.name || "Unknown"}
+                          </p>
 
-                      <p className="text-xs text-gray-500 mt-1">
-                        {file.uploadedBy?.email || "No email"}
-                      </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {file.uploadedBy?.email || "No email"}
+                          </p>
+                        </div>
+                      </div>
                     </td>
 
                     {/* Group */}

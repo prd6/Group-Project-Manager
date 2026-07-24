@@ -156,7 +156,7 @@ export const getSingleGroup = async (req, res) => {
     const group = await Group.findOne({
     _id: id,
       "members.user": req.user.id,
-    }).populate("members.user", "name email");
+    }).populate("members.user", "name email profilePicture");
 
     if (!group) {
       return res.status(404).json({

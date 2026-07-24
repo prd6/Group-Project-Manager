@@ -2,6 +2,12 @@ import User from "../models/User.js";
 import Group from "../models/Group.js";
 import File from "../models/file.js";
 
+const sanitizeAdminUser = (user) => {
+  const userObject = user.toObject ? user.toObject() : { ...user };
+  delete userObject.password;
+  return userObject;
+};
+
 const dashboard = async (req, res) => {
   try {
     // Total counts
@@ -59,6 +65,7 @@ const dashboard = async (req, res) => {
           userId: "$user._id",
           name: "$user.name",
           email: "$user.email",
+          profilePicture: "$user.profilePicture",
           storageUsed: 1,
           fileCount: 1,
         },
@@ -138,7 +145,7 @@ const toggleBanUser = async (req, res) => {
     res.json({
       success: true,
       message: user.isBanned ? "User banned" : "User unbanned",
-      user,
+      user: sanitizeAdminUser(user),
     });
   } catch (error) {
     res.status(500).json({
@@ -209,7 +216,7 @@ const editUser = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "User updated successfully",
-      user,
+      user: sanitizeAdminUser(user),
     });
 
   } catch (error) {
@@ -226,7 +233,7 @@ const getAllGroups = async (req, res) => {
   try {
     const groups = await Group.find().populate(
       "members.user",
-      "name email"
+      "name email profilePicture"
     );
 
     res.status(200).json({
@@ -264,7 +271,7 @@ const deleteGroup = async (req, res) => {
 const getFiles = async (req, res) => {
   try {
     const files = await File.find()
-      .populate("uploadedBy", "name email")
+      .populate("uploadedBy", "name email profilePicture")
       .populate("group", "groupName")
       .sort({ createdAt: -1 });
 
