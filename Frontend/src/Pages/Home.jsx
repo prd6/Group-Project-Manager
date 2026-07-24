@@ -221,7 +221,7 @@ function Home() {
             {/* ================= GUIDE SECTION ================= */}
             <section
                 id="guide"
-                className="relative px-6 py-28 scroll-mt-28"
+                className="relative px-6 py-28 scroll-mt-5"
             >
                 <div className="max-w-7xl mx-auto">
 
@@ -462,7 +462,7 @@ function Home() {
             {/* ================= COMMUNITY SECTION ================= */}
             <section
                 id="community"
-                className="relative px-6 py-28 scroll-mt-28"
+                className="relative px-6 py-28 scroll-mt-5"
             >
                 <div className="max-w-7xl mx-auto">
 

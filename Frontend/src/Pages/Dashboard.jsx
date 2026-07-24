@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import DashboardNavbar from "../Components/DashboardNavbar";
 import UserAvatar from "../Components/UserAvatar";
 
 const Dashboard = () => {
@@ -107,8 +106,6 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#08080d] text-white">
-
-      <DashboardNavbar />
 
       <main className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
 
