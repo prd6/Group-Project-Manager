@@ -8,7 +8,7 @@ function Navbar() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const sections = useMemo(() => ["home", "about", "guide", "community"], []);
+    const sections = useMemo(() => ["home", "about", "guide", "community", "contact"], []);
 
     // Detect currently visible section
     useEffect(() => {
@@ -58,10 +58,9 @@ function Navbar() {
     };
 
     const navClass = (section) =>
-        `cursor-pointer transition-colors duration-200 ${
-            activeSection === section
-                ? "text-violet-500"
-                : "text-white hover:text-violet-500"
+        `cursor-pointer transition-colors duration-200 ${activeSection === section
+            ? "text-violet-500"
+            : "text-white hover:text-violet-500"
         }`;
 
     return (
@@ -125,6 +124,13 @@ function Navbar() {
                         className={navClass("community")}
                     >
                         Community
+                    </button>
+
+                    <button
+                        onClick={() => scrollToSection("contact")}
+                        className={navClass("contact")}
+                    >
+                        Contact
                     </button>
 
                 </div>

@@ -2,6 +2,7 @@ import {
     Mail,
     MailOpen,
     RefreshCw,
+    Star,
     Trash2,
     X,
     Inbox,
@@ -20,13 +21,34 @@ const Messages = () => {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [deleting, setDeleting] = useState(null);
+    const [displaying, setDisplaying] = useState(null);
     const [error, setError] = useState("");
 
     const token = localStorage.getItem("token");
 
     const authHeaders = {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
     };
+
+    const syncMessageState = useCallback(
+        (updatedMessage) => {
+            setMessages((current) =>
+                current.map((item) =>
+                    item._id === updatedMessage._id
+                        ? updatedMessage
+                        : item
+                )
+            );
+
+            setSelectedMessage((current) =>
+                current?._id === updatedMessage._id
+                    ? updatedMessage
+                    : current
+            );
+        },
+        []
+    );
 
     // ==========================================
     // FETCH MESSAGES
@@ -164,6 +186,46 @@ const Messages = () => {
             setSelectedMessage(null);
         } catch (error) {
             setError(error.message);
+        }
+    };
+
+    // ==========================================
+    // DISPLAY ON HOME
+    // ==========================================
+
+    const toggleDisplayOnHome = async (message) => {
+        try {
+            setDisplaying(message._id);
+            setError("");
+
+            const response = await fetch(
+                `${API_ORIGIN}/api/contact/admin/${message._id}/display`,
+                {
+                    method: "PATCH",
+                    headers: authHeaders,
+                    body: JSON.stringify({
+                        displayOnHome:
+                            !message.displayOnHome,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                        "Failed to update display status."
+                );
+            }
+
+            if (data.contact) {
+                syncMessageState(data.contact);
+            }
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setDisplaying(null);
         }
     };
 
@@ -446,15 +508,24 @@ const Messages = () => {
 
                                             <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
 
-                                                <p
-                                                    className={
-                                                        unread
-                                                            ? "font-semibold text-white"
-                                                            : "font-medium text-gray-400"
-                                                    }
-                                                >
-                                                    {message.name}
-                                                </p>
+                                                <div className="flex items-center gap-2">
+                                                    <p
+                                                        className={
+                                                            unread
+                                                                ? "font-semibold text-white"
+                                                                : "font-medium text-gray-400"
+                                                        }
+                                                    >
+                                                        {message.name}
+                                                    </p>
+
+                                                    {message.displayOnHome && (
+                                                        <span className="inline-flex items-center gap-1 rounded-full border border-violet-500/25 bg-violet-500/10 px-2 py-0.5 text-[10px] font-medium text-violet-300">
+                                                            <Star size={10} />
+                                                            Displayed
+                                                        </span>
+                                                    )}
+                                                </div>
 
                                                 <span className="text-xs text-gray-600">
                                                     {formatDate(
@@ -546,9 +617,18 @@ const Messages = () => {
                                     Contact Message
                                 </p>
 
-                                <h2 className="mt-2 text-xl font-semibold">
-                                    {selectedMessage.name}
-                                </h2>
+                                <div className="mt-2 flex flex-wrap items-center gap-2">
+                                    <h2 className="text-xl font-semibold">
+                                        {selectedMessage.name}
+                                    </h2>
+
+                                    {selectedMessage.displayOnHome && (
+                                        <span className="inline-flex items-center gap-1 rounded-full border border-violet-500/25 bg-violet-500/10 px-2 py-0.5 text-[10px] font-medium text-violet-300">
+                                            <Star size={10} />
+                                            Displayed
+                                        </span>
+                                    )}
+                                </div>
                             </div>
 
                             <button
@@ -664,7 +744,43 @@ const Messages = () => {
                                     : "Delete"}
                             </button>
 
-                            <div className="flex gap-3">
+                            <div className="flex flex-wrap gap-3">
+                                <button
+                                    onClick={() =>
+                                        toggleDisplayOnHome(
+                                            selectedMessage
+                                        )
+                                    }
+                                    disabled={
+                                        displaying ===
+                                        selectedMessage._id
+                                    }
+                                    className={`
+                                        inline-flex
+                                        items-center
+                                        justify-center
+                                        gap-2
+                                        rounded-xl
+                                        px-4
+                                        py-2.5
+                                        text-sm
+                                        transition
+                                        disabled:opacity-50
+                                        ${
+                                            selectedMessage.displayOnHome
+                                                ? "border border-amber-500/20 bg-amber-500/10 text-amber-200 hover:bg-amber-500/20"
+                                                : "border border-violet-500/20 bg-violet-500/10 text-violet-200 hover:bg-violet-500/20"
+                                        }
+                                    `}
+                                >
+                                    <Star size={16} />
+                                    {displaying ===
+                                    selectedMessage._id
+                                        ? "Updating..."
+                                        : selectedMessage.displayOnHome
+                                          ? "Remove from Home"
+                                          : "Display"}
+                                </button>
 
                                 <button
                                     onClick={() =>

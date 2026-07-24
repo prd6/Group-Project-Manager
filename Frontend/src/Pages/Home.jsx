@@ -20,6 +20,7 @@ function Home() {
         developers: 2,
     });
     const [statsError, setStatsError] = useState("");
+    const [feedback, setFeedback] = useState([]);
 
     useEffect(() => {
         const fetchCommunityStats = async () => {
@@ -44,6 +45,29 @@ function Home() {
         };
 
         fetchCommunityStats();
+    }, []);
+
+    useEffect(() => {
+        const fetchPublicFeedback = async () => {
+            try {
+                const { data } =
+                    await ContactAPI.get("/feedback");
+
+                if (data?.success && Array.isArray(data.feedback)) {
+                    setFeedback(data.feedback);
+                } else {
+                    setFeedback([]);
+                }
+            } catch (error) {
+                console.error(
+                    "Failed to load public feedback:",
+                    error
+                );
+                setFeedback([]);
+            }
+        };
+
+        fetchPublicFeedback();
     }, []);
 
     const communityStats = [
@@ -718,11 +742,119 @@ const handleContactSubmit = async (e) => {
                         </div>
 
 
-                        <div className="rounded-3xl border border-white/10 bg-white/3 p-8 text-center">
-                            <p className="text-gray-400">
-                                No community feedback yet.
-                            </p>
-                        </div>
+{feedback.length === 0 ? (
+    <div className="rounded-3xl border border-white/10 bg-white/3 p-8 text-center">
+        <p className="text-gray-400">
+            No community feedback yet.
+        </p>
+    </div>
+) : (
+    <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {feedback.map((item) => (
+            <article
+                key={item._id}
+                className="
+                    group
+                    relative
+                    flex
+                    min-h-65
+                    flex-col
+                    overflow-hidden
+                    rounded-3xl
+                    border
+                    border-white/10
+                    bg-white/3
+                    p-7
+                    text-left
+                    transition-all
+                    duration-300
+                    hover:-translate-y-1
+                    hover:border-violet-500/40
+                    hover:bg-white/5
+                    hover:shadow-[0_20px_60px_rgba(124,58,237,0.12)]
+                "
+            >
+                {/* Glow */}
+                <div
+                    className="
+                        pointer-events-none
+                        absolute
+                        -right-16
+                        -top-16
+                        h-40
+                        w-40
+                        rounded-full
+                        bg-violet-600/10
+                        blur-3xl
+                        transition
+                        duration-300
+                        group-hover:bg-violet-600/20
+                    "
+                />
+
+                {/* Feedback */}
+                <div className="relative flex-1">
+                    <span className="block font-serif text-5xl leading-none text-violet-500/50">
+                        “
+                    </span>
+
+                    <p className="-mt-2 text-[15px] leading-7 text-gray-300">
+                        {item.message}
+                    </p>
+                </div>
+
+                {/* User */}
+                <div className="relative mt-7 flex items-center gap-3 border-t border-white/8 pt-5">
+
+                    {/* Avatar */}
+                    <div
+                        className="
+                            flex
+                            h-11
+                            w-11
+                            shrink-0
+                            items-center
+                            justify-center
+                            rounded-full
+                            border
+                            border-violet-500/25
+                            bg-violet-600/15
+                            text-sm
+                            font-bold
+                            uppercase
+                            text-violet-300
+                        "
+                    >
+                        {item.name?.charAt(0)}
+                    </div>
+
+                    {/* Name */}
+                    <div className="min-w-0 flex-1">
+                        <p className="truncate font-semibold text-white">
+                            {item.name}
+                        </p>
+
+                        <p className="mt-0.5 text-xs text-gray-500">
+                            CodeGPM User
+                        </p>
+                    </div>
+
+                    {/* Date */}
+                    <p className="shrink-0 text-xs text-gray-600">
+                        {new Date(item.createdAt).toLocaleDateString(
+                            "en-IN",
+                            {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                            }
+                        )}
+                    </p>
+                </div>
+            </article>
+        ))}
+    </div>
+)}
                     </div>
 
                 </div>

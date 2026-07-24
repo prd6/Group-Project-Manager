@@ -28,6 +28,11 @@ const contactSchema = new mongoose.Schema(
             enum: ["unread", "read"],
             default: "unread",
         },
+
+        displayOnHome: {
+            type: Boolean,
+            default: false,
+        },
     },
     {
         timestamps: true,

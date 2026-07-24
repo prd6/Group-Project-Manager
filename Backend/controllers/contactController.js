@@ -1,4 +1,8 @@
 import Contact from "../models/Contact.js";
+import mongoose from "mongoose";
+
+const isValidContactId = (id) =>
+    mongoose.isValidObjectId(id);
 
 // ==========================================
 // PUBLIC - SEND MESSAGE
@@ -99,6 +103,13 @@ export const getContactMessages = async (req, res) => {
 
 export const getContactMessage = async (req, res) => {
     try {
+        if (!isValidContactId(req.params.id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid message ID.",
+            });
+        }
+
         const message = await Contact.findById(req.params.id);
 
         if (!message) {
@@ -126,6 +137,13 @@ export const getContactMessage = async (req, res) => {
 
 export const markContactAsRead = async (req, res) => {
     try {
+        if (!isValidContactId(req.params.id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid message ID.",
+            });
+        }
+
         const message = await Contact.findByIdAndUpdate(
             req.params.id,
             {
@@ -161,6 +179,13 @@ export const markContactAsRead = async (req, res) => {
 
 export const markContactAsUnread = async (req, res) => {
     try {
+        if (!isValidContactId(req.params.id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid message ID.",
+            });
+        }
+
         const message = await Contact.findByIdAndUpdate(
             req.params.id,
             {
@@ -196,6 +221,13 @@ export const markContactAsUnread = async (req, res) => {
 
 export const deleteContactMessage = async (req, res) => {
     try {
+        if (!isValidContactId(req.params.id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid message ID.",
+            });
+        }
+
         const message = await Contact.findByIdAndDelete(
             req.params.id
         );
@@ -215,6 +247,82 @@ export const deleteContactMessage = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: "Failed to delete message.",
+        });
+    }
+};
+
+// ==========================================
+// ADMIN - TOGGLE DISPLAY ON HOME
+// ==========================================
+
+export const updateContactDisplayStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!isValidContactId(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid message ID.",
+            });
+        }
+
+        const existingMessage = await Contact.findById(id);
+
+        if (!existingMessage) {
+            return res.status(404).json({
+                success: false,
+                message: "Message not found.",
+            });
+        }
+
+        const nextDisplayStatus =
+            typeof req.body?.displayOnHome === "boolean"
+                ? req.body.displayOnHome
+                : !existingMessage.displayOnHome;
+
+        existingMessage.displayOnHome = nextDisplayStatus;
+
+        await existingMessage.save();
+
+        return res.status(200).json({
+            success: true,
+            message: nextDisplayStatus
+                ? "Message is now displayed on the homepage."
+                : "Message removed from the homepage.",
+            contact: existingMessage,
+        });
+    } catch (error) {
+        console.error("Update display status error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update display status.",
+        });
+    }
+};
+
+// ==========================================
+// PUBLIC - GET DISPLAYED FEEDBACK
+// ==========================================
+
+export const getPublicFeedback = async (req, res) => {
+    try {
+        const feedback = await Contact.find({
+            displayOnHome: true,
+        })
+            .select("name message createdAt")
+            .sort({ createdAt: -1 });
+
+        return res.status(200).json({
+            success: true,
+            feedback,
+        });
+    } catch (error) {
+        console.error("Get public feedback error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to load public feedback.",
         });
     }
 };

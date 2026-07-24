@@ -2,11 +2,13 @@ import express from "express";
 
 import {
     sendContactMessage,
+    getPublicFeedback,
     getContactMessages,
     getContactMessage,
     markContactAsRead,
     markContactAsUnread,
     deleteContactMessage,
+    updateContactDisplayStatus,
 } from "../controllers/contactController.js";
 
 import authMiddleware from "../middleware/authMiddleware.js";
@@ -16,6 +18,7 @@ const router = express.Router();
 
 // PUBLIC
 router.post("/", sendContactMessage);
+router.get("/feedback", getPublicFeedback);
 
 // ADMIN
 router.get(
@@ -44,6 +47,13 @@ router.patch(
     authMiddleware,
     adminMiddleware,
     markContactAsUnread
+);
+
+router.patch(
+    "/admin/:id/display",
+    authMiddleware,
+    adminMiddleware,
+    updateContactDisplayStatus
 );
 
 router.delete(
