@@ -5,6 +5,7 @@ import CommunityAPI from "../services/community";
 import SignupGuide from "../assets/guide/signup.png";
 import GroupGuide from "../assets/guide/group.png";
 import WorkspaceGuide from "../assets/guide/workspace.png";
+import { FaGithub } from "react-icons/fa";
 
 function Home() {
     const [stats, setStats] = useState({
@@ -97,10 +98,22 @@ function Home() {
                         assign tasks, and collaborate from one workspace.
                     </p>
 
-                    <div className="mt-10 flex justify-center gap-5">
+                    <div className="mt-10 z-20 relative flex justify-center gap-5">
 
                         <Link to="/signup">
-                            <button className="rounded-xl bg-white px-8 py-4 font-bold text-black">
+                            <button className="
+                                cursor-pointer
+                                rounded-xl
+                                bg-white
+                                px-8
+                                py-4
+                                font-bold 
+                                text-black 
+                                hover:bg-violet-700/90 
+                                hover:text-white 
+                                transition-all
+                                duration-300
+                            ">
                                 Get Started
                             </button>
                         </Link>
@@ -108,6 +121,7 @@ function Home() {
                         <Link to="/login">
                             <button
                                 className="
+                                    cursor-pointer
                                     rounded-2xl
                                     border border-violet-700/90
                                     bg-violet-700
@@ -509,9 +523,29 @@ function Home() {
                             </p>
 
                             <p className="text-gray-400 mt-4">
-                                Building and improving CodeGPM to make group
-                                projects easier to organize and manage.
+                                “Working together sounded easy until we both decided to change the exact same file at the exact same time”💀
                             </p>
+                            <a
+                                href="https://github.com/prd6"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="
+                                    inline-flex items-center gap-2
+                                    mt-6
+                                    px-5 py-2.5
+                                    rounded-xl
+                                    border border-white/10
+                                    bg-white/5
+                                    text-sm font-medium text-white
+                                    hover:bg-violet-600/15
+                                    hover:border-violet-500/50
+                                    hover:text-violet-300
+                                    transition-all duration-300
+                                    cursor-pointer
+                            ">
+                                <FaGithub className="text-lg" />
+                                View GitHub
+                            </a>
                         </div>
 
 
@@ -538,11 +572,11 @@ function Home() {
                         text-2xl font-bold text-violet-400
                     "
                             >
-                                C
+                                S
                             </div>
 
                             <h3 className="text-xl font-semibold text-white">
-                                Co-Developer
+                                Sabarna
                             </h3>
 
                             <p className="text-violet-400 text-sm mt-1">
@@ -550,9 +584,29 @@ function Home() {
                             </p>
 
                             <p className="text-gray-400 mt-4">
-                                Working together on the platform, its features,
-                                and the experience behind CodeGPM.
+                                “That’s how CodeGPM taught us collaboration before we even finished building a collaboration platform”😭
                             </p>
+                            <a
+                                href="https://github.com/sabarna-dev"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="
+                                    inline-flex items-center gap-2
+                                    mt-6
+                                    px-5 py-2.5
+                                    rounded-xl
+                                    border border-white/10
+                                    bg-white/5
+                                    text-sm font-medium text-white
+                                    hover:bg-violet-600/15
+                                    hover:border-violet-500/50
+                                    hover:text-violet-300
+                                    transition-all duration-300
+                                    cursor-pointer
+                            ">
+                                <FaGithub className="text-lg" />
+                                View GitHub
+                            </a>
                         </div>
 
                     </div>
@@ -560,10 +614,11 @@ function Home() {
 
                     {/* ================= STATS ================= */}
 
+
                     <div
                         className="
                 grid grid-cols-2 md:grid-cols-4
-                border-y border-white/10
+                border-b border-white/10
                 py-12
                 mb-24
             "

@@ -113,6 +113,7 @@ const Particles = ({
       alpha: true
     });
     const gl = renderer.gl;
+    gl.canvas.style.pointerEvents = 'none';
     container.appendChild(gl.canvas);
     gl.clearColor(0, 0, 0, 0);
 
