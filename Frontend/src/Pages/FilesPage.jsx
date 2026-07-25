@@ -22,7 +22,7 @@ import {
   parseApiResponse,
 } from "../services/apiConfig";
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const MAX_FILE_SIZE = 1 * 1024 * 1024;
 const MAX_STORAGE = 20 * 1024 * 1024;
 
 const codeExtensions = [
@@ -300,7 +300,7 @@ const FilesPage = () => {
     setUploadSuccess("");
 
     if (file.size > MAX_FILE_SIZE) {
-      setUploadError("File is too large. Maximum file size is 10 MB.");
+      setUploadError("File is too large. Maximum file size is 1 MB.");
       setSelectedUploadFile(null);
       event.target.value = "";
       return;
@@ -326,7 +326,7 @@ const FilesPage = () => {
     }
 
     if (selectedUploadFile.size > MAX_FILE_SIZE) {
-      setUploadError("File is too large. Maximum file size is 10 MB.");
+      setUploadError("File is too large. Maximum file size is 1 MB.");
       return;
     }
 
