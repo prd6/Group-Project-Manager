@@ -28,48 +28,57 @@ const Workspace = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [copied, setCopied] = useState(false);
+    const token = localStorage.getItem("token");
+
+    const currentUser = JSON.parse(
+        localStorage.getItem("user")
+    );
+
+    const isOwner = group?.members?.some(
+        (member) =>
+            member.user?._id === currentUser?._id &&
+            member.role === "Owner"
+    );
 
     // ==========================================
     // FETCH GROUP
     // ==========================================
 
-    useEffect(() => {
-        const fetchGroup = async () => {
-            try {
-                setLoading(true);
-                setError("");
+    const fetchGroup = async () => {
+        try {
+            setLoading(true);
+            setError("");
 
-                const token = localStorage.getItem("token");
+            const token = localStorage.getItem("token");
 
-                const response = await fetch(
-                    `http://localhost:5000/api/groups/${groupId}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(
-                        data.message || "Failed to load workspace."
-                    );
+            const response = await fetch(
+                `http://localhost:5000/api/groups/${groupId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                 }
+            );
 
-                setGroup(data);
-            } catch (error) {
-                console.error("Failed to fetch group:", error);
+            const data = await response.json();
 
-                setError(
-                    error.message || "Failed to load workspace."
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Failed to load workspace."
                 );
-            } finally {
-                setLoading(false);
             }
-        };
 
+            setGroup(data);
+        } catch (error) {
+            console.error(error);
+
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         if (groupId) {
             fetchGroup();
         }
@@ -93,6 +102,92 @@ const Workspace = () => {
         } catch (error) {
             console.error("Failed to copy join code:", error);
         }
+    };
+
+    const leaveGroup = async () => {
+
+        if (
+            !window.confirm(
+                "Do you really want to leave the group?"
+            )
+        )
+            return;
+
+        try {
+
+            const response = await fetch(
+                `http://localhost:5000/api/groups/${groupId}/leave`,
+                {
+                    method: "DELETE",
+
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+
+                alert(data.message);
+
+                return;
+            }
+
+            alert(data.message);
+
+            navigate("/dashboard");
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
+    };
+
+    const removeMember = async (memberId) => {
+
+        if (
+            !window.confirm(
+                "Do you really want to remove this member?"
+            )
+        )
+            return;
+
+        try {
+
+            const response = await fetch(
+                `http://localhost:5000/api/groups/${groupId}/remove/${memberId}`,
+                {
+                    method: "DELETE",
+
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+
+                alert(data.message);
+
+                return;
+            }
+
+            alert(data.message);
+
+            fetchGroup();
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
     };
 
     // ==========================================
@@ -415,6 +510,33 @@ const Workspace = () => {
                                     <Files size={17} />
                                     View Files
                                 </button>
+                                {!isOwner ? (
+                                    <button
+                                        type="button"
+                                        onClick={leaveGroup}
+                                        className="
+            inline-flex
+            items-center
+            justify-center
+            gap-2
+            rounded-xl
+            bg-red-600
+            px-5
+            py-3
+            text-sm
+            font-medium
+            transition
+            hover:bg-red-700
+        "
+                                    >
+                                        Leave Group
+                                    </button>
+                                ) : (
+                                    <p className="text-center text-xs text-red-400">
+                                        Owner cannot leave the group.
+                                    </p>
+                                )}
+
 
                             </div>
 
@@ -429,7 +551,6 @@ const Workspace = () => {
                                 label="Members"
                                 value={`${validMembers.length} members`}
                             />
-
                             <InfoCard
                                 icon={CalendarDays}
                                 label="Deadline"
@@ -594,24 +715,44 @@ const Workspace = () => {
                                         </div>
                                     </div>
 
-                                    <span
-                                        className={`
-                                            shrink-0
-                                            rounded-lg
-                                            border
-                                            px-2.5
-                                            py-1
-                                            text-xs
-                                            ${
-                                                member.role?.toLowerCase() ===
-                                                "owner"
+                                    <div className="flex items-center gap-3">
+
+                                        <span
+                                            className={`
+            shrink-0
+            rounded-lg
+            border
+            px-2.5
+            py-1
+            text-xs
+            ${member.role?.toLowerCase() === "owner"
                                                     ? "border-violet-500/15 bg-violet-500/10 text-violet-300"
                                                     : "border-white/[0.06] bg-white/[0.03] text-gray-500"
-                                            }
-                                        `}
-                                    >
-                                        {member.role}
-                                    </span>
+                                                }
+        `}
+                                        >
+                                            {member.role}
+                                        </span>
+
+                                        {isOwner && member.role !== "Owner" && (
+                                            <button
+                                                onClick={() => removeMember(member.user._id)}
+                                                className="
+                                                 rounded-lg
+                                                 bg-red-600
+                                                 px-3
+                                                  py-1
+                                                 text-xs
+                                                 text-white
+                                                 transition
+                                                 hover:bg-red-700
+                                                "
+                                            >
+                                                Remove
+                                            </button>
+                                        )}
+
+                                    </div>
 
                                 </div>
                             ))}
@@ -786,11 +927,10 @@ function Detail({
             </p>
 
             <p
-                className={`mt-1.5 text-sm font-medium ${
-                    success
-                        ? "text-emerald-400"
-                        : "text-gray-300"
-                }`}
+                className={`mt-1.5 text-sm font-medium ${success
+                    ? "text-emerald-400"
+                    : "text-gray-300"
+                    }`}
             >
                 {value}
             </p>
@@ -825,10 +965,9 @@ function ToolCard({
                 text-left
                 transition-all
                 duration-300
-                ${
-                    comingSoon
-                        ? "cursor-default opacity-60"
-                        : "hover:-translate-y-1 hover:border-violet-500/20 hover:bg-violet-500/[0.035]"
+                ${comingSoon
+                    ? "cursor-default opacity-60"
+                    : "hover:-translate-y-1 hover:border-violet-500/20 hover:bg-violet-500/[0.035]"
                 }
             `}
         >

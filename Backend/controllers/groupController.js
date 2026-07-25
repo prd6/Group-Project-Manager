@@ -1,180 +1,351 @@
 import Group from "../models/Group.js";
 
-// Generate Join Code
+// ===========================================
+// GENERATE JOIN CODE
+// ===========================================
+
 const generateJoinCode = () => {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-  let code = "";
+    let code = "";
 
-  for (let i = 0; i < 6; i++) {
-    code += chars.charAt(
-      Math.floor(Math.random() * chars.length)
-    );
-  }
+    for (let i = 0; i < 6; i++) {
+        code += chars.charAt(
+            Math.floor(Math.random() * chars.length)
+        );
+    }
 
-  return code;
+    return code;
 };
 
-// Create Group
+// ===========================================
+// CREATE GROUP
+// ===========================================
+
 export const createGroup = async (req, res) => {
-  try {
-    const { groupName, projectName, description, deadline } = req.body;
+    try {
+        const {
+            groupName,
+            projectName,
+            description,
+            deadline,
+        } = req.body;
 
-    if (!groupName) {
-      return res.status(400).json({
-        message: "Group Name is required",
-      });
+        if (!groupName) {
+            return res.status(400).json({
+                message: "Group Name is required",
+            });
+        }
+
+        let joinCode;
+        let existingGroup;
+
+        do {
+            joinCode = generateJoinCode();
+            existingGroup = await Group.findOne({
+                joinCode,
+            });
+        } while (existingGroup);
+
+        const group = await Group.create({
+            groupName,
+            projectName,
+            description,
+            deadline,
+            joinCode,
+
+            members: [
+                {
+                    user: req.user.id,
+                    role: "Owner",
+                },
+            ],
+        });
+
+        return res.status(201).json({
+            message: "Group created successfully",
+            group,
+        });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Server Error",
+        });
     }
-
-    let joinCode;
-    let existingGroup;
-
-    do {
-      joinCode = generateJoinCode();
-      existingGroup = await Group.findOne({ joinCode });
-    } while (existingGroup);
-
-    const group = await Group.create({
-      groupName,
-      projectName,
-      description,
-      deadline,
-      joinCode,
-
-      members: [
-        {
-          user: req.user.id,
-          role: "Owner",
-        },
-      ],
-    });
-
-    res.status(201).json({
-      message: "Group created successfully",
-      group,
-    });
-  } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: "Server Error",
-    });
-  }
 };
 
-// Join Group
+// ===========================================
+// JOIN GROUP
+// ===========================================
+
 export const joinGroup = async (req, res) => {
-  try {
-    const { joinCode } = req.body;
+    try {
+        const { joinCode } = req.body;
 
-    if (!joinCode) {
-      return res.status(400).json({
-        message: "Join code is required",
-      });
+        if (!joinCode) {
+            return res.status(400).json({
+                message: "Join code is required",
+            });
+        }
+
+        const group = await Group.findOne({
+            joinCode,
+        });
+
+        if (!group) {
+            return res.status(404).json({
+                message: "Invalid join code",
+            });
+        }
+
+        const alreadyMember = group.members.find(
+            (member) =>
+                member.user.toString() === req.user.id
+        );
+
+        if (alreadyMember) {
+            return res.status(400).json({
+                message:
+                    "You are already a member of this group",
+            });
+        }
+
+        group.members.push({
+            user: req.user.id,
+            role: "Member",
+        });
+
+        await group.save();
+
+        return res.status(200).json({
+            message: "Joined group successfully",
+            group,
+        });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Server Error",
+        });
     }
-
-    // Find the group
-    const group = await Group.findOne({ joinCode });
-
-    if (!group) {
-      return res.status(404).json({
-        message: "Invalid join code",
-      });
-    }
-
-    // Check if the user is already a member
-    const alreadyMember = group.members.find(
-      (member) => member.user.toString() === req.user.id
-    );
-
-    if (alreadyMember) {
-      return res.status(400).json({
-        message: "You are already a member of this group",
-      });
-    }
-
-    // Add the user
-    group.members.push({
-      user: req.user.id,
-      role: "Member",
-    });
-
-    await group.save();
-
-    res.status(200).json({
-      message: "Joined group successfully",
-      group,
-    });
-  } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: "Server Error",
-    });
-  }
 };
 
-// Get My Groups
+// ===========================================
+// GET MY GROUPS
+// ===========================================
+
 export const getMyGroups = async (req, res) => {
     try {
         const groups = await Group.find({
             "members.user": req.user.id,
         });
 
-        const groupsWithRole = groups.map((group) => {
+        const groupsWithRole = groups.map(
+            (group) => {
+                const currentMember =
+                    group.members.find(
+                        (member) =>
+                            member.user.toString() ===
+                            req.user.id.toString()
+                    );
 
-            // Find logged-in user inside members
-            const currentMember = group.members.find(
-                (member) =>
-                    member.user.toString() === req.user.id.toString()
-            );
+                return {
+                    ...group.toObject(),
+                    myRole: currentMember?.role,
+                };
+            }
+        );
 
-            return {
-                ...group.toObject(),
-
-                // Add current user's role
-                myRole: currentMember?.role,
-            };
-        });
-
-        res.status(200).json(groupsWithRole);
-
+        return res.status(200).json(groupsWithRole);
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
+        return res.status(500).json({
             message: "Server Error",
         });
     }
 };
 
-// Get Single Group
-export const getSingleGroup = async (req, res) => {
-  try {
-    const { id } = req.params;
+// ===========================================
+// GET SINGLE GROUP
+// ===========================================
 
-    const group = await Group.findOne({
-    _id: id,
-      "members.user": req.user.id,
-    }).populate("members.user", "name email profilePicture");
+export const getSingleGroup = async (
+    req,
+    res
+) => {
+    try {
+        const { id } = req.params;
 
-    if (!group) {
-      return res.status(404).json({
-        message: "Group not found",
-      });
+        const group = await Group.findOne({
+            _id: id,
+            "members.user": req.user.id,
+        }).populate(
+            "members.user",
+            "name email profilePicture"
+        );
+
+        if (!group) {
+            return res.status(404).json({
+                message: "Group not found",
+            });
+        }
+
+        return res.status(200).json(group);
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Server Error",
+        });
     }
-
-    console.log(JSON.stringify(group, null, 2));
-
-    res.status(200).json(group);
-  } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: "Server Error",
-    });
-  }
 };
+
+// ===========================================
+// LEAVE GROUP
+// ===========================================
+
+export const leaveGroup = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const group = await Group.findById(id);
+
+        if (!group) {
+            return res.status(404).json({
+                message: "Group not found",
+            });
+        }
+
+        const member = group.members.find(
+            (m) =>
+                m.user.toString() ===
+                req.user.id.toString()
+        );
+
+        if (!member) {
+            return res.status(404).json({
+                message:
+                    "You are not a member of this group",
+            });
+        }
+
+        if (member.role === "Owner") {
+            return res.status(403).json({
+                message:
+                    "Group owner cannot leave the group.",
+            });
+        }
+
+        group.members = group.members.filter(
+            (m) =>
+                m.user.toString() !==
+                req.user.id.toString()
+        );
+
+        await group.save();
+
+        return res.status(200).json({
+            success: true,
+            message:
+                "You have left the group successfully.",
+        });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Server Error",
+        });
+    }
+};
+
+// ====== CONTINUE IN PART 2 ======
+
+// ===========================================
+// REMOVE MEMBER
+// ===========================================
+
+export const removeMember = async (req, res) => {
+    try {
+        const { id, memberId } = req.params;
+
+        const group = await Group.findById(id);
+
+        if (!group) {
+            return res.status(404).json({
+                message: "Group not found",
+            });
+        }
+
+        // Check if logged-in user is Owner
+        const owner = group.members.find(
+            (member) =>
+                member.user.toString() ===
+                    req.user.id.toString() &&
+                member.role === "Owner"
+        );
+
+        if (!owner) {
+            return res.status(403).json({
+                message:
+                    "Only the group owner can remove members.",
+            });
+        }
+
+        // Member exists?
+        const memberToRemove = group.members.find(
+            (member) =>
+                member.user.toString() ===
+                memberId
+        );
+
+        if (!memberToRemove) {
+            return res.status(404).json({
+                message: "Member not found.",
+            });
+        }
+
+        // Don't remove owner
+        if (memberToRemove.role === "Owner") {
+            return res.status(403).json({
+                message:
+                    "Owner cannot be removed.",
+            });
+        }
+
+        group.members = group.members.filter(
+            (member) =>
+                member.user.toString() !==
+                memberId
+        );
+
+        await group.save();
+
+        const updatedGroup =
+            await Group.findById(id).populate(
+                "members.user",
+                "name email profilePicture"
+            );
+
+        return res.status(200).json({
+            success: true,
+            message:
+                "Member removed successfully.",
+            group: updatedGroup,
+        });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Server Error",
+        });
+    }
+};
+
+// ===========================================
+// DELETE GROUP
+// ===========================================
 
 export const deleteGroup = async (req, res) => {
     try {
@@ -189,17 +360,19 @@ export const deleteGroup = async (req, res) => {
             });
         }
 
-        // Check if logged-in user is the owner
+        // Check if logged-in user is Owner
         const isOwner = group.members.some(
             (member) =>
-                member.user.toString() === req.user.id.toString() &&
+                member.user.toString() ===
+                    req.user.id.toString() &&
                 member.role === "Owner"
         );
 
         if (!isOwner) {
             return res.status(403).json({
                 success: false,
-                message: "Only the group owner can delete this group",
+                message:
+                    "Only the group owner can delete this group",
             });
         }
 
@@ -207,15 +380,19 @@ export const deleteGroup = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: "Group deleted successfully",
+            message:
+                "Group deleted successfully",
         });
-
     } catch (error) {
-        console.error("Delete group error:", error);
+        console.error(
+            "Delete group error:",
+            error
+        );
 
         return res.status(500).json({
             success: false,
-            message: "Failed to delete group",
+            message:
+                "Failed to delete group",
         });
     }
 };
