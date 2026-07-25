@@ -13,7 +13,10 @@ const DashboardLayout = () => {
 
             {/* Only show chat when user is inside a group */}
             {groupId && (
-                <GroupChat groupId={groupId} />
+                <GroupChat
+                    key={groupId}
+                    groupId={groupId}
+                />
             )}
         </>
     );

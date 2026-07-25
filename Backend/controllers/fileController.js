@@ -1,85 +1,31 @@
 import File from "../models/file.js";
-import Group from "../models/Group.js";
+import User from "../models/User.js";
 import { Readable } from "stream";
 import { getGridFSBucket } from "../config/gridfs.js";
 import mongoose from "mongoose";
 import mime from "mime-types";
-
-const toUserId = (userId) => userId?.toString?.() || "";
-
-const sendError = (res, error) =>
-  res.status(error.status).json({
-    message: error.message,
-  });
-
-const getAuthorizedGroup = async (groupId, userId) => {
-  if (!mongoose.isValidObjectId(groupId)) {
-    return {
-      error: {
-        status: 400,
-        message: "Invalid group id",
-      },
-    };
-  }
-
-  const group = await Group.findById(groupId);
-
-  if (!group) {
-    return {
-      error: {
-        status: 404,
-        message: "Group not found",
-      },
-    };
-  }
-
-  const member = group.members.find(
-    (groupMember) => groupMember.user.toString() === toUserId(userId)
-  );
-
-  if (!member) {
-    return {
-      error: {
-        status: 403,
-        message: "Access Denied",
-      },
-    };
-  }
-
-  return {
-    group,
-    member,
-  };
-};
+import {
+  CHAT_MESSAGE_TYPES,
+  createFileActivityMessage,
+} from "../utils/chatService.js";
+import {
+  createHttpError,
+  getAuthorizedGroup,
+  validateObjectId,
+} from "../utils/groupAccess.js";
 
 const getAuthorizedStoredFile = async (storageFileId, userId) => {
-  if (!mongoose.isValidObjectId(storageFileId)) {
-    return {
-      error: {
-        status: 400,
-        message: "Invalid file id",
-      },
-    };
-  }
+  validateObjectId(storageFileId, "file id");
 
   const file = await File.findOne({
     fileUrl: storageFileId,
   });
 
   if (!file) {
-    return {
-      error: {
-        status: 404,
-        message: "File not found",
-      },
-    };
+    throw createHttpError(404, "File not found");
   }
 
   const authorizedGroup = await getAuthorizedGroup(file.group, userId);
-
-  if (authorizedGroup.error) {
-    return authorizedGroup;
-  }
 
   return {
     file,
@@ -97,11 +43,8 @@ export const uploadFile = async (req, res) => {
     }
 
     const { groupId } = req.params;
-    const authorizedGroup = await getAuthorizedGroup(groupId, req.user.id);
-
-    if (authorizedGroup.error) {
-      return sendError(res, authorizedGroup.error);
-    }
+    await getAuthorizedGroup(groupId, req.user.id);
+    const actor = await User.findById(req.user.id).select("name");
 
     const bucket = getGridFSBucket();
     const uploadStream = bucket.openUploadStream(req.file.originalname, {
@@ -127,6 +70,16 @@ export const uploadFile = async (req, res) => {
       version: 1,
     });
 
+    await createFileActivityMessage({
+      groupId,
+      actor: {
+        _id: req.user.id,
+        name: actor?.name,
+      },
+      file,
+      type: CHAT_MESSAGE_TYPES.FILE_UPLOAD,
+    });
+
     res.status(201).json({
       message: "File uploaded successfully",
       file,
@@ -134,8 +87,8 @@ export const uploadFile = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
-      message: "Server Error",
+    res.status(error.status || 500).json({
+      message: error.message || "Server Error",
     });
   }
 };
@@ -144,10 +97,6 @@ export const getFiles = async (req, res) => {
   try {
     const { groupId } = req.params;
     const authorizedGroup = await getAuthorizedGroup(groupId, req.user.id);
-
-    if (authorizedGroup.error) {
-      return sendError(res, authorizedGroup.error);
-    }
 
     const files = await File.find({
       group: groupId,
@@ -164,8 +113,8 @@ export const getFiles = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
-      message: "Server Error",
+    res.status(error.status || 500).json({
+      message: error.message || "Server Error",
     });
   }
 };
@@ -176,10 +125,6 @@ export const viewFile = async (req, res) => {
       req.params.fileId,
       req.user.id
     );
-
-    if (authorizedFile.error) {
-      return sendError(res, authorizedFile.error);
-    }
 
     const bucket = getGridFSBucket();
     const fileId = new mongoose.Types.ObjectId(req.params.fileId);
@@ -206,8 +151,8 @@ export const viewFile = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
-      message: "Server Error",
+    res.status(error.status || 500).json({
+      message: error.message || "Server Error",
     });
   }
 };
@@ -218,10 +163,6 @@ export const downloadFile = async (req, res) => {
       req.params.fileId,
       req.user.id
     );
-
-    if (authorizedFile.error) {
-      return sendError(res, authorizedFile.error);
-    }
 
     const bucket = getGridFSBucket();
     const fileId = new mongoose.Types.ObjectId(req.params.fileId);
@@ -248,8 +189,8 @@ export const downloadFile = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
-      message: "Server Error",
+    res.status(error.status || 500).json({
+      message: error.message || "Server Error",
     });
   }
 };
@@ -257,12 +198,7 @@ export const downloadFile = async (req, res) => {
 export const deleteFile = async (req, res) => {
   try {
     const { fileId } = req.params;
-
-    if (!mongoose.isValidObjectId(fileId)) {
-      return res.status(400).json({
-        message: "Invalid file id",
-      });
-    }
+    validateObjectId(fileId, "file id");
 
     const file = await File.findById(fileId);
 
@@ -273,10 +209,7 @@ export const deleteFile = async (req, res) => {
     }
 
     const authorizedGroup = await getAuthorizedGroup(file.group, req.user.id);
-
-    if (authorizedGroup.error) {
-      return sendError(res, authorizedGroup.error);
-    }
+    const actor = await User.findById(req.user.id).select("name");
 
     const isOwner = authorizedGroup.member.role === "Owner";
     const isUploader = file.uploadedBy.toString() === req.user.id;
@@ -292,14 +225,24 @@ export const deleteFile = async (req, res) => {
     await bucket.delete(new mongoose.Types.ObjectId(file.fileUrl));
     await File.findByIdAndDelete(fileId);
 
+    await createFileActivityMessage({
+      groupId: file.group,
+      actor: {
+        _id: req.user.id,
+        name: actor?.name,
+      },
+      file,
+      type: CHAT_MESSAGE_TYPES.FILE_DELETE,
+    });
+
     res.status(200).json({
       message: "File deleted successfully",
     });
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
-      message: "Server Error",
+    res.status(error.status || 500).json({
+      message: error.message || "Server Error",
     });
   }
 };
