@@ -6,7 +6,7 @@ import {
     parseApiResponse,
 } from "../services/apiConfig";
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1 MB
 
 const FileManager = ({ groupId }) => {
     const [selectedFile, setSelectedFile] = useState(null);
@@ -113,7 +113,7 @@ const FileManager = ({ groupId }) => {
     }, [searchParams, setSearchParams]);
 
     // ==========================================
-    // SELECT FILE + 10 MB VALIDATION
+    // SELECT FILE + 1 MB VALIDATION
     // ==========================================
 
     const handleFileSelect = (event) => {
@@ -125,7 +125,7 @@ const FileManager = ({ groupId }) => {
 
         if (file.size > MAX_FILE_SIZE) {
             setError(
-                "File is too large. Maximum file size is 10 MB."
+                "File is too large. Maximum file size is 1 MB."
             );
 
             setSelectedFile(null);
@@ -155,7 +155,7 @@ const FileManager = ({ groupId }) => {
         // Check again before uploading.
         if (selectedFile.size > MAX_FILE_SIZE) {
             setError(
-                "File is too large. Maximum file size is 10 MB."
+                "File is too large. Maximum file size is 1 MB."
             );
             return;
         }
@@ -296,7 +296,7 @@ const FileManager = ({ groupId }) => {
             {/* LIMIT */}
 
             <p className="mb-6 text-xs text-gray-500">
-                Maximum file size: 10 MB
+                Maximum file size: 1 MB
             </p>
 
             {error && (

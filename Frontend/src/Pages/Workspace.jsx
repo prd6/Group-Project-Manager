@@ -701,7 +701,7 @@ const Workspace = () => {
                             </p>
 
                             <p className="mt-0.5 text-xs text-gray-600">
-                                Maximum file size: 10 MB per upload
+                                Maximum file size: 1 MB per upload
                             </p>
                         </div>
 
