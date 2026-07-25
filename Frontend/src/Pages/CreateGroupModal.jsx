@@ -6,6 +6,7 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
         projectName: "",
         description: "",
         deadline: "",
+        maxMembers: 4,
     });
 
     const [loading, setLoading] = useState(false);
@@ -27,9 +28,14 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
     }, [onClose]);
 
     const handleChange = (e) => {
+        const { name, value } = e.target;
+
         setGroupData((prev) => ({
             ...prev,
-            [e.target.name]: e.target.value,
+            [name]:
+                name === "maxMembers"
+                    ? Number(value)
+                    : value,
         }));
     };
 
@@ -70,6 +76,7 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
                 projectName: "",
                 description: "",
                 deadline: "",
+                maxMembers: 4,
             });
 
             // Let Dashboard refresh its groups
@@ -378,6 +385,48 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
                                     focus:ring-[#8b6cff]
                                 "
                             />
+                        </div>
+
+                        {/* MAXIMUM MEMBERS */}
+
+                        <div>
+                            <label
+                                className="
+            mb-2
+            block
+            text-xs
+            font-medium
+            text-[#aaa2b5]
+        "
+                            >
+                                Maximum Members
+                            </label>
+
+                            <select
+                                name="maxMembers"
+                                value={groupData.maxMembers}
+                                onChange={handleChange}
+                                className="
+            w-full
+            rounded-lg
+            border
+            border-transparent
+            bg-[#3b3449]
+            px-4
+            py-3.5
+            text-sm
+            text-white
+            outline-none
+            transition
+            focus:border-[#8b6cff]
+            focus:ring-1
+            focus:ring-[#8b6cff]
+        "
+                            >
+                                <option value={4}>4 Members</option>
+                                <option value={6}>6 Members</option>
+                                <option value={12}>12 Members</option>
+                            </select>
                         </div>
 
                         {/* ACTIONS */}

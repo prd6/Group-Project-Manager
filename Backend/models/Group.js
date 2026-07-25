@@ -8,6 +8,12 @@ const groupSchema = new mongoose.Schema(
       trim: true,
     },
 
+    maxMembers: {
+    type: Number,
+    enum: [4, 6, 12],
+    default: 4,
+    },
+
     projectName: {
       type: String,
       trim: true,

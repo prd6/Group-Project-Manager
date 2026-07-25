@@ -187,7 +187,7 @@ const Workspace = () => {
             console.error(error);
 
         }
-        
+
     };
 
     // ==========================================
@@ -546,11 +546,66 @@ const Workspace = () => {
 
                         <div className="mt-9 grid gap-3 border-t border-white/[0.06] pt-6 sm:grid-cols-2 lg:grid-cols-4">
 
-                            <InfoCard
-                                icon={Users}
-                                label="Members"
-                                value={`${validMembers.length} members`}
-                            />
+                            <div className="rounded-2xl border border-white/[0.06] bg-black/20 p-4">
+
+                                <div className="flex items-center gap-2 text-xs text-gray-600">
+                                    <Users size={13} />
+                                    Members
+                                </div>
+
+                                <div className="mt-3">
+                                    <div className="mb-2 flex justify-between text-xs text-gray-400">
+                                        <span>
+                                            {validMembers.length} / {group.maxMembers}
+                                        </span>
+
+                                        <span>
+                                            {Math.round(
+                                                (validMembers.length / group.maxMembers) * 100
+                                            )}
+                                            %
+                                        </span>
+                                    </div>
+
+                                    <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+                                        <div
+                                            className={`h-full rounded-full transition-all duration-500 ${validMembers.length / group.maxMembers >= 1
+                                                    ? "bg-red-500"
+                                                    : validMembers.length / group.maxMembers >= 0.8
+                                                        ? "bg-yellow-500"
+                                                        : "bg-violet-500"
+                                                }`}
+                                            style={{
+                                                width: `${(validMembers.length / group.maxMembers) * 100
+                                                    }%`,
+                                            }}
+                                        />
+                                    </div>
+
+                                    <p className="mt-3 text-xs text-gray-400">
+                                        {group.maxMembers - validMembers.length === 0 ? (
+                                            <span className="text-red-400 font-medium">
+                                                Group Full
+                                            </span>
+                                        ) : (
+                                            <>
+                                                <span className="font-medium text-violet-400">
+                                                    {group.maxMembers -
+                                                        validMembers.length}
+                                                </span>{" "}
+                                                Slot
+                                                {group.maxMembers -
+                                                    validMembers.length >
+                                                    1
+                                                    ? "s"
+                                                    : ""}{" "}
+                                                Available
+                                            </>
+                                        )}
+                                    </p>
+                                </div>
+
+                            </div>
                             <InfoCard
                                 icon={CalendarDays}
                                 label="Deadline"
@@ -659,7 +714,7 @@ const Workspace = () => {
 
                             <Detail
                                 label="Team Size"
-                                value={`${validMembers.length} members`}
+                                value={`${validMembers.length} / ${group.maxMembers} Members`}
                             />
 
                         </div>
@@ -682,7 +737,7 @@ const Workspace = () => {
                             </div>
 
                             <span className="rounded-lg bg-white/[0.04] px-2.5 py-1 text-xs text-gray-500">
-                                {validMembers.length}
+                                {validMembers.length} / {group.maxMembers}
                             </span>
 
                         </div>
@@ -870,7 +925,7 @@ const Workspace = () => {
 
                         <p>
                             {group.groupName} •{" "}
-                            {validMembers.length} members
+                            {validMembers.length} / {group.maxMembers} Members
                         </p>
                     </div>
 

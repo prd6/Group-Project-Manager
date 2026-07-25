@@ -29,6 +29,7 @@ export const createGroup = async (req, res) => {
             projectName,
             description,
             deadline,
+            maxMembers,
         } = req.body;
 
         if (!groupName) {
@@ -52,6 +53,7 @@ export const createGroup = async (req, res) => {
             projectName,
             description,
             deadline,
+            maxMembers,
             joinCode,
 
             members: [
@@ -108,6 +110,13 @@ export const joinGroup = async (req, res) => {
             return res.status(400).json({
                 message:
                     "You are already a member of this group",
+            });
+        }
+
+        if (group.members.length >= group.maxMembers) {
+           return res.status(400).json({
+               message:
+                    "This group is full. Ask the owner to increase the team size or remove any member"
             });
         }
 
