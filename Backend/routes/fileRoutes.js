@@ -1,4 +1,5 @@
 import express from "express";
+
 import authMiddleware from "../middleware/authMiddleware.js";
 import upload from "../config/multer.js";
 
@@ -12,7 +13,10 @@ import {
 
 const router = express.Router();
 
-// Upload File
+// ==========================================
+// FILE UPLOAD
+// ==========================================
+
 router.post(
   "/upload/:groupId",
   authMiddleware,
@@ -20,20 +24,40 @@ router.post(
   uploadFile
 );
 
-// View File (Preview)
-router.get("/view/:fileId", authMiddleware, viewFile);
+// ==========================================
+// FILE PREVIEW
+// ==========================================
 
-// Download File
-router.get("/download/:fileId", authMiddleware, downloadFile);
+router.get(
+  "/view/:fileId",
+  authMiddleware,
+  viewFile
+);
 
-// Get All Files of a Group
+// ==========================================
+// FILE DOWNLOAD
+// ==========================================
+
+router.get(
+  "/download/:fileId",
+  authMiddleware,
+  downloadFile
+);
+
+// ==========================================
+// GROUP FILES
+// ==========================================
+
 router.get(
   "/:groupId",
   authMiddleware,
   getFiles
 );
 
-// Delete File
+// ==========================================
+// FILE DELETE
+// ==========================================
+
 router.delete(
   "/:fileId",
   authMiddleware,

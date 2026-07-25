@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import API from "../services/api";
 
 const JoinGroupModal = ({ onClose, onJoined }) => {
     const [joinCode, setJoinCode] = useState("");
@@ -33,30 +34,9 @@ const JoinGroupModal = ({ onClose, onJoined }) => {
             setLoading(true);
             setMessage("");
 
-            const token = localStorage.getItem("token");
-
-            const response = await fetch(
-                "http://localhost:5000/api/groups/join",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        joinCode: joinCode.trim(),
-                    }),
-                }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                setMessage(
-                    data.message || "Failed to join group."
-                );
-                return;
-            }
+            const { data } = await API.post("/groups/join", {
+                joinCode: joinCode.trim(),
+            });
 
             setJoinCode("");
 
@@ -68,7 +48,12 @@ const JoinGroupModal = ({ onClose, onJoined }) => {
 
         } catch (error) {
             console.error(error);
-            setMessage("Something went wrong!");
+
+            setMessage(
+                error.response?.data?.message ||
+                error.message ||
+                "Something went wrong!"
+            );
         } finally {
             setLoading(false);
         }
@@ -225,6 +210,8 @@ const JoinGroupModal = ({ onClose, onJoined }) => {
                                 )
                             }
                             maxLength={6}
+                            spellCheck={false}
+                            autoComplete="off"
                             placeholder="ABC123"
                             autoFocus
                             required

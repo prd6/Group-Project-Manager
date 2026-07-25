@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
+import API from "../services/api";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import UserAvatar from "../Components/UserAvatar";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+
 import {
   FaBars,
   FaChevronLeft,
@@ -15,12 +18,6 @@ import {
   FaTimes,
   FaUpload,
 } from "react-icons/fa";
-
-import UserAvatar from "../Components/UserAvatar";
-import {
-  buildApiUrl,
-  parseApiResponse,
-} from "../services/apiConfig";
 
 const MAX_FILE_SIZE = 1 * 1024 * 1024;
 const MAX_STORAGE = 20 * 1024 * 1024;
@@ -100,6 +97,7 @@ const languageMap = {
 const FilesPage = () => {
   const { groupId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
+
   const fileInputRef = useRef(null);
   const previewObjectUrlRef = useRef("");
 
@@ -112,22 +110,44 @@ const FilesPage = () => {
   const [previewUrl, setPreviewUrl] = useState("");
   const [previewError, setPreviewError] = useState("");
 
-  const [selectedUploadFile, setSelectedUploadFile] = useState(null);
+  const [selectedUploadFile, setSelectedUploadFile] =
+    useState(null);
+
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState("");
 
   const [searchTerm, setSearchTerm] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
   const [fileContent, setFileContent] = useState("");
   const [loadingContent, setLoadingContent] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+  // ============================================
+  // CURRENT USER
+  // ============================================
+
+  const currentUser = (() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem("user") || "{}"
+      );
+    } catch {
+      return {};
+    }
+  })();
+
+  // ============================================
+  // PREVIEW OBJECT URL CLEANUP
+  // ============================================
 
   const clearPreviewObjectUrl = () => {
     if (previewObjectUrlRef.current) {
-      URL.revokeObjectURL(previewObjectUrlRef.current);
+      URL.revokeObjectURL(
+        previewObjectUrlRef.current
+      );
+
       previewObjectUrlRef.current = "";
     }
 
@@ -136,19 +156,19 @@ const FilesPage = () => {
 
   useEffect(() => {
     return () => {
-      clearPreviewObjectUrl();
+      if (previewObjectUrlRef.current) {
+        URL.revokeObjectURL(
+          previewObjectUrlRef.current
+        );
+
+        previewObjectUrlRef.current = "";
+      }
     };
   }, []);
 
-  const getAuthHeaders = () => {
-    const token = localStorage.getItem("token");
-
-    return token
-      ? {
-          Authorization: `Bearer ${token}`,
-        }
-      : {};
-  };
+  // ============================================
+  // FILE HELPERS
+  // ============================================
 
   const getFileExtension = (fileName = "") =>
     fileName.split(".").pop()?.toLowerCase() || "";
@@ -158,11 +178,14 @@ const FilesPage = () => {
       return false;
     }
 
-    return codeExtensions.includes(getFileExtension(file.originalName));
+    return codeExtensions.includes(
+      getFileExtension(file.originalName)
+    );
   };
 
   const getLanguage = (fileName = "") =>
-    languageMap[getFileExtension(fileName)] || "text";
+    languageMap[getFileExtension(fileName)] ||
+    "text";
 
   const formatFileSize = (bytes) => {
     if (!bytes) {
@@ -173,30 +196,61 @@ const FilesPage = () => {
       return `${(bytes / 1024).toFixed(1)} KB`;
     }
 
-    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+    return `${(
+      bytes /
+      (1024 * 1024)
+    ).toFixed(2)} MB`;
   };
 
-  const getFileIcon = (fileType, large = false) => {
-    const size = large ? "text-3xl" : "text-xl";
+  const getFileIcon = (
+    fileType,
+    large = false
+  ) => {
+    const size = large
+      ? "text-3xl"
+      : "text-xl";
 
     if (!fileType) {
-      return <FaFileAlt className={`${size} text-zinc-400`} />;
+      return (
+        <FaFileAlt
+          className={`${size} text-zinc-400`}
+        />
+      );
     }
 
     if (fileType.includes("pdf")) {
-      return <FaFilePdf className={`${size} text-red-400`} />;
+      return (
+        <FaFilePdf
+          className={`${size} text-red-400`}
+        />
+      );
     }
 
     if (fileType.startsWith("image/")) {
-      return <FaFileImage className={`${size} text-sky-400`} />;
+      return (
+        <FaFileImage
+          className={`${size} text-sky-400`}
+        />
+      );
     }
 
     if (fileType.includes("word")) {
-      return <FaFileWord className={`${size} text-blue-400`} />;
+      return (
+        <FaFileWord
+          className={`${size} text-blue-400`}
+        />
+      );
     }
 
-    if (fileType.includes("excel") || fileType.includes("spreadsheet")) {
-      return <FaFileExcel className={`${size} text-emerald-400`} />;
+    if (
+      fileType.includes("excel") ||
+      fileType.includes("spreadsheet")
+    ) {
+      return (
+        <FaFileExcel
+          className={`${size} text-emerald-400`}
+        />
+      );
     }
 
     if (
@@ -204,16 +258,30 @@ const FilesPage = () => {
       fileType.includes("rar") ||
       fileType.includes("7z")
     ) {
-      return <FaFileArchive className={`${size} text-amber-400`} />;
+      return (
+        <FaFileArchive
+          className={`${size} text-amber-400`}
+        />
+      );
     }
 
-    return <FaFileAlt className={`${size} text-zinc-400`} />;
+    return (
+      <FaFileAlt
+        className={`${size} text-zinc-400`}
+      />
+    );
   };
+
+  // ============================================
+  // FETCH FILES
+  // ============================================
 
   const fetchFiles = async () => {
     if (!groupId) {
       setFiles([]);
-      setFilesError("Workspace ID is missing.");
+      setFilesError(
+        "Workspace ID is missing."
+      );
       setLoadingFiles(false);
       return;
     }
@@ -222,91 +290,130 @@ const FilesPage = () => {
       setLoadingFiles(true);
       setFilesError("");
 
-      const response = await fetch(
-        buildApiUrl(`/api/files/${groupId}`),
-        {
-          headers: getAuthHeaders(),
-        }
+      const { data } = await API.get(
+        `/files/${groupId}`
       );
 
-      const { data, errorMessage } = await parseApiResponse(response);
+      const nextFiles = Array.isArray(data)
+        ? data
+        : [];
 
-      if (!response.ok) {
-        throw new Error(errorMessage || "Failed to load files.");
-      }
-
-      const nextFiles = Array.isArray(data) ? data : [];
       setFiles(nextFiles);
 
       if (selectedFile) {
-        const updatedSelectedFile = nextFiles.find(
-          (file) => file._id === selectedFile._id
-        );
+        const updatedSelectedFile =
+          nextFiles.find(
+            (file) =>
+              file._id === selectedFile._id
+          );
 
         if (!updatedSelectedFile) {
           clearPreviewObjectUrl();
+
           setSelectedFile(null);
           setPreviewFile(null);
           setPreviewError("");
           setFileContent("");
         } else {
-          setSelectedFile(updatedSelectedFile);
-          setPreviewFile(updatedSelectedFile);
+          setSelectedFile(
+            updatedSelectedFile
+          );
+
+          setPreviewFile(
+            updatedSelectedFile
+          );
         }
       }
     } catch (error) {
-      console.error("Failed to load files:", error);
-      setFilesError(error.message || "Failed to load files.");
+      console.error(
+        "Failed to load files:",
+        error
+      );
+
+      setFilesError(
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to load files."
+      );
+
       setFiles([]);
     } finally {
       setLoadingFiles(false);
     }
   };
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      fetchFiles();
-    }, 0);
+  // ============================================
+  // INITIAL FILE LOAD
+  // ============================================
 
-    return () => window.clearTimeout(timer);
+  useEffect(() => {
+    const timer = window.setTimeout(
+      () => {
+        fetchFiles();
+      },
+      0
+    );
+
+    return () =>
+      window.clearTimeout(timer);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupId]);
 
+  // ============================================
+  // AUTO OPEN UPLOAD PICKER
+  // ============================================
+
   useEffect(() => {
-    if (searchParams.get("upload") !== "true") {
+    if (
+      searchParams.get("upload") !== "true"
+    ) {
       return undefined;
     }
 
     const timer = setTimeout(() => {
       fileInputRef.current?.click();
 
-      const nextParams = new URLSearchParams(searchParams);
+      const nextParams =
+        new URLSearchParams(searchParams);
+
       nextParams.delete("upload");
+
       setSearchParams(nextParams, {
         replace: true,
       });
     }, 100);
 
-    return () => clearTimeout(timer);
+    return () =>
+      clearTimeout(timer);
   }, [searchParams, setSearchParams]);
 
+  // ============================================
+  // SELECT UPLOAD FILE
+  // ============================================
+
   const handleFileSelect = (event) => {
-    const file = event.target.files?.[0];
+    const file =
+      event.target.files?.[0];
 
     if (!file) {
       return;
     }
 
     setUploadSuccess("");
+    setUploadError("");
 
     if (file.size > MAX_FILE_SIZE) {
-      setUploadError("File is too large. Maximum file size is 1 MB.");
+      setUploadError(
+        "File is too large. Maximum file size is 1 MB."
+      );
+
       setSelectedUploadFile(null);
       event.target.value = "";
+
       return;
     }
 
-    setUploadError("");
     setSelectedUploadFile(file);
   };
 
@@ -314,19 +421,35 @@ const FilesPage = () => {
     fileInputRef.current?.click();
   };
 
+  // ============================================
+  // UPLOAD FILE
+  // ============================================
+
   const handleUpload = async () => {
     if (!groupId) {
-      setUploadError("Workspace ID is missing.");
+      setUploadError(
+        "Workspace ID is missing."
+      );
+
       return;
     }
 
     if (!selectedUploadFile) {
-      setUploadError("Please select a file to upload.");
+      setUploadError(
+        "Please select a file to upload."
+      );
+
       return;
     }
 
-    if (selectedUploadFile.size > MAX_FILE_SIZE) {
-      setUploadError("File is too large. Maximum file size is 1 MB.");
+    if (
+      selectedUploadFile.size >
+      MAX_FILE_SIZE
+    ) {
+      setUploadError(
+        "File is too large. Maximum file size is 1 MB."
+      );
+
       return;
     }
 
@@ -336,24 +459,47 @@ const FilesPage = () => {
       setUploadSuccess("");
 
       const formData = new FormData();
-      formData.append("file", selectedUploadFile);
 
-      const response = await fetch(
-        buildApiUrl(`/api/files/upload/${groupId}`),
+      /*
+       * IMPORTANT:
+       * Backend upload middleware must use:
+       *
+       * upload.single("file")
+       *
+       * because the multipart field name
+       * sent here is "file".
+       */
+      formData.append(
+        "file",
+        selectedUploadFile
+      );
+
+      const response = await API.post(
+        `/files/upload/${groupId}`,
+        formData,
         {
-          method: "POST",
-          headers: getAuthHeaders(),
-          body: formData,
+          /*
+           * auth.js normally uses application/json.
+           * This request contains FormData, so this
+           * request must be multipart.
+           */
+          headers: {
+            "Content-Type":
+              "multipart/form-data",
+          },
         }
       );
 
-      const { errorMessage } = await parseApiResponse(response);
+      console.log(
+        "Upload successful:",
+        response.data
+      );
 
-      if (!response.ok) {
-        throw new Error(errorMessage || "File upload failed.");
-      }
+      setUploadSuccess(
+        response.data?.message ||
+        "File uploaded successfully."
+      );
 
-      setUploadSuccess("File uploaded successfully.");
       setSelectedUploadFile(null);
 
       if (fileInputRef.current) {
@@ -362,150 +508,293 @@ const FilesPage = () => {
 
       await fetchFiles();
     } catch (error) {
-      console.error("Failed to upload file:", error);
-      setUploadError(error.message || "Failed to upload file.");
+      /*
+       * Print the actual backend response.
+       * If the server rejects the file, this
+       * tells us exactly why.
+       */
+      console.error(
+        "UPLOAD ERROR:",
+        error.response?.data ||
+        error
+      );
+
+      const backendMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error;
+
+      setUploadError(
+        backendMessage ||
+        error.message ||
+        "Failed to upload file."
+      );
     } finally {
       setUploading(false);
     }
   };
+
+  // ============================================
+  // DELETE FILE
+  // ============================================
 
   const handleDelete = async () => {
     if (!selectedFile) {
       return;
     }
 
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete "${selectedFile.originalName}"?`
-    );
+    const confirmDelete =
+      window.confirm(
+        `Are you sure you want to delete "${selectedFile.originalName}"?`
+      );
 
     if (!confirmDelete) {
       return;
     }
 
     try {
-      const response = await fetch(
-        buildApiUrl(`/api/files/${selectedFile._id}`),
-        {
-          method: "DELETE",
-          headers: getAuthHeaders(),
-        }
+      await API.delete(
+        `/files/${selectedFile._id}`
       );
 
-      const { errorMessage } = await parseApiResponse(response);
-
-      if (!response.ok) {
-        throw new Error(errorMessage || "Failed to delete file.");
-      }
-
       clearPreviewObjectUrl();
+
+      const deletedFileId =
+        selectedFile._id;
+
       setSelectedFile(null);
       setPreviewFile(null);
       setPreviewError("");
       setFileContent("");
-      await fetchFiles();
+
+      setFiles((currentFiles) =>
+        currentFiles.filter(
+          (file) =>
+            file._id !== deletedFileId
+        )
+      );
     } catch (error) {
-      console.error("Failed to delete file:", error);
-      window.alert(error.message || "Failed to delete file.");
+      console.error(
+        "Failed to delete file:",
+        error.response?.data || error
+      );
+
+      window.alert(
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to delete file."
+      );
     }
   };
 
-  const loadBinaryPreview = async (file) => {
-    const response = await fetch(
-      buildApiUrl(`/api/files/view/${file.fileUrl}`),
-      {
-        headers: getAuthHeaders(),
-      }
-    );
+  // ============================================
+  // LOAD IMAGE / PDF
+  // ============================================
 
-    if (!response.ok) {
-      const { errorMessage } = await parseApiResponse(response);
-      throw new Error(errorMessage || "Failed to load preview.");
+  const loadBinaryPreview = async (
+    file
+  ) => {
+    if (!file?.fileUrl) {
+      throw new Error(
+        "File URL is missing."
+      );
     }
 
-    const blob = await response.blob();
-    const objectUrl = URL.createObjectURL(blob);
+    try {
+      const response = await API.get(
+        `/files/view/${file.fileUrl}`,
+        {
+          responseType: "blob",
+        }
+      );
 
-    clearPreviewObjectUrl();
-    previewObjectUrlRef.current = objectUrl;
-    setPreviewUrl(objectUrl);
+      const objectUrl =
+        URL.createObjectURL(
+          response.data
+        );
+
+      clearPreviewObjectUrl();
+
+      previewObjectUrlRef.current =
+        objectUrl;
+
+      setPreviewUrl(objectUrl);
+    } catch (error) {
+      console.error(
+        "Failed to load binary preview:",
+        error.response?.data || error
+      );
+
+      throw new Error(
+        error.response?.data?.message ||
+        "Failed to load preview.",
+        {
+          cause: error,
+        }
+      );
+    }
   };
 
-  const handleSelectFile = async (file) => {
+  // ============================================
+  // SELECT / PREVIEW FILE
+  // ============================================
+
+  const handleSelectFile = async (
+    file
+  ) => {
+    if (!file) {
+      return;
+    }
+
     setSelectedFile(file);
     setPreviewFile(file);
+
     setPreviewError("");
     setFileContent("");
     setCopied(false);
     setLoadingContent(false);
+
     clearPreviewObjectUrl();
 
     try {
-      if (file.fileType?.startsWith("image/") || file.fileType?.includes("pdf")) {
+      // ----------------------------------------
+      // IMAGE / PDF
+      // ----------------------------------------
+
+      if (
+        file.fileType?.startsWith(
+          "image/"
+        ) ||
+        file.fileType?.includes("pdf")
+      ) {
         setLoadingContent(true);
+
         await loadBinaryPreview(file);
+
         return;
       }
+
+      // ----------------------------------------
+      // NON-PREVIEWABLE FILE
+      // ----------------------------------------
 
       if (!isCodeFile(file)) {
         return;
       }
 
+      // ----------------------------------------
+      // CODE / TEXT PREVIEW
+      // ----------------------------------------
+
       setLoadingContent(true);
 
-      const response = await fetch(
-        buildApiUrl(`/api/files/view/${file.fileUrl}`),
+      const response = await API.get(
+        `/files/view/${file.fileUrl}`,
         {
-          headers: getAuthHeaders(),
+          responseType: "text",
+
+          /*
+           * Without this Axios may try to
+           * automatically parse JSON files.
+           */
+          transformResponse: [
+            (data) => data,
+          ],
         }
       );
 
-      if (!response.ok) {
-        const { errorMessage } = await parseApiResponse(response);
-        throw new Error(errorMessage || "Failed to load file.");
+      if (
+        typeof response.data ===
+        "string"
+      ) {
+        setFileContent(
+          response.data
+        );
+      } else {
+        setFileContent(
+          JSON.stringify(
+            response.data,
+            null,
+            2
+          )
+        );
       }
-
-      const text = await response.text();
-      setFileContent(text);
     } catch (error) {
-      console.error("Failed to load file preview:", error);
-      setPreviewError(error.message || "Unable to load this file.");
+      console.error(
+        "Failed to load file preview:",
+        error.response?.data || error
+      );
+
+      setPreviewError(
+        error.response?.data?.message ||
+        error.message ||
+        "Unable to load this file."
+      );
     } finally {
       setLoadingContent(false);
     }
   };
 
-  const handleDownload = async (file = selectedFile) => {
+  // ============================================
+  // DOWNLOAD FILE
+  // ============================================
+
+  const handleDownload = async (
+    file = selectedFile
+  ) => {
     if (!file?.fileUrl) {
       return;
     }
 
     try {
-      const response = await fetch(
-        buildApiUrl(`/api/files/download/${file.fileUrl}`),
+      const response = await API.get(
+        `/files/download/${file.fileUrl}`,
         {
-          headers: getAuthHeaders(),
+          responseType: "blob",
         }
       );
 
-      if (!response.ok) {
-        const { errorMessage } = await parseApiResponse(response);
-        throw new Error(errorMessage || "Failed to download file.");
-      }
+      const objectUrl =
+        URL.createObjectURL(
+          response.data
+        );
 
-      const blob = await response.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
+      const link =
+        document.createElement("a");
+
       link.href = objectUrl;
-      link.download = file.originalName || "download";
+
+      link.download =
+        file.originalName ||
+        "download";
+
       document.body.appendChild(link);
+
       link.click();
+
       link.remove();
-      URL.revokeObjectURL(objectUrl);
+
+      URL.revokeObjectURL(
+        objectUrl
+      );
     } catch (error) {
-      console.error("Failed to download file:", error);
-      window.alert(error.message || "Failed to download file.");
+      console.error(
+        "Failed to download file:",
+        error.response?.data || error
+      );
+
+      window.alert(
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to download file."
+      );
     }
   };
+
+  // ============================================
+  // COPY CODE FILE
+  // ============================================
 
   const handleCopyFile = async () => {
     if (!fileContent) {
@@ -513,143 +802,170 @@ const FilesPage = () => {
     }
 
     try {
-      await navigator.clipboard.writeText(fileContent);
+      await navigator.clipboard.writeText(
+        fileContent
+      );
+
       setCopied(true);
 
       setTimeout(() => {
         setCopied(false);
       }, 2000);
     } catch (error) {
-      console.error("Failed to copy file:", error);
+      console.error(
+        "Failed to copy file:",
+        error
+      );
     }
   };
 
-  const filteredFiles = files.filter((file) =>
-    file.originalName?.toLowerCase().includes(searchTerm.toLowerCase())
+  // ============================================
+  // FILTER + STORAGE
+  // ============================================
+
+  const filteredFiles = files.filter(
+    (file) =>
+      file.originalName
+        ?.toLowerCase()
+        .includes(
+          searchTerm.toLowerCase()
+        )
   );
-  const totalStorage = files.reduce((total, file) => total + (file.fileSize || 0), 0);
-  const storagePercentage = Math.min((totalStorage / MAX_STORAGE) * 100, 100);
+
+  const totalStorage = files.reduce(
+    (total, file) =>
+      total + (file.fileSize || 0),
+    0
+  );
+
+  const storagePercentage = Math.min(
+    (totalStorage / MAX_STORAGE) * 100,
+    100
+  );
+
   const canDelete =
     selectedFile &&
-    (selectedFile.currentUserRole === "Owner" ||
-      selectedFile.uploadedBy?._id === currentUser?._id);
+    (selectedFile.currentUserRole ===
+      "Owner" ||
+      selectedFile.uploadedBy?._id ===
+      currentUser?._id);
 
   return (
     <div className="h-[calc(100vh-64px)] bg-[#08080a] text-white flex flex-col overflow-hidden">
-<div className="shrink-0 border-b border-white/[0.07] bg-[#08080d]/80 backdrop-blur-xl">
-  <div className="flex min-h-[72px] items-center gap-5 px-5 md:px-7">
+      <div className="shrink-0 border-b border-white/[0.07] bg-[#08080d]/80 backdrop-blur-xl">
+        <div className="flex min-h-[72px] items-center gap-5 px-5 md:px-7">
 
-    {/* Title */}
-    <h1 className="shrink-0 text-xl font-semibold tracking-tight text-zinc-100">
-      Project Files
-    </h1>
+          {/* Title */}
+          <h1 className="shrink-0 text-xl font-semibold tracking-tight text-zinc-100">
+            Project Files
+          </h1>
 
-    {/* Divider */}
-    <div className="hidden h-7 w-px bg-white/[0.08] sm:block" />
+          {/* Divider */}
+          <div className="hidden h-7 w-px bg-white/[0.08] sm:block" />
 
-    {/* File Count */}
-    <div className="hidden shrink-0 sm:block">
-      <p className="text-[9px] font-medium uppercase tracking-[0.12em] text-zinc-600">
-        Files
-      </p>
+          {/* File Count */}
+          <div className="hidden shrink-0 sm:block">
+            <p className="text-[9px] font-medium uppercase tracking-[0.12em] text-zinc-600">
+              Files
+            </p>
 
-      <p className="mt-0.5 text-xs font-medium text-zinc-300">
-        {files.length}
-      </p>
-    </div>
+            <p className="mt-0.5 text-xs font-medium text-zinc-300">
+              {files.length}
+            </p>
+          </div>
 
-    {/* Divider */}
-    <div className="hidden h-7 w-px bg-white/[0.08] sm:block" />
+          {/* Divider */}
+          <div className="hidden h-7 w-px bg-white/[0.08] sm:block" />
 
-    {/* Storage */}
-    <div className="hidden w-[190px] shrink-0 md:block">
-      <div className="flex items-center justify-between">
-        <p className="text-[9px] font-medium uppercase tracking-[0.12em] text-zinc-600">
-          Storage
-        </p>
+          {/* Storage */}
+          <div className="hidden w-[190px] shrink-0 md:block">
+            <div className="flex items-center justify-between">
+              <p className="text-[9px] font-medium uppercase tracking-[0.12em] text-zinc-600">
+                Storage
+              </p>
 
-        <p className="text-[10px] font-medium text-zinc-400">
-          {formatFileSize(totalStorage)} /{" "}
-          {MAX_STORAGE / 1024 / 1024} MB
-        </p>
+              <p className="text-[10px] font-medium text-zinc-400">
+                {formatFileSize(totalStorage)} /{" "}
+                {MAX_STORAGE / 1024 / 1024} MB
+              </p>
+            </div>
+
+            <div className="mt-2 h-[4px] w-full overflow-hidden rounded-full bg-white/[0.07]">
+              <div
+                className="h-full rounded-full bg-violet-500 transition-all duration-500"
+                style={{
+                  width: `${storagePercentage}%`,
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Selected File */}
+          {selectedUploadFile && (
+            <div className="hidden max-w-[180px] min-w-0 lg:block">
+              <p
+                title={selectedUploadFile.name}
+                className="truncate text-xs text-zinc-400"
+              >
+                {selectedUploadFile.name}
+              </p>
+
+              <p className="mt-0.5 text-[10px] text-zinc-600">
+                {formatFileSize(selectedUploadFile.size)}
+              </p>
+            </div>
+          )}
+
+          {/* Hidden File Input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+
+          {/* Choose File */}
+          <button
+            type="button"
+            onClick={openFilePicker}
+            className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.035] px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.07] hover:text-white"
+          >
+            <FaUpload className="text-xs" />
+            <span className="hidden sm:inline">Choose File</span>
+            <span className="sm:hidden">Choose</span>
+          </button>
+
+          {/* Upload */}
+          <button
+            type="button"
+            onClick={handleUpload}
+            disabled={uploading || !selectedUploadFile}
+            className="inline-flex shrink-0 items-center rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {uploading ? "Uploading..." : "Upload"}
+          </button>
+        </div>
+
+        {/* Messages only appear when needed */}
+        {(uploadError || uploadSuccess || filesError) && (
+          <div className="px-5 pb-3 md:px-7">
+            {uploadError && (
+              <p className="text-xs text-red-400">{uploadError}</p>
+            )}
+
+            {!uploadError && uploadSuccess && (
+              <p className="text-xs text-emerald-400">{uploadSuccess}</p>
+            )}
+
+            {!uploadError && !uploadSuccess && filesError && (
+              <p className="text-xs text-red-400">{filesError}</p>
+            )}
+          </div>
+        )}
       </div>
-
-      <div className="mt-2 h-[4px] w-full overflow-hidden rounded-full bg-white/[0.07]">
-        <div
-          className="h-full rounded-full bg-violet-500 transition-all duration-500"
-          style={{
-            width: `${storagePercentage}%`,
-          }}
-        />
-      </div>
-    </div>
-
-    {/* Spacer */}
-    <div className="flex-1" />
-
-    {/* Selected File */}
-    {selectedUploadFile && (
-      <div className="hidden max-w-[180px] min-w-0 lg:block">
-        <p
-          title={selectedUploadFile.name}
-          className="truncate text-xs text-zinc-400"
-        >
-          {selectedUploadFile.name}
-        </p>
-
-        <p className="mt-0.5 text-[10px] text-zinc-600">
-          {formatFileSize(selectedUploadFile.size)}
-        </p>
-      </div>
-    )}
-
-    {/* Hidden File Input */}
-    <input
-      ref={fileInputRef}
-      type="file"
-      onChange={handleFileSelect}
-      className="hidden"
-    />
-
-    {/* Choose File */}
-    <button
-      type="button"
-      onClick={openFilePicker}
-      className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.035] px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.07] hover:text-white"
-    >
-      <FaUpload className="text-xs" />
-      <span className="hidden sm:inline">Choose File</span>
-      <span className="sm:hidden">Choose</span>
-    </button>
-
-    {/* Upload */}
-    <button
-      type="button"
-      onClick={handleUpload}
-      disabled={uploading || !selectedUploadFile}
-      className="inline-flex shrink-0 items-center rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-50"
-    >
-      {uploading ? "Uploading..." : "Upload"}
-    </button>
-  </div>
-
-  {/* Messages only appear when needed */}
-  {(uploadError || uploadSuccess || filesError) && (
-    <div className="px-5 pb-3 md:px-7">
-      {uploadError && (
-        <p className="text-xs text-red-400">{uploadError}</p>
-      )}
-
-      {!uploadError && uploadSuccess && (
-        <p className="text-xs text-emerald-400">{uploadSuccess}</p>
-      )}
-
-      {!uploadError && !uploadSuccess && filesError && (
-        <p className="text-xs text-red-400">{filesError}</p>
-      )}
-    </div>
-  )}
-</div>
 
       <div className="relative flex flex-1 min-h-0">
         <aside
@@ -724,10 +1040,9 @@ const FilesPage = () => {
                         onClick={() => handleSelectFile(file)}
                         className={`
                           w-full rounded-lg border px-3 py-3 text-left transition
-                          ${
-                            active
-                              ? "border-violet-500/30 bg-violet-500/[0.08]"
-                              : "border-transparent hover:border-white/[0.06] hover:bg-white/[0.03]"
+                          ${active
+                            ? "border-violet-500/30 bg-violet-500/[0.08]"
+                            : "border-transparent hover:border-white/[0.06] hover:bg-white/[0.03]"
                           }
                         `}
                       >

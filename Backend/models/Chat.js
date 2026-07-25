@@ -13,6 +13,7 @@ const chatSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
 
     content: {
@@ -24,7 +25,12 @@ const chatSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      enum: ["text", "file_upload", "file_delete", "system"],
+      enum: [
+        "text",
+        "file_upload",
+        "file_delete",
+        "system",
+      ],
       default: "text",
       index: true,
     },
@@ -38,6 +44,7 @@ const chatSchema = new mongoose.Schema(
       fileName: {
         type: String,
         trim: true,
+        maxlength: 255,
       },
 
       actorId: {
@@ -63,11 +70,20 @@ const chatSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    versionKey: false,
   }
 );
 
-chatSchema.index({ group: 1, createdAt: -1, _id: -1 });
+// Main chat query:
+// Chat.find({ group }).sort({ createdAt: -1, _id: -1 })
+chatSchema.index({
+  group: 1,
+  createdAt: -1,
+  _id: -1,
+});
 
-const Chat = mongoose.models.Chat || mongoose.model("Chat", chatSchema);
+const Chat =
+  mongoose.models.Chat ||
+  mongoose.model("Chat", chatSchema);
 
 export default Chat;

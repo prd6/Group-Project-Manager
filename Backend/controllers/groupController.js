@@ -1,4 +1,5 @@
 import Group from "../models/Group.js";
+import { deleteGroupCompletely } from "../services/cleanupService.js";
 
 // ===========================================
 // GENERATE JOIN CODE
@@ -357,51 +358,53 @@ export const removeMember = async (req, res) => {
 // ===========================================
 
 export const deleteGroup = async (req, res) => {
-    try {
-        const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-        const group = await Group.findById(id);
+    // ==========================================
+    // AUTHORIZE GROUP OWNER
+    // ==========================================
 
-        if (!group) {
-            return res.status(404).json({
-                success: false,
-                message: "Group not found",
-            });
-        }
+    const { member } = await getAuthorizedGroup(
+      id,
+      req.user.id
+    );
 
-        // Check if logged-in user is Owner
-        const isOwner = group.members.some(
-            (member) =>
-                member.user.toString() ===
-                    req.user.id.toString() &&
-                member.role === "Owner"
-        );
+    ensureGroupOwner(member);
 
-        if (!isOwner) {
-            return res.status(403).json({
-                success: false,
-                message:
-                    "Only the group owner can delete this group",
-            });
-        }
+    // ==========================================
+    // DELETE GROUP + RELATED DATA
+    // ==========================================
 
-        await Group.findByIdAndDelete(id);
+    const cleanup =
+      await deleteGroupCompletely(id);
 
-        return res.status(200).json({
-            success: true,
-            message:
-                "Group deleted successfully",
-        });
-    } catch (error) {
-        console.error(
-            "Delete group error:",
-            error
-        );
+    return res.status(200).json({
+      success: true,
 
-        return res.status(500).json({
-            success: false,
-            message:
-                "Failed to delete group",
-        });
-    }
+      message:
+        "Group deleted successfully",
+
+      cleanup: {
+        deletedFiles:
+          cleanup.deletedFiles,
+      },
+    });
+  } catch (error) {
+    console.error(
+      "Delete group error:",
+      error
+    );
+
+    return res
+      .status(error.status || 500)
+      .json({
+        success: false,
+
+        message:
+          error.status
+            ? error.message
+            : "Failed to delete group",
+      });
+  }
 };

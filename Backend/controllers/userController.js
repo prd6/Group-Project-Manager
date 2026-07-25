@@ -177,6 +177,8 @@ export const updateProfile = async (req, res) => {
 };
 
 export const updateProfilePicture = async (req, res) => {
+  let newAvatarId = null;
+
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -184,21 +186,32 @@ export const updateProfilePicture = async (req, res) => {
       });
     }
 
-    const extension = allowedAvatarTypes.get(req.file.mimetype);
+    const extension = allowedAvatarTypes.get(
+      req.file.mimetype
+    );
 
     if (!extension) {
       return res.status(400).json({
-        message: "Only JPG, PNG, and WebP images are supported",
+        message:
+          "Only JPG, PNG, and WebP images are supported",
       });
     }
 
-    if (!hasValidImageSignature(req.file.buffer, req.file.mimetype)) {
+    if (
+      !hasValidImageSignature(
+        req.file.buffer,
+        req.file.mimetype
+      )
+    ) {
       return res.status(400).json({
-        message: "Uploaded file is not a valid image",
+        message:
+          "Uploaded file is not a valid image",
       });
     }
 
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(
+      req.user.id
+    );
 
     if (!user) {
       return res.status(404).json({
@@ -207,36 +220,100 @@ export const updateProfilePicture = async (req, res) => {
     }
 
     const bucket = getGridFSBucket();
-    const safeFileName = `profile-${user._id}-${Date.now()}.${extension}`;
-    const uploadStream = bucket.openUploadStream(safeFileName, {
-      contentType: req.file.mimetype,
-      metadata: {
-        owner: user._id,
-        purpose: "profile-picture",
-      },
-    });
 
-    await new Promise((resolve, reject) => {
-      Readable.from(req.file.buffer)
-        .pipe(uploadStream)
-        .on("error", reject)
-        .on("finish", resolve);
-    });
+    const safeFileName =
+      `profile-${user._id}-${Date.now()}.${extension}`;
 
-    const previousProfilePicture = user.profilePicture;
-    user.profilePicture = `/api/users/profile-picture/${uploadStream.id.toString()}`;
+    const uploadStream =
+      bucket.openUploadStream(
+        safeFileName,
+        {
+          contentType:
+            req.file.mimetype,
 
-    await user.save();
-    await deleteAvatarIfOwned(previousProfilePicture);
+          metadata: {
+            owner: user._id,
+            purpose:
+              "profile-picture",
+          },
+        }
+      );
 
-    res.status(200).json({
-      message: "Profile picture updated successfully",
+    newAvatarId = uploadStream.id;
+
+    const readable =
+      Readable.from(req.file.buffer);
+
+    await new Promise(
+      (resolve, reject) => {
+        readable.once(
+          "error",
+          reject
+        );
+
+        uploadStream.once(
+          "error",
+          reject
+        );
+
+        uploadStream.once(
+          "finish",
+          resolve
+        );
+
+        readable.pipe(
+          uploadStream
+        );
+      }
+    );
+
+    const previousProfilePicture =
+      user.profilePicture;
+
+    user.profilePicture =
+      `/api/users/profile-picture/${newAvatarId.toString()}`;
+
+    try {
+      await user.save();
+    } catch (saveError) {
+      // New avatar exists in GridFS but
+      // couldn't be attached to the user.
+      // Remove it to avoid an orphan.
+      try {
+        await bucket.delete(
+          newAvatarId
+        );
+      } catch (cleanupError) {
+        console.error(
+          "Failed to clean orphaned avatar:",
+          cleanupError
+        );
+      }
+
+      newAvatarId = null;
+
+      throw saveError;
+    }
+
+    // User now points to the new avatar,
+    // so the previous one can safely go.
+    await deleteAvatarIfOwned(
+      previousProfilePicture
+    );
+
+    return res.status(200).json({
+      message:
+        "Profile picture updated successfully",
+
       user: serializeUser(user),
     });
   } catch (error) {
-    console.error("Update profile picture error:", error);
+    console.error(
+      "Update profile picture error:",
+      error
+    );
 
-    res.status(500).json({
+    return res.status(500).json({
       message: "Server Error",
     });
   }
@@ -271,38 +348,101 @@ export const removeProfilePicture = async (req, res) => {
   }
 };
 
-export const viewProfilePicture = async (req, res) => {
+export const viewProfilePicture = async (
+  req,
+  res
+) => {
   try {
     const { fileId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(fileId)) {
+    if (
+      !mongoose.Types.ObjectId.isValid(
+        fileId
+      )
+    ) {
       return res.status(400).json({
-        message: "Invalid profile picture",
+        message:
+          "Invalid profile picture",
       });
     }
 
     const bucket = getGridFSBucket();
-    const objectId = new mongoose.Types.ObjectId(fileId);
-    const files = await bucket.find({ _id: objectId }).toArray();
 
-    if (!files.length || files[0].metadata?.purpose !== "profile-picture") {
+    const objectId =
+      new mongoose.Types.ObjectId(
+        fileId
+      );
+
+    const files = await bucket
+      .find({
+        _id: objectId,
+      })
+      .limit(1)
+      .toArray();
+
+    const storedFile = files[0];
+
+    if (
+      !storedFile ||
+      storedFile.metadata?.purpose !==
+        "profile-picture"
+    ) {
       return res.status(404).json({
-        message: "Profile picture not found",
+        message:
+          "Profile picture not found",
       });
     }
 
     res.set({
-      "Content-Type": files[0].contentType || "application/octet-stream",
-      "Content-Length": files[0].length,
-      "Cache-Control": "public, max-age=86400",
+      "Content-Type":
+        storedFile.contentType ||
+        "application/octet-stream",
+
+      "Content-Length":
+        storedFile.length,
+
+      "Cache-Control":
+        "public, max-age=86400",
+
+      "X-Content-Type-Options":
+        "nosniff",
     });
 
-    bucket.openDownloadStream(objectId).pipe(res);
+    const downloadStream =
+      bucket.openDownloadStream(
+        objectId
+      );
+
+    downloadStream.on(
+      "error",
+      (error) => {
+        console.error(
+          "Avatar stream error:",
+          error
+        );
+
+        if (!res.headersSent) {
+          return res.status(500).json({
+            message:
+              "Failed to load profile picture",
+          });
+        }
+
+        res.destroy(error);
+      }
+    );
+
+    downloadStream.pipe(res);
   } catch (error) {
-    console.error("View profile picture error:", error);
+    console.error(
+      "View profile picture error:",
+      error
+    );
 
-    res.status(500).json({
-      message: "Server Error",
-    });
+    if (!res.headersSent) {
+      return res.status(500).json({
+        message: "Server Error",
+      });
+    }
   }
 };

@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "../services/api";
 import UserAvatar from "../Components/UserAvatar";
 import CreateGroupModal from "./CreateGroupModal";
 import JoinGroupModal from "./JoinGroupModal";
+import { FaRegCopy, FaCheck } from "react-icons/fa";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -12,6 +14,7 @@ const Dashboard = () => {
   const [deletingId, setDeletingId] = useState(null);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [showJoinGroup, setShowJoinGroup] = useState(false);
+  const [copiedGroupId, setCopiedGroupId] = useState(null);
   const [user, setUser] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("user")) || null;
@@ -21,80 +24,58 @@ const Dashboard = () => {
   });
 
   // Fetch user's groups
-  const fetchGroups = async () => {
+  const fetchGroups = useCallback(async () => {
     try {
-      const token = localStorage.getItem("token");
+      setLoading(true);
 
-      const response = await fetch(
-        "http://localhost:5000/api/groups/my-groups",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const { data } = await API.get("/groups/my-groups");
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setGroups(data);
-      } else {
-        console.error(data.message);
-      }
+      setGroups(data);
     } catch (error) {
-      console.error("Failed to fetch groups:", error);
+      console.error(error);
+
+      alert(
+        error.response?.data?.message ||
+        "Failed to fetch groups."
+      );
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Delete group
   const deleteGroup = async (groupId) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this group?"
-    );
-
-    if (!confirmDelete) return;
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this group?"
+      )
+    ) {
+      return;
+    }
 
     try {
       setDeletingId(groupId);
 
-      const token = localStorage.getItem("token");
+      await API.delete(`/groups/${groupId}`);
 
-      const response = await fetch(
-        `http://localhost:5000/api/groups/${groupId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      setGroups((prev) =>
+        prev.filter((g) => g._id !== groupId)
       );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setGroups((prevGroups) =>
-          prevGroups.filter(
-            (group) => group._id !== groupId
-          )
-        );
-      } else {
-        console.error(data.message);
-        alert(data.message || "Failed to delete group");
-      }
     } catch (error) {
-      console.error("Failed to delete group:", error);
-      alert("Something went wrong while deleting the group.");
+      console.error(error);
+
+      alert(
+        error.response?.data?.message ||
+        "Failed to delete group."
+      );
     } finally {
       setDeletingId(null);
     }
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchGroups();
-  }, []);
+  }, [fetchGroups]);
 
   useEffect(() => {
     const handleUserUpdated = (event) => {
@@ -344,24 +325,76 @@ const Dashboard = () => {
                   {/* Join Code */}
                   <div
                     className="
-                                mt-5
-                                rounded-xl
-                                border border-white/[0.06]
-                                bg-black/20
-                                px-4 py-3
-                            "
+        mt-5
+        flex
+        items-center
+        justify-between
+        rounded-xl
+        border
+        border-white/[0.06]
+        bg-black/20
+        px-4
+        py-3
+    "
                   >
+                    <div>
+                      <p className="text-[10px] uppercase tracking-widest text-gray-600">
+                        Join Code
+                      </p>
 
-                    <p className="text-[10px] uppercase tracking-widest text-gray-600">
-                      Join Code
-                    </p>
+                      <p className="mt-1 font-mono text-sm tracking-wider text-gray-300">
+                        {group.joinCode}
+                      </p>
+                    </div>
 
-                    <p className="mt-1 font-mono text-sm tracking-wider text-gray-300">
-                      {group.joinCode}
-                    </p>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(group.joinCode);
 
+                          setCopiedGroupId(group._id);
+
+                          setTimeout(() => {
+                            setCopiedGroupId(null);
+                          }, 2000);
+                        } catch (error) {
+                          console.error(
+                            "Failed to copy join code:",
+                            error
+                          );
+                        }
+                      }}
+                      title="Copy join code"
+                      aria-label="Copy join code"
+                      className="
+        flex
+        h-9
+        w-9
+        items-center
+        justify-center
+        rounded-lg
+        border
+        border-white/10
+        bg-white/[0.05]
+        text-gray-400
+        transition
+        hover:bg-white/[0.1]
+        hover:text-white
+        transition-all
+        duration-100
+    "
+                    >
+                      {copiedGroupId === group._id ? (
+                        <FaCheck
+                          size={14}
+                          className="text-green-400"
+                        />
+                      ) : (
+                        <FaRegCopy size={14} />
+                      )}
+                    </button>
                   </div>
-
 
                   {/* Actions */}
                   <div className="mt-5 flex items-center justify-end gap-2">

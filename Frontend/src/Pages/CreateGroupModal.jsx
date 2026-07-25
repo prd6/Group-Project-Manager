@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import API from "../services/api";
 
 const CreateGroupModal = ({ onClose, onCreated }) => {
     const [groupData, setGroupData] = useState({
@@ -48,28 +49,11 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
             setLoading(true);
             setMessage("");
 
-            const token = localStorage.getItem("token");
 
-            const response = await fetch(
-                "http://localhost:5000/api/groups/create",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(groupData),
-                }
+            const { data } = await API.post(
+                "/groups/create",
+                groupData
             );
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                setMessage(
-                    data.message || "Failed to create group."
-                );
-                return;
-            }
 
             setGroupData({
                 groupName: "",
@@ -88,7 +72,12 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
 
         } catch (error) {
             console.error(error);
-            setMessage("Something went wrong!");
+
+            setMessage(
+                error.response?.data?.message ||
+                error.message ||
+                "Something went wrong!"
+            );
         } finally {
             setLoading(false);
         }

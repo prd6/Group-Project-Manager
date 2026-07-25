@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import API from "../services/auth";
+import AuthAPI from "../services/auth";
 import Hyperspeed from "../Styles/Hyperspeed";
 
 export default function Signup() {
@@ -175,9 +175,7 @@ export default function Signup() {
 
       const normalizedEmail = normalizeEmail(email);
 
-      const res = await API.post("/send-otp", {
-        email: normalizedEmail,
-      });
+      const res = await AuthAPI.sendOTP(normalizedEmail);
 
       setMessage(res.data.message);
       setEmail(normalizedEmail);
@@ -190,6 +188,10 @@ export default function Signup() {
 
       setShowOTPModal(true);
     } catch (error) {
+      console.error("SEND OTP ERROR:", error);
+      console.error("STATUS:", error.response?.status);
+      console.error("RESPONSE:", error.response?.data);
+
       setMessage(
         error.response?.data?.message ||
         "Failed to send OTP"
@@ -215,10 +217,10 @@ export default function Signup() {
       setVerifyingOTP(true);
       setMessage("");
 
-      const res = await API.post("/verify-otp", {
-        email: verificationEmail,
-        code,
-      });
+      const res = await AuthAPI.verifyOTP(
+        verificationEmail,
+        code
+      );
 
       setMessage(res.data.message);
 
@@ -251,7 +253,7 @@ export default function Signup() {
       const signupEmail =
         otpEmail || normalizeEmail(email);
 
-      const res = await API.post("/signup", {
+      const res = await AuthAPI.signup({
         name,
         email: signupEmail,
         password,

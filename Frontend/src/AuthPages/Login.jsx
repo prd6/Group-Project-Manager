@@ -1,249 +1,247 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-    Link,
-    useNavigate,
-    useLocation,
+  Link,
+  useNavigate,
+  useLocation,
 } from "react-router-dom";
 
 import ForgotPasswordModal from "../AuthPages/ForgotPasswordModal";
-import API from "../services/auth";
+import AuthAPI from "../services/auth";
 import Hyperspeed from "../Styles/Hyperspeed";
 
 export default function Login() {
-    const navigate = useNavigate();
-    const location = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    // ==========================================
-    // REDIRECT LOCATION
-    // ==========================================
+  // ==========================================
+  // REDIRECT LOCATION
+  // ==========================================
 
-    const previousLocation = location.state?.from;
+  const previousLocation = location.state?.from;
 
-    const from = previousLocation
-        ? `${previousLocation.pathname}${previousLocation.search || ""}${previousLocation.hash || ""}`
-        : null;
+  const from = previousLocation
+    ? `${previousLocation.pathname}${previousLocation.search || ""}${previousLocation.hash || ""}`
+    : null;
 
-    // ==========================================
-    // HYPERSPEED OPTIONS
-    // ==========================================
+  // ==========================================
+  // HYPERSPEED OPTIONS
+  // ==========================================
 
-    const hyperspeedOptions = useMemo(
-        () => ({
-            distortion: "turbulentDistortion",
-            length: 400,
-            roadWidth: 10,
-            islandWidth: 2,
-            lanesPerRoad: 4,
+  const hyperspeedOptions = useMemo(
+    () => ({
+      distortion: "turbulentDistortion",
+      length: 400,
+      roadWidth: 10,
+      islandWidth: 2,
+      lanesPerRoad: 4,
 
-            fov: 90,
-            fovSpeedUp: 150,
-            speedUp: 2,
+      fov: 90,
+      fovSpeedUp: 150,
+      speedUp: 2,
 
-            carLightsFade: 0.4,
-            totalSideLightSticks: 20,
-            lightPairsPerRoadWay: 40,
+      carLightsFade: 0.4,
+      totalSideLightSticks: 20,
+      lightPairsPerRoadWay: 40,
 
-            shoulderLinesWidthPercentage: 0.05,
-            brokenLinesWidthPercentage: 0.1,
-            brokenLinesLengthPercentage: 0.5,
+      shoulderLinesWidthPercentage: 0.05,
+      brokenLinesWidthPercentage: 0.1,
+      brokenLinesLengthPercentage: 0.5,
 
-            lightStickWidth: [0.12, 0.5],
-            lightStickHeight: [1.3, 1.7],
+      lightStickWidth: [0.12, 0.5],
+      lightStickHeight: [1.3, 1.7],
 
-            movingAwaySpeed: [60, 80],
-            movingCloserSpeed: [-120, -160],
+      movingAwaySpeed: [60, 80],
+      movingCloserSpeed: [-120, -160],
 
-            carLightsLength: [12, 80],
-            carLightsRadius: [0.05, 0.14],
+      carLightsLength: [12, 80],
+      carLightsRadius: [0.05, 0.14],
 
-            carWidthPercentage: [0.3, 0.5],
-            carShiftX: [-0.8, 0.8],
-            carFloorSeparation: [0, 5],
+      carWidthPercentage: [0.3, 0.5],
+      carShiftX: [-0.8, 0.8],
+      carFloorSeparation: [0, 5],
 
-            colors: {
-                roadColor: 0x080808,
-                islandColor: 0x0a0a0a,
-                background: 0x000000,
+      colors: {
+        roadColor: 0x080808,
+        islandColor: 0x0a0a0a,
+        background: 0x000000,
 
-                shoulderLines: 0xffffff,
-                brokenLines: 0xffffff,
+        shoulderLines: 0xffffff,
+        brokenLines: 0xffffff,
 
-                leftCars: [
-                    0xd856bf,
-                    0x6750a2,
-                    0xc247ac,
-                ],
-
-                rightCars: [
-                    0x03b3c3,
-                    0x0e5ea5,
-                    0x324555,
-                ],
-
-                sticks: 0x03b3c3,
-            },
-        }),
-        []
-    );
-
-    // ==========================================
-    // FORM STATE
-    // ==========================================
-
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [message, setMessage] = useState("");
-    const [loggingIn, setLoggingIn] = useState(false);
-
-    const [
-        showForgotPassword,
-        setShowForgotPassword,
-    ] = useState(false);
-
-    // ==========================================
-    // CAROUSEL
-    // ==========================================
-
-    const [activeSlide, setActiveSlide] = useState(0);
-
-    const slides = useMemo(
-        () => [
-            {
-                title: "Welcome Back,\nLet's Build",
-                description:
-                    "Your projects and your team are waiting.",
-            },
-            {
-                title: "Pick Up Where\nYou Left Off",
-                description:
-                    "Jump back into your projects and keep moving.",
-            },
-            {
-                title: "Together We\nBuild Better",
-                description:
-                    "Collaborate, organize and bring ideas to life.",
-            },
+        leftCars: [
+          0xd856bf,
+          0x6750a2,
+          0xc247ac,
         ],
-        []
-    );
 
-    // ==========================================
-    // AUTO SLIDER
-    // ==========================================
+        rightCars: [
+          0x03b3c3,
+          0x0e5ea5,
+          0x324555,
+        ],
 
-    useEffect(() => {
-        const slideInterval = setInterval(() => {
-            setActiveSlide(
-                (prev) =>
-                    (prev + 1) % slides.length
-            );
-        }, 3000);
+        sticks: 0x03b3c3,
+      },
+    }),
+    []
+  );
 
-        return () =>
-            clearInterval(slideInterval);
-    }, [slides]);
+  // ==========================================
+  // FORM STATE
+  // ==========================================
 
-    // ==========================================
-    // LOGIN
-    // ==========================================
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [loggingIn, setLoggingIn] = useState(false);
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
+  const [
+    showForgotPassword,
+    setShowForgotPassword,
+  ] = useState(false);
 
-        if (!email || !password) {
-            setMessage(
-                "Please enter your email and password."
-            );
-            return;
-        }
+  // ==========================================
+  // CAROUSEL
+  // ==========================================
 
-        try {
-            setLoggingIn(true);
-            setMessage("");
+  const [activeSlide, setActiveSlide] = useState(0);
 
-            const res = await API.post("/login", {
-                email: email
-                    .trim()
-                    .toLowerCase(),
-                password,
+  const slides = useMemo(
+    () => [
+      {
+        title: "Welcome Back,\nLet's Build",
+        description:
+          "Your projects and your team are waiting.",
+      },
+      {
+        title: "Pick Up Where\nYou Left Off",
+        description:
+          "Jump back into your projects and keep moving.",
+      },
+      {
+        title: "Together We\nBuild Better",
+        description:
+          "Collaborate, organize and bring ideas to life.",
+      },
+    ],
+    []
+  );
+
+  // ==========================================
+  // AUTO SLIDER
+  // ==========================================
+
+  useEffect(() => {
+    const slideInterval = setInterval(() => {
+      setActiveSlide(
+        (prev) =>
+          (prev + 1) % slides.length
+      );
+    }, 3000);
+
+    return () =>
+      clearInterval(slideInterval);
+  }, [slides]);
+
+  // ==========================================
+  // LOGIN
+  // ==========================================
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    if (!email || !password) {
+      setMessage(
+        "Please enter your email and password."
+      );
+      return;
+    }
+
+    try {
+      setLoggingIn(true);
+      setMessage("");
+
+      const res = await AuthAPI.login({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+
+      // Save JWT
+      localStorage.setItem(
+        "token",
+        res.data.token
+      );
+
+      // Save user
+      localStorage.setItem(
+        "user",
+        JSON.stringify(res.data.user)
+      );
+
+      // Tell navbar/profile components
+      // that the logged-in user changed
+      window.dispatchEvent(
+        new CustomEvent("user-updated", {
+          detail: res.data.user,
+        })
+      );
+
+      setMessage("Login Successful!");
+
+      const isAdmin =
+        res.data.user.role === "admin";
+
+      setTimeout(() => {
+        // =================================
+        // USER CAME FROM PROTECTED ROUTE
+        // =================================
+
+        if (from) {
+          // Prevent normal users from
+          // entering an admin route
+          if (
+            from.startsWith("/admin") &&
+            !isAdmin
+          ) {
+            navigate("/dashboard", {
+              replace: true,
             });
 
-            // Save JWT
-            localStorage.setItem(
-                "token",
-                res.data.token
-            );
+            return;
+          }
 
-            // Save user
-            localStorage.setItem(
-                "user",
-                JSON.stringify(res.data.user)
-            );
+          navigate(from, {
+            replace: true,
+          });
 
-            // Tell navbar/profile components
-            // that the logged-in user changed
-            window.dispatchEvent(
-                new CustomEvent("user-updated", {
-                    detail: res.data.user,
-                })
-            );
-
-            setMessage("Login Successful!");
-
-            const isAdmin =
-                res.data.user.role === "admin";
-
-            setTimeout(() => {
-                // =================================
-                // USER CAME FROM PROTECTED ROUTE
-                // =================================
-
-                if (from) {
-                    // Prevent normal users from
-                    // entering an admin route
-                    if (
-                        from.startsWith("/admin") &&
-                        !isAdmin
-                    ) {
-                        navigate("/dashboard", {
-                            replace: true,
-                        });
-
-                        return;
-                    }
-
-                    navigate(from, {
-                        replace: true,
-                    });
-
-                    return;
-                }
-
-                // =================================
-                // NORMAL LOGIN
-                // =================================
-
-                if (isAdmin) {
-                    navigate("/admin", {
-                        replace: true,
-                    });
-                } else {
-                    navigate("/dashboard", {
-                        replace: true,
-                    });
-                }
-            }, 1000);
-        } catch (error) {
-            setMessage(
-                error.response?.data?.message ||
-                    "Something went wrong"
-            );
-        } finally {
-            setLoggingIn(false);
+          return;
         }
-    };
 
-    // KEEP THE REST OF YOUR EXISTING JSX HERE
+        // =================================
+        // NORMAL LOGIN
+        // =================================
+
+        if (isAdmin) {
+          navigate("/admin", {
+            replace: true,
+          });
+        } else {
+          navigate("/dashboard", {
+            replace: true,
+          });
+        }
+      }, 1000);
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message ||
+        "Something went wrong"
+      );
+    } finally {
+      setLoggingIn(false);
+    }
+  };
+
+  // KEEP THE REST OF YOUR EXISTING JSX HERE
 
   return (
     <div

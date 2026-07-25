@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import API from "../services/auth";
+import AuthAPI from "../services/auth";
 
 export default function ForgotPasswordModal({ onClose }) {
     const [step, setStep] = useState("email");
@@ -95,11 +95,8 @@ export default function ForgotPasswordModal({ onClose }) {
             setLoading(true);
             setMessage("");
 
-            const res = await API.post(
-                "/forgot-password",
-                {
-                    email: email.trim().toLowerCase(),
-                }
+            const res = await AuthAPI.forgotPassword(
+                email.trim().toLowerCase()
             );
 
             setOtp(["", "", "", "", "", ""]);
@@ -114,7 +111,7 @@ export default function ForgotPasswordModal({ onClose }) {
         } catch (error) {
             setMessage(
                 error.response?.data?.message ||
-                    "Failed to send OTP"
+                "Failed to send OTP"
             );
         } finally {
             setLoading(false);
@@ -139,12 +136,9 @@ export default function ForgotPasswordModal({ onClose }) {
             setVerifyingOTP(true);
             setMessage("");
 
-            const res = await API.post(
-                "/verify-reset-otp",
-                {
-                    email: email.trim().toLowerCase(),
-                    code,
-                }
+            const res = await AuthAPI.verifyResetOTP(
+                email.trim().toLowerCase(),
+                code
             );
 
             setMessage(res.data.message);
@@ -153,7 +147,7 @@ export default function ForgotPasswordModal({ onClose }) {
         } catch (error) {
             setMessage(
                 error.response?.data?.message ||
-                    "Invalid or expired OTP"
+                "Invalid or expired OTP"
             );
         } finally {
             setVerifyingOTP(false);
@@ -183,13 +177,10 @@ export default function ForgotPasswordModal({ onClose }) {
             setResettingPassword(true);
             setMessage("");
 
-            const res = await API.post(
-                "/reset-password",
-                {
-                    email: email.trim().toLowerCase(),
-                    code: otp.join(""),
-                    password,
-                }
+            const res = await AuthAPI.resetPassword(
+                email.trim().toLowerCase(),
+                otp.join(""),
+                password
             );
 
             setMessage(res.data.message);
@@ -198,7 +189,7 @@ export default function ForgotPasswordModal({ onClose }) {
         } catch (error) {
             setMessage(
                 error.response?.data?.message ||
-                    "Something went wrong"
+                "Something went wrong"
             );
         } finally {
             setResettingPassword(false);
@@ -498,7 +489,7 @@ export default function ForgotPasswordModal({ onClose }) {
                                         onKeyDown={(e) => {
                                             if (
                                                 e.key ===
-                                                    "Backspace" &&
+                                                "Backspace" &&
                                                 !otp[index] &&
                                                 index > 0
                                             ) {
@@ -510,7 +501,7 @@ export default function ForgotPasswordModal({ onClose }) {
                                             if (
                                                 e.key === "Enter" &&
                                                 otp.join("").length ===
-                                                    6
+                                                6
                                             ) {
                                                 verifyOTP();
                                             }

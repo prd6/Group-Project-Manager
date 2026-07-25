@@ -9,74 +9,73 @@ import {
   toggleBanUser,
   deleteUser,
   editUser,
-
   getAllGroups,
   deleteGroup,
-
   getFiles,
 } from "../controllers/adminController.js";
 
 const router = express.Router();
 
-// Dashboard
+// ==========================================
+// ALL ADMIN ROUTES ARE PROTECTED
+// ==========================================
+
+router.use(authMiddleware);
+router.use(adminMiddleware);
+
+// ==========================================
+// DASHBOARD
+// ==========================================
+
 router.get(
   "/dashboard",
-  authMiddleware,
-  adminMiddleware,
   dashboard
 );
 
-// Get all users
+// ==========================================
+// USERS
+// ==========================================
+
 router.get(
   "/users",
-  authMiddleware,
-  adminMiddleware,
   getAllUsers
 );
 
 router.put(
   "/users/:id/ban",
-  authMiddleware,
-  adminMiddleware,
   toggleBanUser
-);
-
-router.delete(
-  "/users/:id",
-  authMiddleware,
-  adminMiddleware,
-  deleteUser
 );
 
 router.put(
   "/users/:id",
-  authMiddleware,
-  adminMiddleware,
   editUser
 );
 
-// Groups
+router.delete(
+  "/users/:id",
+  deleteUser
+);
+
+// ==========================================
+// GROUPS
+// ==========================================
 
 router.get(
-    "/groups",
-    authMiddleware,
-    adminMiddleware,
-    getAllGroups
+  "/groups",
+  getAllGroups
 );
 
 router.delete(
-    "/groups/:id",
-    authMiddleware,
-    adminMiddleware,
-    deleteGroup
+  "/groups/:id",
+  deleteGroup
 );
 
-// Files
+// ==========================================
+// FILES
+// ==========================================
 
 router.get(
   "/files",
-  authMiddleware,
-  adminMiddleware,
   getFiles
 );
 

@@ -1,5 +1,9 @@
 import nodemailer from "nodemailer";
 
+// ==========================================
+// TRANSPORTER
+// ==========================================
+
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -8,18 +12,21 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-const sendEmail = async (to, otp, type) => {
+// ==========================================
+// SEND EMAIL
+// ==========================================
 
-    // Only allow these two email types
+const sendEmail = async (to, otp, type) => {
+    // Only allow supported email types
     if (!["signup", "forgot-password"].includes(type)) {
         throw new Error("Invalid email type");
     }
 
     const isSignup = type === "signup";
 
-    // =========================
+    // ==========================================
     // EMAIL CONTENT
-    // =========================
+    // ==========================================
 
     const subject = isSignup
         ? "Verify your CodeGPM account"
@@ -45,10 +52,9 @@ const sendEmail = async (to, otp, type) => {
         ? `Your CodeGPM verification code is ${otp}. This code expires in 5 minutes.`
         : `Your CodeGPM password reset code is ${otp}. This code expires in 5 minutes.`;
 
-
-    // =========================
+    // ==========================================
     // HTML TEMPLATE
-    // =========================
+    // ==========================================
 
     const html = `
     <!DOCTYPE html>
@@ -122,7 +128,6 @@ const sendEmail = async (to, otp, type) => {
                             </td>
                         </tr>
 
-
                         <!-- BODY -->
                         <tr>
                             <td style="padding: 36px 32px;">
@@ -136,7 +141,6 @@ const sendEmail = async (to, otp, type) => {
                                     ${title}
                                 </h2>
 
-
                                 <p style="
                                     margin: 0;
                                     text-align: center;
@@ -146,7 +150,6 @@ const sendEmail = async (to, otp, type) => {
                                 ">
                                     ${description}
                                 </p>
-
 
                                 <!-- OTP -->
                                 <div style="
@@ -179,7 +182,6 @@ const sendEmail = async (to, otp, type) => {
 
                                 </div>
 
-
                                 <!-- EXPIRATION -->
                                 <p style="
                                     text-align: center;
@@ -193,12 +195,10 @@ const sendEmail = async (to, otp, type) => {
                                     </strong>.
                                 </p>
 
-
                                 <div style="
                                     border-top: 1px solid #eeeeee;
                                     margin: 30px 0 22px;
                                 "></div>
-
 
                                 <!-- SECURITY -->
                                 <p style="
@@ -215,7 +215,6 @@ const sendEmail = async (to, otp, type) => {
 
                             </td>
                         </tr>
-
 
                         <!-- FOOTER -->
                         <tr>
@@ -245,18 +244,50 @@ const sendEmail = async (to, otp, type) => {
     </html>
     `;
 
+    // ==========================================
+    // CHECK ENV
+    // ==========================================
 
-    // =========================
+    console.log("========== SEND EMAIL CALLED ==========");
+    console.log("To:", to);
+    console.log("Type:", type);
+    console.log("EMAIL configured:", Boolean(process.env.EMAIL));
+    console.log(
+        "EMAIL_PASSWORD configured:",
+        Boolean(process.env.EMAIL_PASSWORD)
+    );
+
+    if (!process.env.EMAIL || !process.env.EMAIL_PASSWORD) {
+        throw new Error(
+            "EMAIL or EMAIL_PASSWORD is missing from environment variables"
+        );
+    }
+
+    // ==========================================
     // SEND
-    // =========================
+    // ==========================================
 
-    await transporter.sendMail({
-        from: `"CodeGPM" <${process.env.EMAIL}>`,
-        to,
-        subject,
-        text,
-        html,
-    });
+    try {
+        const info = await transporter.sendMail({
+            from: `"CodeGPM" <${process.env.EMAIL}>`,
+            to,
+            subject,
+            text,
+            html,
+        });
+
+        console.log("Email sent successfully:", info.messageId);
+
+        return info;
+    } catch (error) {
+        console.error("========== EMAIL SEND ERROR ==========");
+        console.error("Message:", error.message);
+        console.error("Code:", error.code);
+        console.error("Response:", error.response);
+        console.error("Response Code:", error.responseCode);
+
+        throw error;
+    }
 };
 
 export default sendEmail;

@@ -1,20 +1,39 @@
 import File from "../models/file.js";
 import User from "../models/User.js";
+import {
+  MAX_USER_STORAGE,
+} from "../config/multer.js";
 import { Readable } from "stream";
-import { getGridFSBucket } from "../config/gridfs.js";
 import mongoose from "mongoose";
 import mime from "mime-types";
+
+import { getGridFSBucket } from "../config/gridfs.js";
+
 import {
   CHAT_MESSAGE_TYPES,
   createFileActivityMessage,
 } from "../utils/chatService.js";
+
 import {
   createHttpError,
   getAuthorizedGroup,
   validateObjectId,
 } from "../utils/groupAccess.js";
 
-const getAuthorizedStoredFile = async (storageFileId, userId) => {
+// ==========================================
+// HELPERS
+// ==========================================
+
+const sanitizeDownloadName = (filename = "file") => {
+  return filename
+    .replace(/[\r\n"]/g, "_")
+    .replace(/[\\/]/g, "_");
+};
+
+const getAuthorizedStoredFile = async (
+  storageFileId,
+  userId
+) => {
   validateObjectId(storageFileId, "file id");
 
   const file = await File.findOne({
@@ -22,10 +41,17 @@ const getAuthorizedStoredFile = async (storageFileId, userId) => {
   });
 
   if (!file) {
-    throw createHttpError(404, "File not found");
+    throw createHttpError(
+      404,
+      "File not found"
+    );
   }
 
-  const authorizedGroup = await getAuthorizedGroup(file.group, userId);
+  const authorizedGroup =
+    await getAuthorizedGroup(
+      file.group,
+      userId
+    );
 
   return {
     file,
@@ -34,7 +60,80 @@ const getAuthorizedStoredFile = async (storageFileId, userId) => {
   };
 };
 
-export const uploadFile = async (req, res) => {
+const getStoredGridFSFile = async (
+  bucket,
+  fileId
+) => {
+  const files = await bucket
+    .find({
+      _id: fileId,
+    })
+    .limit(1)
+    .toArray();
+
+  return files[0] || null;
+};
+
+const streamGridFSFile = ({
+  bucket,
+  fileId,
+  storedFile,
+  originalName,
+  disposition,
+  res,
+}) => {
+  const safeName =
+    sanitizeDownloadName(originalName);
+
+  res.set({
+    "Content-Type":
+      storedFile.contentType ||
+      mime.lookup(storedFile.filename) ||
+      "application/octet-stream",
+
+    "Content-Length":
+      storedFile.length,
+
+    "Content-Disposition":
+      `${disposition}; filename="${safeName}"`,
+
+    "X-Content-Type-Options":
+      "nosniff",
+  });
+
+  const downloadStream =
+    bucket.openDownloadStream(fileId);
+
+  downloadStream.on("error", (error) => {
+    console.error(
+      "GridFS download stream error:",
+      error
+    );
+
+    if (!res.headersSent) {
+      res.status(500).json({
+        message:
+          "Failed to read stored file",
+      });
+    } else {
+      res.destroy(error);
+    }
+  });
+
+  downloadStream.pipe(res);
+};
+
+// ==========================================
+// UPLOAD FILE
+// ==========================================
+
+export const uploadFile = async (
+  req,
+  res
+) => {
+  let uploadedGridFSId = null;
+  let createdFile = null;
+
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -43,164 +142,445 @@ export const uploadFile = async (req, res) => {
     }
 
     const { groupId } = req.params;
-    await getAuthorizedGroup(groupId, req.user.id);
-    const actor = await User.findById(req.user.id).select("name");
 
-    const bucket = getGridFSBucket();
-    const uploadStream = bucket.openUploadStream(req.file.originalname, {
-      contentType: req.file.mimetype,
-    });
-    const readableStream = Readable.from(req.file.buffer);
-
-    await new Promise((resolve, reject) => {
-      readableStream
-        .pipe(uploadStream)
-        .on("error", reject)
-        .on("finish", resolve);
-    });
-
-    const file = await File.create({
-      fileName: uploadStream.id.toString(),
-      originalName: req.file.originalname,
-      fileUrl: uploadStream.id.toString(),
-      fileType: req.file.mimetype,
-      fileSize: req.file.size,
-      uploadedBy: req.user.id,
-      group: groupId,
-      version: 1,
-    });
-
-    await createFileActivityMessage({
+    // Verify that the current user belongs
+    // to this group before storing anything.
+    await getAuthorizedGroup(
       groupId,
-      actor: {
-        _id: req.user.id,
-        name: actor?.name,
-      },
-      file,
-      type: CHAT_MESSAGE_TYPES.FILE_UPLOAD,
-    });
+      req.user.id
+    );
 
-    res.status(201).json({
-      message: "File uploaded successfully",
-      file,
+    // ==========================================
+    // USER STORAGE LIMIT
+    // ==========================================
+
+    const storageResult = await File.aggregate([
+      {
+        $match: {
+          uploadedBy:
+            new mongoose.Types.ObjectId(
+              req.user.id
+            ),
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalUsed: {
+            $sum: "$fileSize",
+          },
+        },
+      },
+    ]);
+
+    const usedStorage =
+      storageResult[0]?.totalUsed || 0;
+
+    const newStorageTotal =
+      usedStorage + req.file.size;
+
+    if (
+      newStorageTotal >
+      MAX_USER_STORAGE
+    ) {
+      const remainingStorage =
+        Math.max(
+          MAX_USER_STORAGE -
+          usedStorage,
+          0
+        );
+
+      return res.status(413).json({
+        message:
+          "Storage limit exceeded",
+
+        storage: {
+          used: usedStorage,
+          limit: MAX_USER_STORAGE,
+          remaining:
+            remainingStorage,
+          requested:
+            req.file.size,
+        },
+      });
+    }
+
+    const actor = await User.findById(
+      req.user.id
+    )
+      .select("name")
+      .lean();
+
+    const bucket =
+      getGridFSBucket();
+
+    const uploadStream =
+      bucket.openUploadStream(
+        req.file.originalname,
+        {
+          contentType:
+            req.file.mimetype,
+
+          metadata: {
+            groupId:
+              groupId.toString(),
+
+            uploadedBy:
+              req.user.id.toString(),
+          },
+        }
+      );
+
+    uploadedGridFSId =
+      uploadStream.id;
+
+    const readableStream =
+      Readable.from(
+        req.file.buffer
+      );
+
+    await new Promise(
+      (resolve, reject) => {
+        uploadStream.once(
+          "finish",
+          resolve
+        );
+
+        uploadStream.once(
+          "error",
+          reject
+        );
+
+        readableStream.once(
+          "error",
+          reject
+        );
+
+        readableStream.pipe(
+          uploadStream
+        );
+      }
+    );
+
+    createdFile =
+      await File.create({
+        fileName:
+          uploadStream.id.toString(),
+
+        originalName:
+          req.file.originalname,
+
+        fileUrl:
+          uploadStream.id.toString(),
+
+        fileType:
+          req.file.mimetype,
+
+        fileSize:
+          req.file.size,
+
+        uploadedBy:
+          req.user.id,
+
+        group:
+          groupId,
+
+        version: 1,
+      });
+
+    /*
+     * Activity/chat creation should not make
+     * a successful file upload fail.
+     */
+    try {
+      await createFileActivityMessage({
+        groupId,
+
+        actor: {
+          _id: req.user.id,
+          name: actor?.name,
+        },
+
+        file: createdFile,
+
+        type:
+          CHAT_MESSAGE_TYPES.FILE_UPLOAD,
+      });
+    } catch (activityError) {
+      console.error(
+        "Failed to create file upload activity:",
+        activityError
+      );
+    }
+
+    return res.status(201).json({
+      message:
+        "File uploaded successfully",
+
+      file: createdFile,
     });
   } catch (error) {
-    console.error(error);
+    console.error(
+      "Upload file error:",
+      error
+    );
 
-    res.status(error.status || 500).json({
-      message: error.message || "Server Error",
-    });
+    /*
+     * GridFS upload may succeed while File.create()
+     * fails. Remove the stored binary so we don't
+     * leave an orphaned GridFS file.
+     */
+    if (
+      uploadedGridFSId &&
+      !createdFile
+    ) {
+      try {
+        const bucket =
+          getGridFSBucket();
+
+        await bucket.delete(
+          uploadedGridFSId
+        );
+      } catch (cleanupError) {
+        console.error(
+          "Failed to clean orphaned GridFS upload:",
+          cleanupError
+        );
+      }
+    }
+
+    return res
+      .status(error.status || 500)
+      .json({
+        message:
+          error.message ||
+          "Server Error",
+      });
   }
 };
 
-export const getFiles = async (req, res) => {
+// ==========================================
+// GET GROUP FILES
+// ==========================================
+
+export const getFiles = async (
+  req,
+  res
+) => {
   try {
-    const { groupId } = req.params;
-    const authorizedGroup = await getAuthorizedGroup(groupId, req.user.id);
+    const { groupId } =
+      req.params;
+
+    const authorizedGroup =
+      await getAuthorizedGroup(
+        groupId,
+        req.user.id
+      );
 
     const files = await File.find({
       group: groupId,
     })
-      .populate("uploadedBy", "name profilePicture")
-      .sort({ createdAt: -1 });
+      .populate(
+        "uploadedBy",
+        "name profilePicture"
+      )
+      .sort({
+        createdAt: -1,
+      })
+      .lean();
 
-    const filesWithRole = files.map((file) => ({
-      ...file.toObject(),
-      currentUserRole: authorizedGroup.member.role,
-    }));
+    const filesWithRole =
+      files.map((file) => ({
+        ...file,
 
-    res.status(200).json(filesWithRole);
+        currentUserRole:
+          authorizedGroup.member.role,
+      }));
+
+    return res
+      .status(200)
+      .json(filesWithRole);
   } catch (error) {
-    console.error(error);
+    console.error(
+      "Get files error:",
+      error
+    );
 
-    res.status(error.status || 500).json({
-      message: error.message || "Server Error",
-    });
+    return res
+      .status(error.status || 500)
+      .json({
+        message:
+          error.message ||
+          "Server Error",
+      });
   }
 };
 
-export const viewFile = async (req, res) => {
+// ==========================================
+// VIEW FILE
+// ==========================================
+
+export const viewFile = async (
+  req,
+  res
+) => {
   try {
-    const authorizedFile = await getAuthorizedStoredFile(
-      req.params.fileId,
-      req.user.id
-    );
+    const { fileId } =
+      req.params;
 
-    const bucket = getGridFSBucket();
-    const fileId = new mongoose.Types.ObjectId(req.params.fileId);
-    const files = await bucket.find({ _id: fileId }).toArray();
+    const authorizedFile =
+      await getAuthorizedStoredFile(
+        fileId,
+        req.user.id
+      );
 
-    if (!files.length) {
+    const objectId =
+      new mongoose.Types.ObjectId(
+        fileId
+      );
+
+    const bucket =
+      getGridFSBucket();
+
+    const storedFile =
+      await getStoredGridFSFile(
+        bucket,
+        objectId
+      );
+
+    if (!storedFile) {
       return res.status(404).json({
-        message: "Stored file not found",
+        message:
+          "Stored file not found",
       });
     }
 
-    const storedFile = files[0];
+    streamGridFSFile({
+      bucket,
 
-    res.set({
-      "Content-Type":
-        storedFile.contentType ||
-        mime.lookup(storedFile.filename) ||
-        "application/octet-stream",
-      "Content-Length": storedFile.length,
-      "Content-Disposition": `inline; filename="${authorizedFile.file.originalName}"`,
+      fileId: objectId,
+
+      storedFile,
+
+      originalName:
+        authorizedFile.file
+          .originalName,
+
+      disposition: "inline",
+
+      res,
     });
-
-    bucket.openDownloadStream(fileId).pipe(res);
   } catch (error) {
-    console.error(error);
+    console.error(
+      "View file error:",
+      error
+    );
 
-    res.status(error.status || 500).json({
-      message: error.message || "Server Error",
-    });
+    if (!res.headersSent) {
+      return res
+        .status(error.status || 500)
+        .json({
+          message:
+            error.message ||
+            "Server Error",
+        });
+    }
   }
 };
 
-export const downloadFile = async (req, res) => {
+// ==========================================
+// DOWNLOAD FILE
+// ==========================================
+
+export const downloadFile = async (
+  req,
+  res
+) => {
   try {
-    const authorizedFile = await getAuthorizedStoredFile(
-      req.params.fileId,
-      req.user.id
-    );
+    const { fileId } =
+      req.params;
 
-    const bucket = getGridFSBucket();
-    const fileId = new mongoose.Types.ObjectId(req.params.fileId);
-    const files = await bucket.find({ _id: fileId }).toArray();
+    const authorizedFile =
+      await getAuthorizedStoredFile(
+        fileId,
+        req.user.id
+      );
 
-    if (!files.length) {
+    const objectId =
+      new mongoose.Types.ObjectId(
+        fileId
+      );
+
+    const bucket =
+      getGridFSBucket();
+
+    const storedFile =
+      await getStoredGridFSFile(
+        bucket,
+        objectId
+      );
+
+    if (!storedFile) {
       return res.status(404).json({
-        message: "Stored file not found",
+        message:
+          "Stored file not found",
       });
     }
 
-    const storedFile = files[0];
+    streamGridFSFile({
+      bucket,
 
-    res.set({
-      "Content-Type":
-        storedFile.contentType ||
-        mime.lookup(storedFile.filename) ||
-        "application/octet-stream",
-      "Content-Length": storedFile.length,
-      "Content-Disposition": `attachment; filename="${authorizedFile.file.originalName}"`,
+      fileId: objectId,
+
+      storedFile,
+
+      originalName:
+        authorizedFile.file
+          .originalName,
+
+      disposition: "attachment",
+
+      res,
     });
-
-    bucket.openDownloadStream(fileId).pipe(res);
   } catch (error) {
-    console.error(error);
+    console.error(
+      "Download file error:",
+      error
+    );
 
-    res.status(error.status || 500).json({
-      message: error.message || "Server Error",
-    });
+    if (!res.headersSent) {
+      return res
+        .status(error.status || 500)
+        .json({
+          message:
+            error.message ||
+            "Server Error",
+        });
+    }
   }
 };
 
-export const deleteFile = async (req, res) => {
-  try {
-    const { fileId } = req.params;
-    validateObjectId(fileId, "file id");
+// ==========================================
+// DELETE FILE
+// ==========================================
 
-    const file = await File.findById(fileId);
+export const deleteFile = async (
+  req,
+  res
+) => {
+  try {
+    const { fileId } =
+      req.params;
+
+    validateObjectId(
+      fileId,
+      "file id"
+    );
+
+    const file =
+      await File.findById(
+        fileId
+      );
 
     if (!file) {
       return res.status(404).json({
@@ -208,41 +588,109 @@ export const deleteFile = async (req, res) => {
       });
     }
 
-    const authorizedGroup = await getAuthorizedGroup(file.group, req.user.id);
-    const actor = await User.findById(req.user.id).select("name");
+    const authorizedGroup =
+      await getAuthorizedGroup(
+        file.group,
+        req.user.id
+      );
 
-    const isOwner = authorizedGroup.member.role === "Owner";
-    const isUploader = file.uploadedBy.toString() === req.user.id;
+    const isOwner =
+      authorizedGroup.member.role ===
+      "Owner";
 
-    if (!isOwner && !isUploader) {
+    const isUploader =
+      file.uploadedBy?.toString() ===
+      req.user.id.toString();
+
+    if (
+      !isOwner &&
+      !isUploader
+    ) {
       return res.status(403).json({
-        message: "Only the Owner or File Uploader can delete this file",
+        message:
+          "Only the Owner or File Uploader can delete this file",
       });
     }
 
-    const bucket = getGridFSBucket();
+    const actor =
+      await User.findById(
+        req.user.id
+      )
+        .select("name")
+        .lean();
 
-    await bucket.delete(new mongoose.Types.ObjectId(file.fileUrl));
-    await File.findByIdAndDelete(fileId);
+    const bucket =
+      getGridFSBucket();
 
-    await createFileActivityMessage({
-      groupId: file.group,
-      actor: {
-        _id: req.user.id,
-        name: actor?.name,
-      },
-      file,
-      type: CHAT_MESSAGE_TYPES.FILE_DELETE,
-    });
+    /*
+     * Delete GridFS data first.
+     *
+     * If this fails, keep the File metadata so
+     * the file is still discoverable/recoverable.
+     */
+    try {
+      await bucket.delete(
+        new mongoose.Types.ObjectId(
+          file.fileUrl
+        )
+      );
+    } catch (gridError) {
+      console.error(
+        "GridFS delete error:",
+        gridError
+      );
 
-    res.status(200).json({
-      message: "File deleted successfully",
+      return res.status(500).json({
+        message:
+          "Failed to delete stored file",
+      });
+    }
+
+    await File.findByIdAndDelete(
+      fileId
+    );
+
+    /*
+     * Don't make deletion appear to fail merely
+     * because creating the activity message failed.
+     */
+    try {
+      await createFileActivityMessage({
+        groupId: file.group,
+
+        actor: {
+          _id: req.user.id,
+          name: actor?.name,
+        },
+
+        file,
+
+        type:
+          CHAT_MESSAGE_TYPES.FILE_DELETE,
+      });
+    } catch (activityError) {
+      console.error(
+        "Failed to create file deletion activity:",
+        activityError
+      );
+    }
+
+    return res.status(200).json({
+      message:
+        "File deleted successfully",
     });
   } catch (error) {
-    console.error(error);
+    console.error(
+      "Delete file error:",
+      error
+    );
 
-    res.status(error.status || 500).json({
-      message: error.message || "Server Error",
-    });
+    return res
+      .status(error.status || 500)
+      .json({
+        message:
+          error.message ||
+          "Server Error",
+      });
   }
 };
