@@ -1,4 +1,4 @@
-import API from "./auth";
+import API from "./api";
 
 const ContactAPI = {
     get: (url, config) => API.get(`/contact${url}`, config),
