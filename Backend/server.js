@@ -7,11 +7,8 @@ import multer from "multer";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { Server } from "socket.io";
-
 import connectDB from "./config/db.js";
-
 import User from "./models/User.js";
-
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import communityRoutes from "./routes/communityRoutes.js";
