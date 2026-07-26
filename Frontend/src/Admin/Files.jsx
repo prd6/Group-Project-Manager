@@ -65,7 +65,7 @@ function Files() {
 
             setError(
                 error.message ||
-                    "Something went wrong while loading files."
+                "Something went wrong while loading files."
             );
         } finally {
             setLoading(false);
@@ -244,6 +244,49 @@ function Files() {
 
         return groups.size;
     }, [files]);
+
+    const deleteFile = async (fileId) => {
+        const confirmed = window.confirm(
+            "Are you sure you want to permanently delete this file?"
+        );
+
+        if (!confirmed) return;
+
+        try {
+            const token = localStorage.getItem("token");
+
+            const response = await fetch(
+                `${API_ORIGIN}/api/admin/files/${fileId}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Failed to delete file."
+                );
+            }
+
+            setFiles((currentFiles) =>
+                currentFiles.filter(
+                    (file) => file._id !== fileId
+                )
+            );
+        } catch (error) {
+            console.error("Delete file error:", error);
+
+            setError(
+                error.message ||
+                "Something went wrong while deleting the file."
+            );
+        }
+    };
 
     // ==========================================
     // LOADING
@@ -845,29 +888,26 @@ function Files() {
 
                                                                 <button
                                                                     type="button"
+                                                                    onClick={() => deleteFile(file._id)}
                                                                     title="Delete file"
                                                                     className="
-                                                                        flex
-                                                                        h-9
-                                                                        w-9
-                                                                        items-center
-                                                                        justify-center
-                                                                        rounded-lg
-                                                                        border
-                                                                        border-red-500/10
-                                                                        bg-red-500/[0.04]
-                                                                        text-red-400/60
-                                                                        transition
-                                                                        hover:border-red-500/20
-                                                                        hover:bg-red-500/10
-                                                                        hover:text-red-300
-                                                                    "
+        flex
+        h-9
+        w-9
+        items-center
+        justify-center
+        rounded-lg
+        border
+        border-red-500/10
+        bg-red-500/[0.04]
+        text-red-400/60
+        transition
+        hover:border-red-500/20
+        hover:bg-red-500/10
+        hover:text-red-300
+    "
                                                                 >
-                                                                    <Trash2
-                                                                        size={
-                                                                            15
-                                                                        }
-                                                                    />
+                                                                    <Trash2 size={15} />
                                                                 </button>
 
                                                             </div>

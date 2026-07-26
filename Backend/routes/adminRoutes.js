@@ -12,6 +12,7 @@ import {
   getAllGroups,
   deleteGroup,
   getFiles,
+  deleteFile,
 } from "../controllers/adminController.js";
 
 const router = express.Router();
@@ -77,6 +78,11 @@ router.delete(
 router.get(
   "/files",
   getFiles
+);
+
+router.delete(
+    "/files/:id",
+    deleteFile
 );
 
 export default router;

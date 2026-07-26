@@ -25,6 +25,7 @@ function Storage() {
     });
 
     const [userStorage, setUserStorage] = useState([]);
+    const [groupStorage, setGroupStorage] = useState([]);
 
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -34,8 +35,11 @@ function Storage() {
     // 500 MB application storage
     const STORAGE_LIMIT = 500 * 1024 * 1024;
 
-    // 20 MB per user
-    const USER_STORAGE_LIMIT = 20 * 1024 * 1024;
+    // 10 MB per user
+    const USER_STORAGE_LIMIT = 10 * 1024 * 1024;
+
+    // 20 MB per group
+    const GROUP_STORAGE_LIMIT = 20 * 1024 * 1024;
 
     // ==========================================
     // FETCH STORAGE
@@ -79,6 +83,10 @@ function Storage() {
 
                     setUserStorage(
                         data.userStorage || []
+                    );
+
+                    setGroupStorage(
+                        data.groupStorage || []
                     );
                 }
             } catch (error) {
@@ -890,7 +898,7 @@ function Storage() {
                                                         {formatStorage(
                                                             user.storageUsed
                                                         )}{" "}
-                                                        / 20 MB
+                                                        / 10 MB
                                                     </span>
 
                                                 </div>
@@ -905,6 +913,99 @@ function Storage() {
                         </div>
                     )}
 
+                </section>
+
+                {/* ==================================
+                    GROUP STORAGE
+                ================================== */}
+
+                <section className="mt-6 overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.03]">
+                    <div className="border-b border-white/[0.06] p-5 sm:p-6">
+                        <h2 className="font-semibold">Storage by Group</h2>
+                        <p className="mt-1 text-sm text-gray-600">
+                            Storage consumed by files inside each project group.
+                        </p>
+                    </div>
+
+                    {groupStorage.length === 0 ? (
+                        <div className="px-6 py-16 text-center">
+                            <HardDrive size={26} className="mx-auto text-gray-700" />
+                            <p className="mt-4 font-medium text-gray-300">
+                                No group storage usage
+                            </p>
+                            <p className="mt-2 text-sm text-gray-600">
+                                Group storage information will appear here after files are uploaded.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-white/[0.06]">
+                            {groupStorage.map((group) => {
+                                const percentage = Math.min(
+                                    ((group.storageUsed || 0) / GROUP_STORAGE_LIMIT) * 100,
+                                    100
+                                );
+
+                                const status = getStorageStatus(percentage);
+
+                                return (
+                                    <div
+                                        key={group.groupId}
+                                        className="p-5 transition hover:bg-white/[0.02] sm:p-6"
+                                    >
+                                        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                                            <div className="min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <p className="truncate text-sm font-medium text-gray-200">
+                                                        {group.groupName || "Unknown Group"}
+                                                    </p>
+
+                                                    {percentage >= 90 && (
+                                                        <AlertTriangle
+                                                            size={13}
+                                                            className="shrink-0 text-red-400"
+                                                        />
+                                                    )}
+                                                </div>
+
+                                                <p className="mt-1 text-xs text-gray-600">
+                                                    {group.fileCount || 0}{" "}
+                                                    {(group.fileCount || 0) === 1 ? "file" : "files"}
+                                                </p>
+                                            </div>
+
+                                            <div className="sm:text-right">
+                                                <p className="text-sm font-semibold text-gray-200">
+                                                    {formatStorage(group.storageUsed)}
+                                                </p>
+                                                <p className={`mt-1 text-xs ${status.textClass}`}>
+                                                    {status.label}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-5">
+                                            <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                                                <div
+                                                    className={`h-full rounded-full transition-all duration-700 ${status.bgClass}`}
+                                                    style={{ width: `${percentage}%` }}
+                                                />
+                                            </div>
+
+                                            <div className="mt-2 flex flex-col gap-1 text-xs sm:flex-row sm:items-center sm:justify-between">
+                                                <span className={percentage >= 90 ? "text-red-400" : "text-gray-600"}>
+                                                    {percentage.toFixed(1)}% of group limit
+                                                </span>
+
+                                                <span className="text-gray-600">
+                                                    {formatStorage(group.storageUsed)} / 20 MB
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
                 </section>
 
                 {/* ==================================

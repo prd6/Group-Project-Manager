@@ -2,6 +2,7 @@ import File from "../models/file.js";
 import User from "../models/User.js";
 import {
   MAX_USER_STORAGE,
+  MAX_GROUP_STORAGE
 } from "../config/multer.js";
 import { Readable } from "stream";
 import mongoose from "mongoose";
@@ -201,6 +202,51 @@ export const uploadFile = async (
             remainingStorage,
           requested:
             req.file.size,
+        },
+      });
+    }
+
+
+    // ==========================================
+    // GROUP STORAGE LIMIT
+    // ==========================================
+
+    const groupStorageResult = await File.aggregate([
+      {
+        $match: {
+          group: new mongoose.Types.ObjectId(groupId),
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalUsed: {
+            $sum: "$fileSize",
+          },
+        },
+      },
+    ]);
+
+    const groupUsedStorage =
+      groupStorageResult[0]?.totalUsed || 0;
+
+    const newGroupStorageTotal =
+      groupUsedStorage + req.file.size;
+
+    if (newGroupStorageTotal > MAX_GROUP_STORAGE) {
+      const remainingGroupStorage = Math.max(
+        MAX_GROUP_STORAGE - groupUsedStorage,
+        0
+      );
+
+      return res.status(413).json({
+        message: "Group storage limit exceeded",
+
+        storage: {
+          used: groupUsedStorage,
+          limit: MAX_GROUP_STORAGE,
+          remaining: remainingGroupStorage,
+          requested: req.file.size,
         },
       });
     }

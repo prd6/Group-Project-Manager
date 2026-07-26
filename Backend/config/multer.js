@@ -13,6 +13,9 @@ export const MAX_AVATAR_SIZE =
   2 * 1024 * 1024; // 2 MB
 
 export const MAX_USER_STORAGE =
+  10 * 1024 * 1024; // 10 MB
+
+export const MAX_GROUP_STORAGE =
   20 * 1024 * 1024; // 20 MB
 
 // ==========================================

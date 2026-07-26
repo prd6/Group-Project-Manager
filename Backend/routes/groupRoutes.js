@@ -67,7 +67,7 @@ router.delete(
 // ==========================================
 
 router.delete(
-  "/:id",
+  "/:groupId",
   authMiddleware,
   deleteGroup
 );

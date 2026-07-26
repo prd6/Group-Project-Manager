@@ -353,42 +353,46 @@ export const removeMember = async (req, res) => {
     }
 };
 
-// ===========================================
+// ==========================================
 // DELETE GROUP
-// ===========================================
+// ==========================================
 
 export const deleteGroup = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { groupId } = req.params;
+    const userId = req.user.id;
 
-    // ==========================================
-    // AUTHORIZE GROUP OWNER
-    // ==========================================
+    // Find group
+    const group = await Group.findById(groupId);
 
-    const { member } = await getAuthorizedGroup(
-      id,
-      req.user.id
+    if (!group) {
+      return res.status(404).json({
+        success: false,
+        message: "Group not found",
+      });
+    }
+
+    // Find current user's membership
+    const membership = group.members.find(
+      (member) =>
+        member.user.toString() === userId.toString()
     );
 
-    ensureGroupOwner(member);
+    // Only owner can delete
+    if (!membership || membership.role !== "Owner") {
+      return res.status(403).json({
+        success: false,
+        message: "Only the group owner can delete this group",
+      });
+    }
 
-    // ==========================================
-    // DELETE GROUP + RELATED DATA
-    // ==========================================
-
-    const cleanup =
-      await deleteGroupCompletely(id);
+    // Delete group + files + GridFS data + chats
+    const result = await deleteGroupCompletely(groupId);
 
     return res.status(200).json({
       success: true,
-
-      message:
-        "Group deleted successfully",
-
-      cleanup: {
-        deletedFiles:
-          cleanup.deletedFiles,
-      },
+      message: "Group deleted successfully",
+      deletedFiles: result.deletedFiles,
     });
   } catch (error) {
     console.error(
@@ -396,15 +400,13 @@ export const deleteGroup = async (req, res) => {
       error
     );
 
-    return res
-      .status(error.status || 500)
-      .json({
-        success: false,
-
-        message:
-          error.status
-            ? error.message
-            : "Failed to delete group",
-      });
+    return res.status(
+      error.status || 500
+    ).json({
+      success: false,
+      message:
+        error.message ||
+        "Failed to delete group",
+    });
   }
 };

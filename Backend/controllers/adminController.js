@@ -4,6 +4,8 @@ import User from "../models/User.js";
 import Group from "../models/Group.js";
 import File from "../models/file.js";
 
+import { getGridFSBucket } from "../config/gridfs.js";
+
 import {
   deleteFilesUploadedByUser,
   deleteGroupCompletely,
@@ -75,6 +77,7 @@ const dashboard = async (req, res) => {
       totalFiles,
       storageResult,
       userStorage,
+      groupStorage,
     ] = await Promise.all([
       User.countDocuments(),
 
@@ -153,6 +156,52 @@ const dashboard = async (req, res) => {
           },
         },
       ]),
+      File.aggregate([
+        {
+          $group: {
+            _id: "$group",
+
+            storageUsed: {
+              $sum: "$fileSize",
+            },
+
+            fileCount: {
+              $sum: 1,
+            },
+          },
+        },
+
+        {
+          $lookup: {
+            from: "groups",
+            localField: "_id",
+            foreignField: "_id",
+            as: "group",
+          },
+        },
+
+        {
+          $unwind: "$group",
+        },
+
+        {
+          $project: {
+            _id: 0,
+
+            groupId: "$group._id",
+            groupName: "$group.groupName",
+
+            storageUsed: 1,
+            fileCount: 1,
+          },
+        },
+
+        {
+          $sort: {
+            storageUsed: -1,
+          },
+        },
+      ]),
     ]);
 
     const totalStorage =
@@ -177,6 +226,7 @@ const dashboard = async (req, res) => {
       },
 
       userStorage,
+      groupStorage,
     });
   } catch (error) {
     return sendError(
@@ -811,6 +861,109 @@ const getFiles = async (
 };
 
 // ==========================================
+// DELETE FILE
+// ==========================================
+
+const deleteFile = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    validateId(id, "file id");
+
+    // Find file metadata
+    const file = await File.findById(id);
+
+    if (!file) {
+      return res.status(404).json({
+        success: false,
+        message: "File not found",
+      });
+    }
+
+    // ==========================================
+    // DELETE FILE FROM GRIDFS
+    // ==========================================
+
+    if (file.fileUrl) {
+      try {
+        const bucket = getGridFSBucket();
+
+        console.log(
+          "File document ID:",
+          file._id
+        );
+
+        console.log(
+          "GridFS ID:",
+          file.fileUrl
+        );
+
+        console.log(
+          "GridFS ID type:",
+          typeof file.fileUrl
+        );
+
+        // Make sure stored GridFS ID is valid
+        if (
+          !mongoose.isValidObjectId(
+            file.fileUrl
+          )
+        ) {
+          return res.status(500).json({
+            success: false,
+            message:
+              "Invalid GridFS file ID stored in database",
+          });
+        }
+
+        const gridFSId =
+          new mongoose.Types.ObjectId(
+            file.fileUrl
+          );
+
+        await bucket.delete(gridFSId);
+
+        console.log(
+          "GridFS file deleted successfully"
+        );
+      } catch (error) {
+        console.error(
+          "GridFS file deletion failed:"
+        );
+
+        console.error(error);
+
+        return res.status(500).json({
+          success: false,
+          message:
+            "Failed to delete stored file",
+        });
+      }
+    }
+
+    // ==========================================
+    // DELETE FILE METADATA
+    // ==========================================
+
+    await File.deleteOne({
+      _id: file._id,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "File deleted successfully",
+    });
+  } catch (error) {
+    return sendError(
+      res,
+      error,
+      "Failed to delete file"
+    );
+  }
+};
+
+// ==========================================
 // EXPORTS
 // ==========================================
 
@@ -823,4 +976,5 @@ export {
   getAllGroups,
   deleteGroup,
   getFiles,
+  deleteFile,
 };
