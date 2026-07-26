@@ -5,11 +5,9 @@ import { initGridFS } from "./gridfs.js";
 
 const isProduction =
   process.env.NODE_ENV === "production";
-
 // ==========================================
 // OTP INDEX CHECK
 // ==========================================
-
 const checkOTPIndexes = async () => {
   try {
     /*

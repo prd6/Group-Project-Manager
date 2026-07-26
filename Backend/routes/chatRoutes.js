@@ -7,7 +7,6 @@ import {
   getMessages,
   sendMessage,
 } from "../controllers/chatController.js";
-
 const router = express.Router();
 
 // Get all chat messages of a group
