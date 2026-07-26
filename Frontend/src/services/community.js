@@ -1,4 +1,4 @@
-import API from "./auth";
+import API from "./api";
 
 const CommunityAPI = {
     get: (url, config) => API.get(`/community${url}`, config),

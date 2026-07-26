@@ -1,4 +1,4 @@
-import API from "./auth";
+import API from "./api";
 
 const AdminAPI = {
     get: (url, config) => API.get(`/admin${url}`, config),

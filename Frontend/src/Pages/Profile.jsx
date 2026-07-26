@@ -26,6 +26,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardNavbar from "../Components/DashboardNavbar";
 import UserAvatar from "../Components/UserAvatar";
 import { API_ORIGIN } from "../services/apiConfig";
+import ForgotPasswordModal from "../AuthPages/ForgotPasswordModal";
 
 const supportedTypes = ["image/jpeg", "image/png", "image/webp"];
 const maxFileSize = 2 * 1024 * 1024;
@@ -47,6 +48,8 @@ const Profile = () => {
 
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
+
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
 
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
@@ -135,7 +138,7 @@ const Profile = () => {
                 if (!response.ok) {
                     throw new Error(
                         data.message ||
-                            "Failed to load profile"
+                        "Failed to load profile"
                     );
                 }
 
@@ -143,7 +146,7 @@ const Profile = () => {
             } catch (err) {
                 setError(
                     err.message ||
-                        "Failed to load profile"
+                    "Failed to load profile"
                 );
             } finally {
                 setLoading(false);
@@ -254,7 +257,7 @@ const Profile = () => {
             if (!response.ok) {
                 throw new Error(
                     data.message ||
-                        "Failed to upload profile picture"
+                    "Failed to upload profile picture"
                 );
             }
 
@@ -267,7 +270,7 @@ const Profile = () => {
         } catch (err) {
             setFailure(
                 err.message ||
-                    "Failed to upload profile picture"
+                "Failed to upload profile picture"
             );
         } finally {
             setUploading(false);
@@ -303,7 +306,7 @@ const Profile = () => {
             if (!response.ok) {
                 throw new Error(
                     data.message ||
-                        "Failed to remove profile picture"
+                    "Failed to remove profile picture"
                 );
             }
 
@@ -316,7 +319,7 @@ const Profile = () => {
         } catch (err) {
             setFailure(
                 err.message ||
-                    "Failed to remove profile picture"
+                "Failed to remove profile picture"
             );
         } finally {
             setRemovingPicture(false);
@@ -367,7 +370,7 @@ const Profile = () => {
             if (!response.ok) {
                 throw new Error(
                     data.message ||
-                        "Failed to update profile"
+                    "Failed to update profile"
                 );
             }
 
@@ -379,7 +382,7 @@ const Profile = () => {
         } catch (err) {
             setFailure(
                 err.message ||
-                    "Failed to update profile"
+                "Failed to update profile"
             );
         } finally {
             setSavingProfile(false);
@@ -388,12 +391,12 @@ const Profile = () => {
 
     const joinedDate = user?.createdAt
         ? new Date(
-              user.createdAt
-          ).toLocaleDateString("en-IN", {
-              day: "2-digit",
-              month: "long",
-              year: "numeric",
-          })
+            user.createdAt
+        ).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+        })
         : "Unknown";
 
     const hasNameChanged =
@@ -465,11 +468,10 @@ const Profile = () => {
 
                 {(message || error) && (
                     <div
-                        className={`mb-6 flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm ${
-                            error
+                        className={`mb-6 flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm ${error
                                 ? "border-red-500/20 bg-red-500/10 text-red-200"
                                 : "border-emerald-500/20 bg-emerald-500/10 text-emerald-200"
-                        }`}
+                            }`}
                     >
                         {error ? (
                             <X size={18} />
@@ -821,7 +823,7 @@ const Profile = () => {
                                             onClick={() =>
                                                 setName(
                                                     user.name ||
-                                                        ""
+                                                    ""
                                                 )
                                             }
                                             className="rounded-xl px-4 py-2.5 text-sm text-gray-400 transition hover:bg-white/[0.05] hover:text-white"
@@ -966,11 +968,7 @@ const Profile = () => {
 
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        navigate(
-                                            "/forgot-password"
-                                        )
-                                    }
+                                    onClick={() => setShowForgotPassword(true)}
                                     className="shrink-0 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-gray-300 transition hover:bg-white/[0.08] hover:text-white"
                                 >
                                     Change Password
@@ -1076,6 +1074,11 @@ const Profile = () => {
                         </div>
                     </div>
                 </div>
+            )}
+            {showForgotPassword && (
+                <ForgotPasswordModal
+                    onClose={() => setShowForgotPassword(false)}
+                />
             )}
         </div>
     );
