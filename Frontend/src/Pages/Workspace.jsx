@@ -52,7 +52,7 @@ const Workspace = () => {
             const token = localStorage.getItem("token");
 
             const response = await fetch(
-                `http://localhost:5000/api/groups/${groupId}`,
+                `/api/groups/${groupId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -116,7 +116,7 @@ const Workspace = () => {
         try {
 
             const response = await fetch(
-                `http://localhost:5000/api/groups/${groupId}/leave`,
+                `/api/groups/${groupId}/leave`,
                 {
                     method: "DELETE",
 
@@ -159,7 +159,7 @@ const Workspace = () => {
         try {
 
             const response = await fetch(
-                `http://localhost:5000/api/groups/${groupId}/remove/${memberId}`,
+                `/api/groups/${groupId}/remove/${memberId}`,
                 {
                     method: "DELETE",
 

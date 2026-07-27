@@ -3,7 +3,7 @@
  * Reads from Vite environment and falls back to localhost during development.
  */
 export const API_ORIGIN = (
-    import.meta.env.VITE_API_ORIGIN || "http://localhost:5000"
+    import.meta.env.VITE_API_ORIGIN || ""
 ).replace(/\/$/, "");
 
 /**
