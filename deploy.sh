@@ -18,7 +18,7 @@ pm2 restart codegpm-api
 
 echo "📦 Installing frontend dependencies..."
 cd ../Frontend
-npm ci
+npm install
 
 echo "🏗️ Building frontend..."
 npm run build
