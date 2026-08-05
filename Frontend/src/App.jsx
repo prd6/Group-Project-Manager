@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 
 // Pages
 import Home from "./Pages/Home";
+import Features from "./Pages/Features";
 import Dashboard from "./Pages/Dashboard";
 import Workspace from "./Pages/Workspace";
 import FilesPage from "./Pages/FilesPage";
@@ -64,6 +65,11 @@ function App() {
                         <Signup />
                     </PublicRoute>
                 }
+            />
+
+            <Route
+                path="/features"
+                element={<Features />}
             />
 
             {/* ========================================

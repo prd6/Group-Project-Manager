@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
+import {
+    useCallback,
+    useEffect,
+    useState,
+} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import {
-    ArrowLeft,
     ArrowRight,
     CalendarDays,
     Check,
@@ -18,6 +21,7 @@ import {
     Users,
 } from "lucide-react";
 
+import BackButton from "../Components/BackButton";
 import UserAvatar from "../Components/UserAvatar";
 
 const Workspace = () => {
@@ -44,7 +48,7 @@ const Workspace = () => {
     // FETCH GROUP
     // ==========================================
 
-    const fetchGroup = async () => {
+    const fetchGroup = useCallback(async () => {
         try {
             setLoading(true);
             setError("");
@@ -76,13 +80,18 @@ const Workspace = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [groupId]);
 
     useEffect(() => {
         if (groupId) {
-            fetchGroup();
+            const timer = window.setTimeout(() => {
+                void fetchGroup();
+            }, 0);
+
+            return () => window.clearTimeout(timer);
         }
-    }, [groupId]);
+        return undefined;
+    }, [fetchGroup, groupId]);
 
     // ==========================================
     // COPY JOIN CODE
@@ -255,22 +264,12 @@ const Workspace = () => {
                             "This workspace could not be loaded."}
                     </p>
 
-                    <button
-                        onClick={() => navigate("/dashboard")}
-                        className="
-                            mt-6
-                            rounded-xl
-                            bg-violet-600
-                            px-5
-                            py-2.5
-                            text-sm
-                            font-medium
-                            transition
-                            hover:bg-violet-500
-                        "
-                    >
-                        Return to Dashboard
-                    </button>
+                    <div className="mt-6 flex justify-center">
+                        <BackButton
+                            to="/dashboard"
+                            label="Dashboard"
+                        />
+                    </div>
                 </div>
             </div>
         );
@@ -332,28 +331,10 @@ const Workspace = () => {
 
                 <div className="mb-6 flex items-center justify-between">
 
-                    <button
-                        onClick={() => navigate("/dashboard")}
-                        className="
-                            inline-flex
-                            items-center
-                            gap-2
-                            rounded-xl
-                            border
-                            border-white/[0.07]
-                            bg-white/[0.03]
-                            px-4
-                            py-2.5
-                            text-sm
-                            text-gray-400
-                            transition
-                            hover:bg-white/[0.06]
-                            hover:text-white
-                        "
-                    >
-                        <ArrowLeft size={15} />
-                        Dashboard
-                    </button>
+                    <BackButton
+                        to="/dashboard"
+                        label="Dashboard"
+                    />
 
                     <div className="hidden items-center gap-2 text-xs text-gray-600 sm:flex">
                         <span>WorkSpace</span>

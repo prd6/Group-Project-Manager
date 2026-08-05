@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import API from "../services/api";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import BackButton from "../Components/BackButton";
 import UserAvatar from "../Components/UserAvatar";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
@@ -854,6 +855,12 @@ const FilesPage = () => {
     <div className="h-[calc(100vh-64px)] bg-[#08080a] text-white flex flex-col overflow-hidden">
       <div className="shrink-0 border-b border-white/[0.07] bg-[#08080d]/80 backdrop-blur-xl">
         <div className="flex min-h-[72px] items-center gap-5 px-5 md:px-7">
+
+          {/* Back */}
+          <BackButton
+            to={`/workspace/${groupId}`}
+            label="Workspace"
+          />
 
           {/* Title */}
           <h1 className="shrink-0 text-xl font-semibold tracking-tight text-zinc-100">

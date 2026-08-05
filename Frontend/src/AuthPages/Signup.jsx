@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthAPI from "../services/auth";
 import Hyperspeed from "../Styles/Hyperspeed";
+import BackButton from "../Components/BackButton";
+import PasswordInput from "../Components/PasswordInput";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -116,6 +118,19 @@ export default function Signup() {
 
   const inputRefs = useRef([]);
 
+  const fillOtp = (digits) => {
+    const nextOtp = ["", "", "", "", "", ""];
+
+    digits
+      .slice(0, 6)
+      .split("")
+      .forEach((digit, index) => {
+        nextOtp[index] = digit;
+      });
+
+    setOtp(nextOtp);
+  };
+
   // ================= OTP TIMER =================
 
   useEffect(() => {
@@ -138,22 +153,88 @@ export default function Signup() {
     }, 3000);
 
     return () => clearInterval(slideInterval);
-  }, []);
+  }, [slides.length]);
 
   // ================= OTP INPUT =================
 
   const handleOTPChange = (value, index) => {
-    if (!/^[0-9]?$/.test(value)) return;
+    const digits = value.replace(/\D/g, "");
 
-    const newOTP = [...otp];
+    if (!digits) {
+      setOtp((prev) => {
+        const next = [...prev];
+        next[index] = "";
+        return next;
+      });
+      return;
+    }
 
-    newOTP[index] = value;
+    if (digits.length >= 6) {
+      fillOtp(digits);
+      inputRefs.current[5]?.focus();
+      return;
+    }
 
-    setOtp(newOTP);
+    if (digits.length > 1) {
+      setOtp((prev) => {
+        const next = [...prev];
 
-    if (value && index < 5) {
+        digits.split("").forEach((digit, offset) => {
+          if (index + offset < next.length) {
+            next[index + offset] = digit;
+          }
+        });
+
+        return next;
+      });
+
+      inputRefs.current[
+        Math.min(index + digits.length, 5)
+      ]?.focus();
+      return;
+    }
+
+    setOtp((prev) => {
+      const next = [...prev];
+      next[index] = digits;
+      return next;
+    });
+
+    if (index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
+  };
+
+  const handleOTPPaste = (event, index) => {
+    const pastedValue = event.clipboardData
+      .getData("text")
+      .replace(/\D/g, "");
+
+    if (!pastedValue) return;
+
+    event.preventDefault();
+
+    if (pastedValue.length >= 6) {
+      fillOtp(pastedValue);
+      inputRefs.current[5]?.focus();
+      return;
+    }
+
+    setOtp((prev) => {
+      const next = [...prev];
+
+      pastedValue.split("").forEach((digit, offset) => {
+        if (index + offset < next.length) {
+          next[index + offset] = digit;
+        }
+      });
+
+      return next;
+    });
+
+    inputRefs.current[
+      Math.min(index + pastedValue.length - 1, 5)
+    ]?.focus();
   };
 
   // ================= SEND OTP =================
@@ -253,17 +334,38 @@ export default function Signup() {
       const signupEmail =
         otpEmail || normalizeEmail(email);
 
-      const res = await AuthAPI.signup({
+      await AuthAPI.signup({
         name,
         email: signupEmail,
         password,
       });
 
-      setMessage(res.data.message);
+      const loginRes = await AuthAPI.login({
+        email: signupEmail,
+        password,
+      });
 
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 1200);
+      localStorage.setItem(
+        "token",
+        loginRes.data.token
+      );
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(loginRes.data.user)
+      );
+
+      window.dispatchEvent(
+        new CustomEvent("user-updated", {
+          detail: loginRes.data.user,
+        })
+      );
+
+      setMessage("Account created successfully.");
+
+      navigate("/dashboard", {
+        replace: true,
+      });
     } catch (error) {
       setMessage(
         error.response?.data?.message ||
@@ -275,6 +377,7 @@ export default function Signup() {
   return (
     <div
       className="
+        relative
         min-h-screen
         bg-black
         flex
@@ -284,6 +387,9 @@ export default function Signup() {
         md:p-8
       "
     >
+            <div className="absolute left-7 top-7 z-10">
+              <BackButton to="/" label="Home" />
+            </div>
       {/* ==================================================
                          MAIN CONTAINER
       ================================================== */}
@@ -364,35 +470,6 @@ export default function Signup() {
 
             {/* BACK BUTTON */}
 
-            <Link
-              to="/"
-              className="
-                absolute
-                top-7
-                right-7
-                z-10
-
-                px-4
-                py-2
-
-                rounded-full
-
-                bg-white/5
-                hover:bg-white/10
-
-                border
-                border-white/10
-
-                backdrop-blur-md
-
-                text-white
-                text-sm
-
-                transition
-              "
-            >
-              Back to website →
-            </Link>
 
             {/* BOTTOM CAROUSEL */}
             <div
@@ -711,13 +788,13 @@ export default function Signup() {
 
               {/* PASSWORD */}
 
-              <input
-                type="password"
+              <PasswordInput
                 value={password}
                 onChange={(e) =>
                   setPassword(e.target.value)
                 }
                 placeholder="Enter your password"
+                autoComplete="new-password"
                 className="
                   w-full
 
@@ -747,13 +824,15 @@ export default function Signup() {
 
               {/* CONFIRM PASSWORD */}
 
-              <input
-                type="password"
+              <PasswordInput
                 value={confirmPassword}
                 onChange={(e) =>
-                  setConfirmPassword(e.target.value)
+                  setConfirmPassword(
+                    e.target.value
+                  )
                 }
                 placeholder="Confirm your password"
+                autoComplete="new-password"
                 className="
                   w-full
 
@@ -977,14 +1056,48 @@ export default function Signup() {
                       index
                     )
                   }
+                  onPaste={(e) =>
+                    handleOTPPaste(e, index)
+                  }
                   onKeyDown={(e) => {
                     if (
                       e.key === "Backspace" &&
-                      !otp[index] &&
+                      index > 0
+                    ) {
+                      setOtp((prev) => {
+                        const next = [...prev];
+
+                        if (next[index]) {
+                          next[index] = "";
+                          return next;
+                        }
+
+                        next[index - 1] = "";
+                        return next;
+                      });
+
+                      if (!otp[index]) {
+                        inputRefs.current[
+                          index - 1
+                        ]?.focus();
+                      }
+                    }
+
+                    if (
+                      e.key === "ArrowLeft" &&
                       index > 0
                     ) {
                       inputRefs.current[
                         index - 1
+                      ]?.focus();
+                    }
+
+                    if (
+                      e.key === "ArrowRight" &&
+                      index < 5
+                    ) {
+                      inputRefs.current[
+                        index + 1
                       ]?.focus();
                     }
                   }}

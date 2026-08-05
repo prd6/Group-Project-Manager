@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import AuthAPI from "../services/auth";
+import PasswordInput from "../Components/PasswordInput";
 
 export default function ForgotPasswordModal({ onClose }) {
     const [step, setStep] = useState("email");
@@ -26,6 +27,19 @@ export default function ForgotPasswordModal({ onClose }) {
     ]);
 
     const inputRefs = useRef([]);
+
+    const fillOtp = (digits) => {
+        const nextOTP = ["", "", "", "", "", ""];
+
+        digits
+            .slice(0, 6)
+            .split("")
+            .forEach((digit, index) => {
+                nextOTP[index] = digit;
+            });
+
+        setOtp(nextOTP);
+    };
 
     // ==========================================
     // OTP TIMER
@@ -66,17 +80,83 @@ export default function ForgotPasswordModal({ onClose }) {
     // ==========================================
 
     const handleOTPChange = (value, index) => {
-        if (!/^[0-9]?$/.test(value)) return;
+        const digits = value.replace(/\D/g, "");
 
-        const newOTP = [...otp];
+        if (!digits) {
+            setOtp((prev) => {
+                const next = [...prev];
+                next[index] = "";
+                return next;
+            });
+            return;
+        }
 
-        newOTP[index] = value;
+        if (digits.length >= 6) {
+            fillOtp(digits);
+            inputRefs.current[5]?.focus();
+            return;
+        }
 
-        setOtp(newOTP);
+        if (digits.length > 1) {
+            setOtp((prev) => {
+                const next = [...prev];
 
-        if (value && index < 5) {
+                digits.split("").forEach((digit, offset) => {
+                    if (index + offset < next.length) {
+                        next[index + offset] = digit;
+                    }
+                });
+
+                return next;
+            });
+
+            inputRefs.current[
+                Math.min(index + digits.length, 5)
+            ]?.focus();
+            return;
+        }
+
+        setOtp((prev) => {
+            const next = [...prev];
+            next[index] = digits;
+            return next;
+        });
+
+        if (index < 5) {
             inputRefs.current[index + 1]?.focus();
         }
+    };
+
+    const handleOTPPaste = (event, index) => {
+        const pastedValue = event.clipboardData
+            .getData("text")
+            .replace(/\D/g, "");
+
+        if (!pastedValue) return;
+
+        event.preventDefault();
+
+        if (pastedValue.length >= 6) {
+            fillOtp(pastedValue);
+            inputRefs.current[5]?.focus();
+            return;
+        }
+
+        setOtp((prev) => {
+            const next = [...prev];
+
+            pastedValue.split("").forEach((digit, offset) => {
+                if (index + offset < next.length) {
+                    next[index + offset] = digit;
+                }
+            });
+
+            return next;
+        });
+
+        inputRefs.current[
+            Math.min(index + pastedValue.length - 1, 5)
+        ]?.focus();
     };
 
     // ==========================================
@@ -486,15 +566,56 @@ export default function ForgotPasswordModal({ onClose }) {
                                                 index
                                             )
                                         }
+                                        onPaste={(e) =>
+                                            handleOTPPaste(
+                                                e,
+                                                index
+                                            )
+                                        }
                                         onKeyDown={(e) => {
                                             if (
                                                 e.key ===
                                                 "Backspace" &&
-                                                !otp[index] &&
+                                                index > 0
+                                            ) {
+                                                setOtp((prev) => {
+                                                    const next = [
+                                                        ...prev,
+                                                    ];
+
+                                                    if (next[index]) {
+                                                        next[index] = "";
+                                                        return next;
+                                                    }
+
+                                                    next[index - 1] = "";
+                                                    return next;
+                                                });
+
+                                                if (!otp[index]) {
+                                                    inputRefs.current[
+                                                        index - 1
+                                                    ]?.focus();
+                                                }
+                                            }
+
+                                            if (
+                                                e.key ===
+                                                "ArrowLeft" &&
                                                 index > 0
                                             ) {
                                                 inputRefs.current[
                                                     index - 1
+                                                ]?.focus();
+                                            }
+
+                                            if (
+                                                e.key ===
+                                                "ArrowRight" &&
+                                                index < 5
+                                            ) {
+                                                inputRefs.current[
+                                                    index + 1
                                                 ]?.focus();
                                             }
 
@@ -668,11 +789,12 @@ export default function ForgotPasswordModal({ onClose }) {
 
                             <div className="mt-7 space-y-4">
 
-                                <input
-                                    type="password"
+                                <PasswordInput
                                     value={password}
                                     onChange={(e) =>
-                                        setPassword(e.target.value)
+                                        setPassword(
+                                            e.target.value
+                                        )
                                     }
                                     placeholder="New password"
                                     autoComplete="new-password"
@@ -694,8 +816,7 @@ export default function ForgotPasswordModal({ onClose }) {
                                     "
                                 />
 
-                                <input
-                                    type="password"
+                                <PasswordInput
                                     value={confirmPassword}
                                     onChange={(e) =>
                                         setConfirmPassword(

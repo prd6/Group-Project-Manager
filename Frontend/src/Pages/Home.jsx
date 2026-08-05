@@ -201,6 +201,24 @@ const handleContactSubmit = async (e) => {
                             </button>
                         </Link>
 
+                        <Link to="/features">
+                            <button
+                                className="
+                                    cursor-pointer
+                                    rounded-2xl
+                                    border border-white/10
+                                    bg-white/5
+                                    backdrop-blur-xl
+                                    px-8 py-4
+                                    font-medium text-white
+                                    hover:bg-white/10
+                                    transition-all
+                                    duration-300"
+                            >
+                                View Features
+                            </button>
+                        </Link>
+
                         <Link to="/login">
                             <button
                                 className="

@@ -6,6 +6,8 @@ import {
 } from "react-router-dom";
 
 import ForgotPasswordModal from "../AuthPages/ForgotPasswordModal";
+import BackButton from "../Components/BackButton";
+import PasswordInput from "../Components/PasswordInput";
 import AuthAPI from "../services/auth";
 import Hyperspeed from "../Styles/Hyperspeed";
 
@@ -246,6 +248,7 @@ export default function Login() {
   return (
     <div
       className="
+        relative
         min-h-screen
         bg-black
         flex
@@ -255,6 +258,9 @@ export default function Login() {
         md:p-8
       "
     >
+            <div className="absolute left-7 top-7 z-10">
+              <BackButton to="/" label="Home" />
+            </div>
       {/* ==================================================
                          MAIN CONTAINER
       ================================================== */}
@@ -334,36 +340,6 @@ export default function Login() {
             </div>
 
             {/* BACK BUTTON */}
-
-            <Link
-              to="/"
-              className="
-                absolute
-                top-7
-                right-7
-                z-10
-
-                px-4
-                py-2
-
-                rounded-full
-
-                bg-white/5
-                hover:bg-white/10
-
-                border
-                border-white/10
-
-                backdrop-blur-md
-
-                text-white
-                text-sm
-
-                transition
-              "
-            >
-              Back to website →
-            </Link>
 
             {/* ==================================================
                            BOTTOM CAROUSEL
@@ -616,8 +592,7 @@ export default function Login() {
 
               {/* PASSWORD */}
 
-              <input
-                type="password"
+              <PasswordInput
                 value={password}
                 onChange={(e) =>
                   setPassword(e.target.value)
