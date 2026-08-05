@@ -6,6 +6,9 @@ echo "🚀 Starting CodeGPM deployment..."
 
 cd /home/ubuntu/Group-Project-Manager
 
+echo "🧹 Cleaning local changes..."
+git restore Frontend/package-lock.json || true
+
 echo "📥 Pulling latest code..."
 git pull --rebase origin main
 
