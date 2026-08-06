@@ -70,7 +70,7 @@ const JoinGroupModal = ({ onClose, onJoined }) => {
                 justify-center
                 bg-black/70
                 p-4
-                backdrop-blur-sm
+                
             "
             onMouseDown={(e) => {
                 if (e.target === e.currentTarget) {
@@ -86,10 +86,10 @@ const JoinGroupModal = ({ onClose, onJoined }) => {
                     overflow-hidden
                     rounded-2xl
                     border
-                    border-white/10
-                    bg-[#17131f]
+                    border-[#222]
+                    bg-[#121212]
                     shadow-2xl
-                    shadow-violet-950/40
+                    shadow-black/40
                 "
             >
                 {/* CLOSE */}
@@ -107,11 +107,11 @@ const JoinGroupModal = ({ onClose, onJoined }) => {
                         items-center
                         justify-center
                         rounded-full
-                        bg-white/5
+                        bg-[#1b1b1b]
                         text-lg
-                        text-white/50
+                        text-gray-500
                         transition
-                        hover:bg-white/10
+                        hover:bg-[#222]
                         hover:text-white
                     "
                 >
@@ -129,7 +129,7 @@ const JoinGroupModal = ({ onClose, onJoined }) => {
                                 font-medium
                                 uppercase
                                 tracking-[0.18em]
-                                text-[#9b7cff]
+                                text-gray-500
                             "
                         >
                             Join workspace
@@ -152,7 +152,7 @@ const JoinGroupModal = ({ onClose, onJoined }) => {
                                 mt-2
                                 text-sm
                                 leading-6
-                                text-[#91899d]
+                                text-gray-400
                             "
                         >
                             Enter the 6-character code shared
@@ -190,7 +190,7 @@ const JoinGroupModal = ({ onClose, onJoined }) => {
                                 block
                                 text-xs
                                 font-medium
-                                text-[#aaa2b5]
+                                text-gray-500
                             "
                         >
                             Group code
@@ -220,7 +220,7 @@ const JoinGroupModal = ({ onClose, onJoined }) => {
                                 rounded-lg
                                 border
                                 border-transparent
-                                bg-[#3b3449]
+                                bg-black/20
                                 px-5
                                 py-4
                                 text-center
@@ -231,10 +231,10 @@ const JoinGroupModal = ({ onClose, onJoined }) => {
                                 text-white
                                 outline-none
                                 transition
-                                placeholder:text-[#756e80]
-                                focus:border-[#8b6cff]
+                                placeholder:text-gray-600
+                                focus:border-white/20
                                 focus:ring-1
-                                focus:ring-[#8b6cff]
+                                focus:ring-0
                             "
                         />
 
@@ -253,15 +253,15 @@ const JoinGroupModal = ({ onClose, onJoined }) => {
                                 className="
                                     rounded-lg
                                     border
-                                    border-white/10
-                                    bg-white/5
+                                    border-[#222]
+                                    bg-[#1b1b1b]
                                     px-5
                                     py-3
                                     text-sm
                                     font-medium
-                                    text-white/70
+                                    text-gray-300
                                     transition
-                                    hover:bg-white/10
+                                    hover:bg-[#222]
                                     hover:text-white
                                 "
                             >
@@ -273,14 +273,14 @@ const JoinGroupModal = ({ onClose, onJoined }) => {
                                 disabled={loading}
                                 className="
                                     rounded-lg
-                                    bg-[#7656d1]
+                                    bg-white
                                     px-5
                                     py-3
                                     text-sm
                                     font-medium
-                                    text-white
+                                    text-black
                                     transition
-                                    hover:bg-[#8565df]
+                                    hover:bg-gray-200
                                     disabled:cursor-not-allowed
                                     disabled:opacity-50
                                 "

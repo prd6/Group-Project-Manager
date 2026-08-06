@@ -297,7 +297,7 @@ const Messages = () => {
     if (loading) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-[#08080d]">
-                <RefreshCw className="h-7 w-7 animate-spin text-violet-500" />
+                <RefreshCw className="h-7 w-7 animate-spin text-gray-500" />
             </div>
         );
     }
@@ -312,7 +312,7 @@ const Messages = () => {
                 <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
 
                     <div>
-                        <p className="mb-2 text-sm font-medium text-violet-400">
+                        <p className="mb-2 text-sm font-medium text-gray-400">
                             Admin
                         </p>
 
@@ -375,8 +375,8 @@ const Messages = () => {
                         </p>
                     </div>
 
-                    <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-5">
-                        <p className="text-sm text-violet-300">
+                    <div className="rounded-2xl border border-gray-500/20 bg-gray-500/5 p-5">
+                        <p className="text-sm text-gray-300">
                             Unread
                         </p>
 
@@ -410,7 +410,7 @@ const Messages = () => {
                     <div className="flex items-center gap-3 border-b border-white/10 px-6 py-5">
                         <Inbox
                             size={19}
-                            className="text-violet-400"
+                            className="text-gray-400"
                         />
 
                         <h2 className="font-semibold">
@@ -418,7 +418,7 @@ const Messages = () => {
                         </h2>
 
                         {unreadCount > 0 && (
-                            <span className="rounded-full bg-violet-600 px-2 py-0.5 text-xs font-medium">
+                            <span className="rounded-full bg-gray-600 px-2 py-0.5 text-xs font-medium">
                                 {unreadCount}
                             </span>
                         )}
@@ -469,7 +469,7 @@ const Messages = () => {
 
                                             ${
                                                 unread
-                                                    ? "bg-violet-500/[0.06] hover:bg-violet-500/[0.1]"
+                                                    ? "bg-gray-500/[0.06] hover:bg-gray-500/[0.1]"
                                                     : "hover:bg-white/[0.04]"
                                             }
                                         `}
@@ -490,7 +490,7 @@ const Messages = () => {
 
                                                 ${
                                                     unread
-                                                        ? "bg-violet-500/15 text-violet-300"
+                                                        ? "bg-gray-500/15 text-gray-300"
                                                         : "bg-white/5 text-gray-600"
                                                 }
                                             `}
@@ -520,7 +520,7 @@ const Messages = () => {
                                                     </p>
 
                                                     {message.displayOnHome && (
-                                                        <span className="inline-flex items-center gap-1 rounded-full border border-violet-500/25 bg-violet-500/10 px-2 py-0.5 text-[10px] font-medium text-violet-300">
+                                                        <span className="inline-flex items-center gap-1 rounded-full border border-gray-500/25 bg-gray-500/10 px-2 py-0.5 text-[10px] font-medium text-gray-300">
                                                             <Star size={10} />
                                                             Displayed
                                                         </span>
@@ -558,7 +558,7 @@ const Messages = () => {
                                         </div>
 
                                         {unread && (
-                                            <span className="mt-4 h-2 w-2 shrink-0 rounded-full bg-violet-400" />
+                                            <span className="mt-4 h-2 w-2 shrink-0 rounded-full bg-gray-400" />
                                         )}
 
                                     </button>
@@ -585,7 +585,7 @@ const Messages = () => {
                         justify-center
                         bg-black/75
                         p-4
-                        backdrop-blur-sm
+                        
                     "
                     onClick={() =>
                         setSelectedMessage(null)
@@ -613,7 +613,7 @@ const Messages = () => {
                         <div className="flex items-start justify-between border-b border-white/10 p-6">
 
                             <div>
-                                <p className="text-xs font-medium uppercase tracking-widest text-violet-400">
+                                <p className="text-xs font-medium uppercase tracking-widest text-gray-400">
                                     Contact Message
                                 </p>
 
@@ -623,7 +623,7 @@ const Messages = () => {
                                     </h2>
 
                                     {selectedMessage.displayOnHome && (
-                                        <span className="inline-flex items-center gap-1 rounded-full border border-violet-500/25 bg-violet-500/10 px-2 py-0.5 text-[10px] font-medium text-violet-300">
+                                        <span className="inline-flex items-center gap-1 rounded-full border border-gray-500/25 bg-gray-500/10 px-2 py-0.5 text-[10px] font-medium text-gray-300">
                                             <Star size={10} />
                                             Displayed
                                         </span>
@@ -668,7 +668,7 @@ const Messages = () => {
 
                                 <a
                                     href={`mailto:${selectedMessage.email}`}
-                                    className="flex items-center gap-2 text-sm text-violet-300 hover:text-violet-200"
+                                    className="flex items-center gap-2 text-sm text-gray-300 hover:text-gray-200"
                                 >
                                     {selectedMessage.email}
 
@@ -769,7 +769,7 @@ const Messages = () => {
                                         ${
                                             selectedMessage.displayOnHome
                                                 ? "border border-amber-500/20 bg-amber-500/10 text-amber-200 hover:bg-amber-500/20"
-                                                : "border border-violet-500/20 bg-violet-500/10 text-violet-200 hover:bg-violet-500/20"
+                                                : "border border-gray-500/20 bg-gray-500/10 text-gray-200 hover:bg-gray-500/20"
                                         }
                                     `}
                                 >
@@ -817,14 +817,14 @@ const Messages = () => {
                                         justify-center
                                         gap-2
                                         rounded-xl
-                                        bg-violet-600
+                                        bg-gray-600
                                         px-4
                                         py-2.5
                                         text-sm
                                         font-medium
                                         text-white
                                         transition
-                                        hover:bg-violet-500
+                                        hover:bg-gray-500
                                     "
                                 >
                                     Reply

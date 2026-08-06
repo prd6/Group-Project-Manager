@@ -230,7 +230,7 @@ function Storage() {
         return {
             label: "Healthy",
             textClass: "text-emerald-400",
-            bgClass: "bg-violet-500",
+            bgClass: "bg-gray-500",
         };
     };
 
@@ -247,7 +247,7 @@ function Storage() {
 
                 <div className="text-center">
 
-                    <RefreshCw className="mx-auto h-7 w-7 animate-spin text-violet-500" />
+                    <RefreshCw className="mx-auto h-7 w-7 animate-spin text-gray-500" />
 
                     <p className="mt-4 text-sm text-gray-500">
                         Loading storage data...
@@ -274,7 +274,7 @@ function Storage() {
                         h-125
                         w-125
                         rounded-full
-                        bg-violet-700/8
+                        bg-gray-700/8
                         blur-[150px]
                     "
                 />
@@ -287,7 +287,7 @@ function Storage() {
                         h-100
                         w-100
                         rounded-full
-                        bg-purple-800/5
+                        bg-gray-800/5
                         blur-[140px]
                     "
                 />
@@ -308,10 +308,10 @@ function Storage() {
 
                             <HardDrive
                                 size={15}
-                                className="text-violet-400"
+                                className="text-gray-400"
                             />
 
-                            <p className="text-sm font-medium text-violet-400">
+                            <p className="text-sm font-medium text-gray-400">
                                 Administration
                             </p>
 
@@ -434,7 +434,7 @@ function Storage() {
                             h-60
                             w-60
                             rounded-full
-                            bg-violet-600/10
+                            bg-gray-600/10
                             blur-[100px]
                         "
                     />
@@ -456,9 +456,9 @@ function Storage() {
                                         justify-center
                                         rounded-2xl
                                         border
-                                        border-violet-500/10
-                                        bg-violet-500/10
-                                        text-violet-300
+                                        border-gray-500/10
+                                        bg-gray-500/10
+                                        text-gray-300
                                     "
                                 >
                                     <Database size={21} />
@@ -705,8 +705,8 @@ function Storage() {
                                     outline-none
                                     transition
                                     placeholder:text-gray-700
-                                    focus:border-violet-500/50
-                                    focus:bg-violet-500/[0.03]
+                                    focus:border-gray-500/50
+                                    focus:bg-[#1b1b1b]
                                 "
                             />
 
@@ -1066,8 +1066,8 @@ function StatCard({
                     items-center
                     justify-center
                     rounded-xl
-                    bg-violet-500/10
-                    text-violet-300
+                    bg-gray-500/10
+                    text-gray-300
                 "
             >
                 <Icon size={18} />

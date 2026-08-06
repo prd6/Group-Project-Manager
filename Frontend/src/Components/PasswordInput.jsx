@@ -35,9 +35,9 @@ const PasswordInput = ({
                     items-center
                     justify-center
                     rounded-full
-                    text-[#b7adc7]
+                    text-gray-500
                     transition
-                    hover:bg-white/5
+                    hover:bg-[#1b1b1b]
                     hover:text-white
                 "
             >

@@ -726,10 +726,10 @@ export default function GroupChat({ groupId }) {
                 key={notification.id}
                 type="button"
                 onClick={openChat}
-                className="w-full rounded-2xl border border-violet-500/20 bg-[#11111a]/95 px-4 py-3 text-left shadow-[0_18px_50px_rgba(7,7,18,0.55)] backdrop-blur-xl transition hover:border-violet-400/30 hover:bg-[#161625]"
+                className="w-full rounded-2xl border border-gray-500/20 bg-[#11111a]/95 px-4 py-3 text-left shadow-[0_18px_50px_rgba(7,7,18,0.55)]  transition hover:border-gray-400/30 hover:bg-[#161625]"
               >
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-500/12 text-violet-300">
+                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-500/12 text-gray-300">
                     <Bell size={16} />
                   </div>
 
@@ -749,10 +749,10 @@ export default function GroupChat({ groupId }) {
         )}
 
         {isOpen && (
-          <div className="relative h-[min(76vh,680px)] w-full max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-[30px] border border-white/[0.08] bg-[#0b0b12]/95 shadow-[0_30px_90px_rgba(0,0,0,0.55)] backdrop-blur-xl sm:w-[420px]">
+          <div className="relative h-[min(76vh,680px)] w-full max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-[30px] border border-white/[0.08] bg-[#0b0b12]/95 shadow-[0_30px_90px_rgba(0,0,0,0.55)]  sm:w-[420px]">
             <div className="pointer-events-none absolute inset-0 overflow-hidden">
-              <div className="absolute -right-16 top-0 h-40 w-40 rounded-full bg-violet-500/14 blur-[100px]" />
-              <div className="absolute -left-10 bottom-10 h-32 w-32 rounded-full bg-fuchsia-500/10 blur-[90px]" />
+              <div className="absolute -right-16 top-0 h-40 w-40 rounded-full bg-gray-500/14 blur-[100px]" />
+              <div className="absolute -left-10 bottom-10 h-32 w-32 rounded-full bg-gray-500/10 blur-[90px]" />
             </div>
 
             <div className="relative flex h-full flex-col">
@@ -760,7 +760,7 @@ export default function GroupChat({ groupId }) {
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/12 text-violet-300">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-gray-400/20 bg-gray-500/12 text-gray-300">
                         <MessageCircle size={19} />
                       </div>
 
@@ -787,7 +787,7 @@ export default function GroupChat({ groupId }) {
                       </span>
 
                       {canClearChat && (
-                        <span className="rounded-full border border-violet-500/15 bg-violet-500/[0.08] px-2.5 py-1 text-[11px] font-medium text-violet-200">
+                        <span className="rounded-full border border-gray-500/15 bg-gray-500/[0.08] px-2.5 py-1 text-[11px] font-medium text-gray-200">
                           Owner controls enabled
                         </span>
                       )}
@@ -843,7 +843,7 @@ export default function GroupChat({ groupId }) {
                   {loading && chats.length === 0 && (
                     <div className="flex h-full min-h-64 items-center justify-center">
                       <div className="text-center">
-                        <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl border border-violet-400/15 bg-violet-500/10 text-violet-300">
+                        <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl border border-gray-400/15 bg-gray-500/10 text-gray-300">
                           <LoaderCircle size={18} className="animate-spin" />
                         </div>
                         <p className="mt-4 text-sm font-medium text-gray-300">
@@ -855,7 +855,7 @@ export default function GroupChat({ groupId }) {
 
                   {!loading && chats.length === 0 && (
                     <div className="flex min-h-64 flex-col items-center justify-center px-5 text-center">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-3xl border border-violet-400/15 bg-violet-500/10 text-violet-300">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-3xl border border-gray-400/15 bg-gray-500/10 text-gray-300">
                         <MessageCircle size={22} />
                       </div>
 
@@ -909,7 +909,7 @@ export default function GroupChat({ groupId }) {
                           >
                             <div className="mb-1 flex items-center gap-2 px-1">
                               {!ownMessage && (
-                                <span className="text-xs font-medium text-violet-200">
+                                <span className="text-xs font-medium text-gray-200">
                                   {chat.sender?.name || "Member"}
                                 </span>
                               )}
@@ -928,7 +928,7 @@ export default function GroupChat({ groupId }) {
                             <div
                               className={`relative rounded-[24px] border px-4 py-3 shadow-[0_14px_40px_rgba(7,7,18,0.25)] ${
                                 ownMessage
-                                  ? "border-violet-400/15 bg-violet-500/[0.14] text-white"
+                                  ? "border-gray-400/15 bg-gray-500/[0.14] text-white"
                                   : "border-white/[0.06] bg-white/[0.035] text-gray-200"
                               }`}
                             >
@@ -988,7 +988,7 @@ export default function GroupChat({ groupId }) {
                                     }
                                     onKeyDown={handleEditingKeyDown}
                                     rows={3}
-                                    className="min-h-[88px] w-full resize-none rounded-2xl border border-white/[0.08] bg-black/20 px-3 py-2 text-sm text-white outline-none transition focus:border-violet-400/35"
+                                    className="min-h-[88px] w-full resize-none rounded-2xl border border-white/[0.08] bg-black/20 px-3 py-2 text-sm text-white outline-none transition focus:border-gray-400/35"
                                   />
 
                                   <div className="flex items-center justify-between gap-3">
@@ -1015,7 +1015,7 @@ export default function GroupChat({ groupId }) {
                                           !editingContent.trim() ||
                                           submittingAction === "editing"
                                         }
-                                        className="rounded-full bg-violet-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                        className="rounded-full bg-gray-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
                                       >
                                         {submittingAction === "editing"
                                           ? "Saving..."
@@ -1081,7 +1081,7 @@ export default function GroupChat({ groupId }) {
                         type="button"
                         onClick={handleSendMessage}
                         disabled={!message.trim() || sending}
-                        className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-600 text-white shadow-[0_12px_28px_rgba(124,58,237,0.28)] transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-45"
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gray-600 text-white shadow-[0_20px_60px_rgba(0,0,0,0.35)] transition hover:bg-gray-500 disabled:cursor-not-allowed disabled:opacity-45"
                       >
                         {sending ? (
                           <LoaderCircle size={16} className="animate-spin" />
@@ -1096,7 +1096,7 @@ export default function GroupChat({ groupId }) {
             </div>
 
             {(deleteTarget || clearChatOpen) && (
-              <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm">
+              <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/55 p-4 ">
                 <div className="w-full max-w-sm rounded-[28px] border border-white/[0.08] bg-[#11111a] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.45)]">
                   {deleteTarget ? (
                     <>
@@ -1184,7 +1184,7 @@ export default function GroupChat({ groupId }) {
               openChat();
             }
           }}
-          className="relative inline-flex h-[60px] w-[60px] items-center justify-center rounded-[24px] border border-violet-400/20 bg-violet-600 text-white shadow-[0_22px_60px_rgba(124,58,237,0.36)] transition hover:-translate-y-1 hover:bg-violet-500"
+          className="relative inline-flex h-[60px] w-[60px] items-center justify-center rounded-[24px] border border-gray-400/20 bg-gray-600 text-white shadow-[0_20px_60px_rgba(0,0,0,0.35)] transition hover:-translate-y-1 hover:bg-gray-500"
         >
           {unreadCount > 0 && !isOpen && (
             <div className="absolute -right-1.5 -top-1.5 flex min-h-7 min-w-7 items-center justify-center rounded-full border border-[#0b0b12] bg-red-500 px-2 text-[11px] font-semibold text-white">
@@ -1223,8 +1223,8 @@ function SystemMessage({ chat }) {
 
   return (
     <div className="flex justify-center">
-      <div className="inline-flex max-w-[92%] items-center gap-2 rounded-full border border-violet-400/12 bg-violet-500/[0.08] px-4 py-2 text-center text-xs leading-5 text-violet-100">
-        <span className="text-violet-300">{icon}</span>
+      <div className="inline-flex max-w-[92%] items-center gap-2 rounded-full border border-gray-400/12 bg-gray-500/[0.08] px-4 py-2 text-center text-xs leading-5 text-gray-100">
+        <span className="text-gray-300">{icon}</span>
         <span className="break-words">{chat.content}</span>
       </div>
     </div>

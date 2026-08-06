@@ -177,7 +177,7 @@ function Home() {
                                     rounded-full
                                     border border-transparent
                                     bg-black
-                                    backdrop-blur-xl
+                                    
                                     px-8 py-4
                                     font-medium text-white
                                     hover:bg-[#121212]

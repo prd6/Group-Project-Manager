@@ -240,6 +240,8 @@ export default function Signup() {
   // ================= SEND OTP =================
 
   const sendOTP = async () => {
+    if (sendingOTP) return;
+
     if (!name || !email || !password || !confirmPassword) {
       setMessage("Please fill all fields first.");
       return;
@@ -284,196 +286,157 @@ export default function Signup() {
 
   // ================= VERIFY OTP =================
 
-  const verifyOTP = async () => {
-    const code = otp.join("");
-    const verificationEmail =
-      otpEmail || normalizeEmail(email);
+const verifyOTP = async () => {
+  const code = otp.join("");
+  const verificationEmail =
+    otpEmail || normalizeEmail(email);
 
-    if (code.length !== 6) {
-      setMessage("Enter the complete OTP.");
-      return;
-    }
+  if (code.length !== 6) {
+    setMessage("Enter the complete OTP.");
+    return;
+  }
 
-    try {
-      setVerifyingOTP(true);
-      setMessage("");
+  try {
+    setVerifyingOTP(true);
+    setMessage("");
 
-      const res = await AuthAPI.verifyOTP(
-        verificationEmail,
-        code
-      );
+    // Verify OTP
+    const res = await AuthAPI.verifyOTP(
+      verificationEmail,
+      code
+    );
 
-      setMessage(res.data.message);
+    setMessage(res.data.message);
 
-      setEmail(verificationEmail);
-      setOtpEmail(verificationEmail);
-      setEmailVerified(true);
+    // Create account
+    await AuthAPI.signup({
+      name,
+      email: verificationEmail,
+      password,
+    });
 
-      setShowOTPModal(false);
-    } catch (error) {
-      setMessage(
-        error.response?.data?.message ||
-        "Invalid OTP"
-      );
-    } finally {
-      setVerifyingOTP(false);
-    }
-  };
+    // Auto login
+    const loginRes = await AuthAPI.login({
+      email: verificationEmail,
+      password,
+    });
 
-  // ================= SIGNUP =================
+    localStorage.setItem(
+      "token",
+      loginRes.data.token
+    );
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
+    localStorage.setItem(
+      "user",
+      JSON.stringify(loginRes.data.user)
+    );
 
-    if (!emailVerified) {
-      setMessage("Please verify your email first.");
-      return;
-    }
+    window.dispatchEvent(
+      new CustomEvent("user-updated", {
+        detail: loginRes.data.user,
+      })
+    );
 
-    try {
-      const signupEmail =
-        otpEmail || normalizeEmail(email);
+    setEmailVerified(true);
+    setShowOTPModal(false);
 
-      await AuthAPI.signup({
-        name,
-        email: signupEmail,
-        password,
-      });
+    navigate("/dashboard", {
+      replace: true,
+    });
 
-      const loginRes = await AuthAPI.login({
-        email: signupEmail,
-        password,
-      });
+  } catch (error) {
+    setMessage(
+      error.response?.data?.message ||
+      "Invalid OTP"
+    );
+  } finally {
+    setVerifyingOTP(false);
+  }
+};
 
-      localStorage.setItem(
-        "token",
-        loginRes.data.token
-      );
+    // ================= SIGNUP =================
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify(loginRes.data.user)
-      );
+    const handleSignup = async (e) => {
+      e.preventDefault();
 
-      window.dispatchEvent(
-        new CustomEvent("user-updated", {
-          detail: loginRes.data.user,
-        })
-      );
+      if (emailVerified) return;
 
-      setMessage("Account created successfully.");
+      await sendOTP();
+    };
 
-      navigate("/dashboard", {
-        replace: true,
-      });
-    } catch (error) {
-      setMessage(
-        error.response?.data?.message ||
-        "Something went wrong"
-      );
-    }
-  };
-
-  return (
-    <div
-      className="
+    return (
+      <div
+        className="
         relative
         min-h-screen
+        w-screen
         bg-black
         flex
         items-center
-        justify-center
+        justify-start
         p-4
-        md:p-8
+        md:p-0
       "
-    >
-            <div className="absolute left-7 top-7 z-10">
-              <BackButton to="/" label="Home" />
-            </div>
-      {/* ==================================================
+      >
+        <div className="absolute left-7 top-7 z-10">
+          <BackButton to="/" label="Home" />
+        </div>
+        {/* ==================================================
                          MAIN CONTAINER
       ================================================== */}
 
-      <div
-        className="
+        <div
+          className="
           w-full
-          max-w-290
-          min-h-170
-          bg-violet-950/10
-          shadow-violet-800/20
+          min-h-full
+          bg-gray-950/10
+          shadow-black/20
           shadow-2xl
-          rounded-2xl
           overflow-hidden
           flex
         "
-      >
-        {/* ==================================================
+        >
+          {/* ==================================================
                            LEFT SIDE
         ================================================== */}
 
-        <div className="hidden lg:block w-[50%] p-4">
-          <div
-            className="
+          <div className="hidden lg:block w-1/2">
+            <div
+              className="
               relative
+              flex
+              h-screen
+              flex-col
+              justify-between
               w-full
-              h-full
-              min-h-[648px]
-              rounded-xl
               overflow-hidden
-              bg-black
+              border border-[#222]
+              bg-[#121212]
+              p-8
             "
-          >
-            {/* HYPERSPEED */}
-
-            <div className="absolute inset-0 z-0">
-              <Hyperspeed
-                effectOptions={hyperspeedOptions}
-              />
-            </div>
-
-            {/* DARK GRADIENT */}
-
-            <div
-              className="
-                absolute
-                inset-0
-                z-[1]
-                bg-gradient-to-b
-                from-black/10
-                via-transparent
-                to-black/80
-                pointer-events-none
-              "
-            />
-
-            {/* LOGO */}
-
-            <div
-              className="
-                absolute
-                top-8
-                left-8
-                z-10
-              "
             >
-              <h2
+
+              <div className="absolute inset-0 z-0">
+                <Hyperspeed
+                  effectOptions={hyperspeedOptions}
+                />
+              </div>
+              <div className="space-y-6">
+
+                <div className="max-w-lg space-y-4 mt-20">
+                  <h2 className="text-4xl font-semibold leading-tight text-white">
+                    Build together, keep the momentum.
+                  </h2>
+
+                </div>
+              </div>
+
+              {/* BACK BUTTON */}
+
+
+              {/* BOTTOM CAROUSEL */}
+              <div
                 className="
-                  text-white
-                  text-3xl
-                  font-bold
-                  tracking-tight
-                "
-              >
-                CodeGPM
-              </h2>
-            </div>
-
-            {/* BACK BUTTON */}
-
-
-            {/* BOTTOM CAROUSEL */}
-            <div
-              className="
     absolute
     bottom-14
     left-0
@@ -482,63 +445,63 @@ export default function Signup() {
     px-8
     overflow-hidden
   "
-            >
-              {/* Slides viewport */}
-              <div className="overflow-hidden">
-                <div
-                  className="flex transition-transform duration-500 ease-in-out"
-                  style={{
-                    transform: `translateX(-${activeSlide * 100}%)`,
-                  }}
-                >
-                  {slides.map((slide, index) => (
-                    <div
-                      key={index}
-                      className="min-w-full text-center px-2"
-                    >
-                      <h3 className="text-white text-3xl font-semibold leading-tight drop-shadow-lg whitespace-pre-line">
-                        {slide.title}
-                      </h3>
+              >
+                {/* Slides viewport */}
+                <div className="overflow-hidden">
+                  <div
+                    className="flex transition-transform duration-500 ease-in-out"
+                    style={{
+                      transform: `translateX(-${activeSlide * 100}%)`,
+                    }}
+                  >
+                    {slides.map((slide, index) => (
+                      <div
+                        key={index}
+                        className="min-w-full text-center px-2"
+                      >
+                        <h3 className="text-white text-3xl font-semibold leading-tight drop-shadow-lg whitespace-pre-line">
+                          {slide.title}
+                        </h3>
 
-                      <p className="text-white/60 text-sm mt-4">
-                        {slide.description}
-                      </p>
-                    </div>
-                  ))}
+                        <p className="text-white/60 text-sm mt-4">
+                          {slide.description}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Slide controls */}
-              <div className="flex justify-center items-center gap-3 mt-8">
-                {slides.map((_, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => setActiveSlide(index)}
-                    aria-label={`Go to slide ${index + 1}`}
-                    className={`
+                {/* Slide controls */}
+                <div className="flex justify-center items-center gap-3 mt-8">
+                  {slides.map((_, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => setActiveSlide(index)}
+                      aria-label={`Go to slide ${index + 1}`}
+                      className={`
           h-1.5 
           rounded-full
           transition-all
           duration-300
           ${activeSlide === index
-                        ? "w-10 bg-white"
-                        : "w-8 bg-white/30 hover:bg-white/60"
-                      }
+                          ? "w-10 bg-white"
+                          : "w-8 bg-white/30 hover:bg-white/60"
+                        }
         `}
-                  />
-                ))}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* ==================================================
+          {/* ==================================================
                            RIGHT SIDE
         ================================================== */}
 
-        <div
-          className="
+          <div
+            className="
             flex-1
 
             flex
@@ -552,13 +515,13 @@ export default function Signup() {
             md:px-16
             lg:px-20
           "
-        >
-          <div className="w-full max-w-[470px]">
-            {/* MOBILE LOGO */}
+          >
+            <div className="w-full max-w-[470px]">
+              {/* MOBILE LOGO */}
 
-            <Link
-              to="/"
-              className="
+              <Link
+                to="/"
+                className="
                 lg:hidden
                 inline-block
                 text-white
@@ -566,382 +529,245 @@ export default function Signup() {
                 font-bold
                 mb-10
               "
-            >
-              CodeGPM
-            </Link>
+              >
+                CodeGPM
+              </Link>
 
-            {/* TITLE */}
+              {/* TITLE */}
 
-            <h1
-              className="
+              <h1
+                className="
                 text-white
                 text-4xl
                 md:text-5xl
                 font-medium
                 tracking-tight
               "
-            >
-              Create an account
-            </h1>
-
-            <p
-              className="
-                text-[#a9a3b3]
-                mt-4
-                text-sm
-              "
-            >
-              Already have an account?{" "}
-              <Link
-                to="/login"
-                className="
-                  text-[#b69cff]
-                  underline
-                  hover:text-white
-                  transition
-                "
               >
-                Log in
-              </Link>
-            </p>
+                Create an account
+              </h1>
 
-            {/* MESSAGE */}
+              <p className="mt-4 text-sm text-gray-400">
+                Already have an account?{" "}
+                <Link
+                  to="/login"
+                  className="text-white underline decoration-white/30 transition hover:text-gray-300"
+                >
+                  Log in
+                </Link>
+              </p>
 
-            {message && (
-              <div
-                className="
-                  mt-5
+              {/* MESSAGE */}
 
-                  px-4
-                  py-3
+              {message && (
+                <div className="mt-5 rounded-lg border border-[#222] bg-[#1b1b1b] px-4 py-3 text-sm text-gray-300">
+                  {message}
+                </div>
+              )}
 
-                  rounded-lg
-
-                  bg-[#372f47]
-
-                  border
-                  border-[#574a70]
-
-                  text-[#c4b3ff]
-                  text-sm
-                "
-              >
-                {message}
-              </div>
-            )}
-
-            {/* ==================================================
+              {/* ==================================================
                               FORM
             ================================================== */}
 
-            <form
-              onSubmit={handleSignup}
-              className="mt-8 space-y-4"
-            >
-              {/* NAME */}
+              <form
+                onSubmit={handleSignup}
+                className="mt-8 space-y-4"
+              >
+                {/* NAME */}
 
-              <input
-                type="text"
-                value={name}
-                onChange={(e) =>
-                  setName(e.target.value)
-                }
-                placeholder="Full name"
-                className="
-                  w-full
-
-                  bg-[#3b3449]
-
-                  border
-                  border-transparent
-
-                  text-white
-
-                  placeholder:text-[#8e879b]
-
-                  rounded-lg
-
-                  px-5
-                  py-4
-
-                  outline-none
-
-                  transition
-
-                  focus:border-[#8b6cff]
-                  focus:ring-1
-                  focus:ring-[#8b6cff]
-                "
-              />
-
-              {/* EMAIL + VERIFY */}
-
-              <div className="flex gap-3">
                 <input
-                  type="email"
-                  value={email}
-                  disabled={
-                    emailVerified || showOTPModal
+                  type="text"
+                  value={name}
+                  onChange={(e) =>
+                    setName(e.target.value)
                   }
-                  onChange={(e) => {
-                    const nextEmail = e.target.value;
-
-                    setEmail(nextEmail);
-
-                    if (
-                      otpEmail &&
-                      normalizeEmail(nextEmail) !== otpEmail
-                    ) {
-                      setOtpEmail("");
-                      setOtp([
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                      ]);
-                    }
-                  }}
-                  placeholder="Email"
-                  className="
-                    min-w-0
-                    flex-1
-
-                    bg-[#3b3449]
-
-                    border
-                    border-transparent
-
-                    text-white
-
-                    placeholder:text-[#8e879b]
-
-                    rounded-lg
-
-                    px-5
-                    py-4
-
-                    outline-none
-
-                    transition
-
-                    focus:border-[#8b6cff]
-                    focus:ring-1
-                    focus:ring-[#8b6cff]
-
-                    disabled:opacity-60
-                  "
+                  placeholder="Full name"
+                  className="w-full rounded-xl border border-transparent bg-black/20 px-5 py-4 text-white outline-none transition placeholder:text-gray-600 focus:border-white/20 focus:bg-[#1b1b1b]"
                 />
 
-                {!emailVerified ? (
-                  <button
-                    type="button"
-                    onClick={sendOTP}
-                    disabled={sendingOTP}
-                    className="
-                      px-5
+                {/* EMAIL + VERIFY */}
 
-                      rounded-lg
+                <div className="flex gap-3">
+                  <input
+                    type="email"
+                    value={email}
+                    disabled={
+                      emailVerified
+                    }
+                    onChange={(e) => {
+                      const nextEmail = e.target.value;
 
-                      bg-[#7254c9]
-                      hover:bg-[#8061dc]
+                      setEmail(nextEmail);
 
-                      disabled:opacity-50
+                      if (
+                        otpEmail &&
+                        normalizeEmail(nextEmail) !== otpEmail
+                      ) {
+                        setOtpEmail("");
+                        setOtp([
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                        ]);
+                      }
+                    }}
+                    placeholder="Email"
+                    className="min-w-0 flex-1 rounded-xl border border-transparent bg-black/20 px-5 py-4 text-white outline-none transition placeholder:text-gray-600 focus:border-white/20 focus:bg-[#1b1b1b] disabled:opacity-60"
+                  />
 
-                      text-white
-                      text-sm
-                      font-medium
+                </div>
 
-                      transition
-                    "
-                  >
-                    {sendingOTP
-                      ? "Sending..."
-                      : "Verify"}
-                  </button>
-                ) : (
-                  <div
-                    className="
-                      flex
-                      items-center
+                {/* PASSWORD */}
 
-                      px-4
-
-                      rounded-lg
-
-                      bg-emerald-500/10
-
-                      border
-                      border-emerald-500/30
-
-                      text-emerald-400
-                      text-sm
-
-                      whitespace-nowrap
-                    "
-                  >
-                    ✓ Verified
-                  </div>
-                )}
-              </div>
-
-              {/* PASSWORD */}
-
-              <PasswordInput
-                value={password}
-                onChange={(e) =>
-                  setPassword(e.target.value)
-                }
-                placeholder="Enter your password"
-                autoComplete="new-password"
-                className="
-                  w-full
-
-                  bg-[#3b3449]
-
-                  border
-                  border-transparent
-
-                  text-white
-
-                  placeholder:text-[#8e879b]
-
-                  rounded-lg
-
-                  px-5
-                  py-4
-
-                  outline-none
-
-                  transition
-
-                  focus:border-[#8b6cff]
-                  focus:ring-1
-                  focus:ring-[#8b6cff]
-                "
-              />
-
-              {/* CONFIRM PASSWORD */}
-
-              <PasswordInput
-                value={confirmPassword}
-                onChange={(e) =>
-                  setConfirmPassword(
-                    e.target.value
-                  )
-                }
-                placeholder="Confirm your password"
-                autoComplete="new-password"
-                className="
-                  w-full
-
-                  bg-[#3b3449]
-
-                  border
-                  border-transparent
-
-                  text-white
-
-                  placeholder:text-[#8e879b]
-
-                  rounded-lg
-
-                  px-5
-                  py-4
-
-                  outline-none
-
-                  transition
-
-                  focus:border-[#8b6cff]
-                  focus:ring-1
-                  focus:ring-[#8b6cff]
-                "
-              />
-
-              {/* CREATE ACCOUNT */}
-
-              <button
-                type="submit"
-                disabled={!emailVerified}
-                className={`
-                  w-full
-                  py-4
-                  mt-2
-                  rounded-lg
-                  text-white
-                  font-medium
-                  transition
-
-                  ${emailVerified
-                    ? `
-                        bg-[#7656d1]
-                        hover:bg-[#8565df]
-                      `
-                    : `
-                        bg-[#554d63]
-                        text-white/40
-                        cursor-not-allowed
-                      `
+                <PasswordInput
+                  value={password}
+                  onChange={(e) =>
+                    setPassword(e.target.value)
                   }
-                `}
-              >
-                Create account
-              </button>
-            </form>
+                  placeholder="Enter your password"
+                  autoComplete="new-password"
+                  className="
+                  w-full
 
-            {/* DIVIDER */}
+                  bg-black/20
 
-            <div
-              className="
+                  border
+                  border-transparent
+
+                  text-white
+
+                  placeholder:text-gray-600
+
+                  rounded-lg
+
+                  px-5
+                  py-4
+
+                  outline-none
+
+                  transition
+
+                  focus:border-white/20
+                  focus:ring-1
+                  focus:ring-0
+                "
+                />
+
+                {/* CONFIRM PASSWORD */}
+
+                <PasswordInput
+                  value={confirmPassword}
+                  onChange={(e) =>
+                    setConfirmPassword(
+                      e.target.value
+                    )
+                  }
+                  placeholder="Confirm your password"
+                  autoComplete="new-password"
+                  className="
+                  w-full
+
+                  bg-black/20
+
+                  border
+                  border-transparent
+
+                  text-white
+
+                  placeholder:text-gray-600
+
+                  rounded-lg
+
+                  px-5
+                  py-4
+
+                  outline-none
+
+                  transition
+
+                  focus:border-white/20
+                  focus:ring-1
+                  focus:ring-0
+                "
+                />
+
+                {/* CREATE ACCOUNT */}
+
+                <button
+                  type="submit"
+                  disabled={sendingOTP}
+                  className="
+    w-full
+    py-4
+    mt-2
+    rounded-lg
+    bg-white
+    text-black
+    font-medium
+    transition
+    hover:bg-gray-200
+    disabled:opacity-50
+    disabled:cursor-not-allowed
+"
+                >
+                  {sendingOTP ? "Sending OTP..." : "Create account"}
+                </button>
+              </form>
+
+              {/* DIVIDER */}
+
+              <div
+                className="
                 flex
                 items-center
                 gap-4
                 my-7
               "
-            >
-              <div className="h-px bg-[#50485e] flex-1" />
+              >
+                <div className="h-px bg-[#222] flex-1" />
 
-              <span
-                className="
-                  text-[#81798c]
+                <span
+                  className="
+                  text-gray-500
                   text-xs
                   whitespace-nowrap
                 "
-              >
-                Create your workspace
-              </span>
+                >
+                  Create your workspace
+                </span>
 
-              <div className="h-px bg-[#50485e] flex-1" />
-            </div>
+                <div className="h-px bg-[#222] flex-1" />
+              </div>
 
-            <p
-              className="
+              <p
+                className="
                 text-center
                 text-xs
-                text-[#756e80]
+                text-gray-500
               "
-            >
-              By creating an account, you agree to use
-              CodeGPM responsibly.
-            </p>
+              >
+                By creating an account, you agree to use
+                CodeGPM responsibly.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* ==================================================
+        {/* ==================================================
                          OTP MODAL
       ================================================== */}
 
-      {showOTPModal && (
-        <div
-          className="
+        {showOTPModal && (
+          <div
+            className="
             fixed
             inset-0
 
             bg-black/70
-            backdrop-blur-sm
+            
 
             flex
             items-center
@@ -951,18 +777,18 @@ export default function Signup() {
 
             px-4
           "
-        >
-          <div
-            className="
+          >
+            <div
+              className="
               relative
 
               w-full
               max-w-md
 
-              bg-[#2b2438]
+              bg-[#121212]
 
               border
-              border-[#4b425a]
+              border-[#222]
 
               rounded-2xl
 
@@ -970,138 +796,138 @@ export default function Signup() {
 
               shadow-2xl
             "
-          >
-            {/* CLOSE */}
+            >
+              {/* CLOSE */}
 
-            <button
-              type="button"
-              onClick={() =>
-                setShowOTPModal(false)
-              }
-              className="
+              <button
+                type="button"
+                onClick={() =>
+                  setShowOTPModal(false)
+                }
+                className="
                 absolute
                 top-4
                 right-5
 
-                text-[#958da0]
+                text-gray-400
                 hover:text-white
 
                 text-2xl
 
                 transition
               "
-            >
-              ×
-            </button>
+              >
+                ×
+              </button>
 
-            {/* TITLE */}
+              {/* TITLE */}
 
-            <h2
-              className="
+              <h2
+                className="
                 text-2xl
                 font-semibold
                 text-white
                 text-center
               "
-            >
-              Verify your email
-            </h2>
+              >
+                Verify your email
+              </h2>
 
-            <p
-              className="
+              <p
+                className="
                 text-center
-                text-[#9991a5]
+                text-gray-400
                 mt-3
                 text-sm
               "
-            >
-              We've sent a 6-digit verification code to
-            </p>
+              >
+                We've sent a 6-digit verification code to
+              </p>
 
-            <p
-              className="
+              <p
+                className="
                 text-center
-                text-[#b69cff]
+                text-white
                 mt-1
                 font-medium
               "
-            >
-              {otpEmail || email}
-            </p>
+              >
+                {otpEmail || email}
+              </p>
 
-            {/* OTP INPUTS */}
+              {/* OTP INPUTS */}
 
-            <div
-              className="
+              <div
+                className="
                 flex
                 justify-center
                 gap-2
                 sm:gap-3
                 mt-8
               "
-            >
-              {otp.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={(el) =>
-                    (inputRefs.current[index] = el)
-                  }
-                  type="text"
-                  inputMode="numeric"
-                  maxLength="1"
-                  value={digit}
-                  onChange={(e) =>
-                    handleOTPChange(
-                      e.target.value,
-                      index
-                    )
-                  }
-                  onPaste={(e) =>
-                    handleOTPPaste(e, index)
-                  }
-                  onKeyDown={(e) => {
-                    if (
-                      e.key === "Backspace" &&
-                      index > 0
-                    ) {
-                      setOtp((prev) => {
-                        const next = [...prev];
+              >
+                {otp.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={(el) =>
+                      (inputRefs.current[index] = el)
+                    }
+                    type="text"
+                    inputMode="numeric"
+                    maxLength="1"
+                    value={digit}
+                    onChange={(e) =>
+                      handleOTPChange(
+                        e.target.value,
+                        index
+                      )
+                    }
+                    onPaste={(e) =>
+                      handleOTPPaste(e, index)
+                    }
+                    onKeyDown={(e) => {
+                      if (
+                        e.key === "Backspace" &&
+                        index > 0
+                      ) {
+                        setOtp((prev) => {
+                          const next = [...prev];
 
-                        if (next[index]) {
-                          next[index] = "";
+                          if (next[index]) {
+                            next[index] = "";
+                            return next;
+                          }
+
+                          next[index - 1] = "";
                           return next;
+                        });
+
+                        if (!otp[index]) {
+                          inputRefs.current[
+                            index - 1
+                          ]?.focus();
                         }
+                      }
 
-                        next[index - 1] = "";
-                        return next;
-                      });
-
-                      if (!otp[index]) {
+                      if (
+                        e.key === "ArrowLeft" &&
+                        index > 0
+                      ) {
                         inputRefs.current[
                           index - 1
                         ]?.focus();
                       }
-                    }
 
-                    if (
-                      e.key === "ArrowLeft" &&
-                      index > 0
-                    ) {
-                      inputRefs.current[
-                        index - 1
-                      ]?.focus();
-                    }
-
-                    if (
-                      e.key === "ArrowRight" &&
-                      index < 5
-                    ) {
-                      inputRefs.current[
-                        index + 1
-                      ]?.focus();
-                    }
-                  }}
-                  className="
+                      if (
+                        e.key === "ArrowRight" &&
+                        index < 5
+                      ) {
+                        inputRefs.current[
+                          index + 1
+                        ]?.focus();
+                      }
+                    }}
+                    className="
                     w-11
                     h-14
 
@@ -1111,40 +937,40 @@ export default function Signup() {
                     text-xl
                     text-white
 
-                    bg-[#3b3449]
+                    bg-black/20
 
                     border
-                    border-[#51475f]
+                    border-white
 
                     rounded-lg
 
                     outline-none
 
-                    focus:border-[#8b6cff]
+                    focus:border-white/20
                     focus:ring-1
-                    focus:ring-[#8b6cff]
+                    focus:ring-0
                   "
-                />
-              ))}
-            </div>
+                  />
+                ))}
+              </div>
 
-            {/* VERIFY OTP */}
+              {/* VERIFY OTP */}
 
-            <button
-              type="button"
-              onClick={verifyOTP}
-              disabled={verifyingOTP}
-              className="
+              <button
+                type="button"
+                onClick={verifyOTP}
+                disabled={verifyingOTP}
+                className="
                 w-full
 
                 mt-8
 
-                bg-[#7656d1]
-                hover:bg-[#8565df]
+                bg-white
+                hover:bg-gray-200
 
                 disabled:opacity-50
 
-                text-white
+                text-black
 
                 py-3.5
 
@@ -1154,24 +980,24 @@ export default function Signup() {
 
                 transition
               "
-            >
-              {verifyingOTP
-                ? "Verifying..."
-                : "Verify OTP"}
-            </button>
+              >
+                {verifyingOTP
+                  ? "Verifying..."
+                  : "Verify OTP"}
+              </button>
 
-            {/* RESEND OTP */}
+              {/* RESEND OTP */}
 
-            <button
-              type="button"
-              disabled={timer > 0}
-              onClick={sendOTP}
-              className="
+              <button
+                type="button"
+                disabled={timer > 0}
+                onClick={sendOTP}
+                className="
                 w-full
 
                 mt-4
 
-                text-[#b69cff]
+                text-white
                 text-sm
                 font-medium
 
@@ -1179,14 +1005,14 @@ export default function Signup() {
 
                 transition
               "
-            >
-              {timer > 0
-                ? `Resend OTP in ${timer}s`
-                : "Resend OTP"}
-            </button>
+              >
+                {timer > 0
+                  ? `Resend OTP in ${timer}s`
+                  : "Resend OTP"}
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
-}
+        )}
+      </div>
+    );
+  }

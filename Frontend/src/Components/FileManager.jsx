@@ -277,11 +277,11 @@ const FileManager = ({ groupId }) => {
                     }
                     className="
                         rounded
-                        bg-blue-600
+                        bg-gray-600
                         px-5
                         text-white
                         transition
-                        hover:bg-blue-700
+                        hover:bg-gray-700
                         disabled:cursor-not-allowed
                         disabled:opacity-50
                     "
@@ -402,12 +402,12 @@ const FileManager = ({ groupId }) => {
                                 }
                                 className="
                                     rounded
-                                    bg-blue-600
+                                    bg-gray-600
                                     px-4
                                     py-2
                                     text-white
                                     transition
-                                    hover:bg-blue-700
+                                    hover:bg-gray-700
                                 "
                             >
                                 View Files

@@ -59,8 +59,8 @@ function Navbar() {
 
     const navClass = (section) =>
         `cursor-pointer transition-colors duration-200 ${activeSection === section
-            ? "text-violet-500"
-            : "text-white hover:text-violet-500"
+            ? "text-gray-300"
+            : "text-white hover:text-gray-300"
         }`;
 
     return (
@@ -83,10 +83,9 @@ function Navbar() {
                     px-8
                     py-4
                     rounded-3xl
-                    border
-                    border-white/5
-                    bg-white/5
-                    backdrop-blur-3xl
+                    border border-[#222]
+                    bg-[#121212]
+                    shadow-[0_16px_50px_rgba(0,0,0,0.35)]
                 "
             >
 
@@ -141,13 +140,11 @@ function Navbar() {
                         className="
                             px-6 py-3
                             rounded-2xl
-                            bg-violet-800
-                            border border-violet-900
-                            text-white
+                            bg-white
+                            text-black
                             font-semibold
-                            shadow-[0_0_20px_rgba(139,92,246,0.35)]
-                            hover:bg-violet-700
                             transition
+                            hover:bg-gray-200
                         "
                     >
                         Get Started

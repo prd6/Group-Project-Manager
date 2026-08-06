@@ -94,7 +94,7 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
                 justify-center
                 bg-black/70
                 p-4
-                backdrop-blur-sm
+                
             "
             onMouseDown={(e) => {
                 if (e.target === e.currentTarget) {
@@ -110,10 +110,10 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
                     overflow-hidden
                     rounded-2xl
                     border
-                    border-white/10
-                    bg-[#17131f]
+                    border-[#222]
+                    bg-[#121212]
                     shadow-2xl
-                    shadow-violet-950/40
+                    shadow-black/40
                 "
             >
                 {/* CLOSE */}
@@ -131,11 +131,11 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
                         items-center
                         justify-center
                         rounded-full
-                        bg-white/5
+                        bg-[#1b1b1b]
                         text-lg
-                        text-white/50
+                        text-gray-500
                         transition
-                        hover:bg-white/10
+                        hover:bg-[#222]
                         hover:text-white
                     "
                 >
@@ -153,7 +153,7 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
                                 font-medium
                                 uppercase
                                 tracking-[0.18em]
-                                text-[#9b7cff]
+                                text-gray-500
                             "
                         >
                             New workspace
@@ -176,7 +176,7 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
                                 mt-2
                                 text-sm
                                 leading-6
-                                text-[#91899d]
+                                text-gray-400
                             "
                         >
                             Start a project workspace and invite
@@ -219,7 +219,7 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
                                     block
                                     text-xs
                                     font-medium
-                                    text-[#aaa2b5]
+                                    text-gray-500
                                 "
                             >
                                 Group name *
@@ -238,17 +238,17 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
                                     rounded-lg
                                     border
                                     border-transparent
-                                    bg-[#3b3449]
+                                    bg-black/20
                                     px-4
                                     py-3.5
                                     text-sm
                                     text-white
                                     outline-none
                                     transition
-                                    placeholder:text-[#8e879b]
-                                    focus:border-[#8b6cff]
+                                    placeholder:text-gray-600
+                                    focus:border-white/20
                                     focus:ring-1
-                                    focus:ring-[#8b6cff]
+                                    focus:ring-0
                                 "
                             />
                         </div>
@@ -262,7 +262,7 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
                                     block
                                     text-xs
                                     font-medium
-                                    text-[#aaa2b5]
+                                    text-gray-500
                                 "
                             >
                                 Project name
@@ -279,17 +279,17 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
                                     rounded-lg
                                     border
                                     border-transparent
-                                    bg-[#3b3449]
+                                    bg-black/20
                                     px-4
                                     py-3.5
                                     text-sm
                                     text-white
                                     outline-none
                                     transition
-                                    placeholder:text-[#8e879b]
-                                    focus:border-[#8b6cff]
+                                    placeholder:text-gray-600
+                                    focus:border-white/20
                                     focus:ring-1
-                                    focus:ring-[#8b6cff]
+                                    focus:ring-0
                                 "
                             />
                         </div>
@@ -303,7 +303,7 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
                                     block
                                     text-xs
                                     font-medium
-                                    text-[#aaa2b5]
+                                    text-gray-500
                                 "
                             >
                                 Description
@@ -321,7 +321,7 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
                                     rounded-lg
                                     border
                                     border-transparent
-                                    bg-[#3b3449]
+                                    bg-black/20
                                     px-4
                                     py-3.5
                                     text-sm
@@ -329,10 +329,10 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
                                     text-white
                                     outline-none
                                     transition
-                                    placeholder:text-[#8e879b]
-                                    focus:border-[#8b6cff]
+                                    placeholder:text-gray-600
+                                    focus:border-white/20
                                     focus:ring-1
-                                    focus:ring-[#8b6cff]
+                                    focus:ring-0
                                 "
                             />
                         </div>
@@ -346,7 +346,7 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
                                     block
                                     text-xs
                                     font-medium
-                                    text-[#aaa2b5]
+                                    text-gray-500
                                 "
                             >
                                 Deadline
@@ -362,16 +362,16 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
                                     rounded-lg
                                     border
                                     border-transparent
-                                    bg-[#3b3449]
+                                    bg-black/20
                                     px-4
                                     py-3.5
                                     text-sm
                                     text-white
                                     outline-none
                                     transition
-                                    focus:border-[#8b6cff]
+                                    focus:border-white/20
                                     focus:ring-1
-                                    focus:ring-[#8b6cff]
+                                    focus:ring-0
                                 "
                             />
                         </div>
@@ -385,7 +385,7 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
             block
             text-xs
             font-medium
-            text-[#aaa2b5]
+            text-gray-500
         "
                             >
                                 Maximum Members
@@ -400,16 +400,16 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
             rounded-lg
             border
             border-transparent
-            bg-[#3b3449]
+            bg-black/20
             px-4
             py-3.5
             text-sm
             text-white
             outline-none
             transition
-            focus:border-[#8b6cff]
+            focus:border-white/20
             focus:ring-1
-            focus:ring-[#8b6cff]
+            focus:ring-0
         "
                             >
                                 <option value={4}>4 Members</option>
@@ -436,15 +436,15 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
                                 className="
                                     rounded-lg
                                     border
-                                    border-white/10
-                                    bg-white/5
+                                    border-[#222]
+                                    bg-[#1b1b1b]
                                     px-5
                                     py-3
                                     text-sm
                                     font-medium
-                                    text-white/70
+                                    text-gray-300
                                     transition
-                                    hover:bg-white/10
+                                    hover:bg-[#222]
                                     hover:text-white
                                 "
                             >
@@ -456,14 +456,14 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
                                 disabled={loading}
                                 className="
                                     rounded-lg
-                                    bg-[#7656d1]
+                                    bg-white
                                     px-5
                                     py-3
                                     text-sm
                                     font-medium
-                                    text-white
+                                    text-black
                                     transition
-                                    hover:bg-[#8565df]
+                                    hover:bg-gray-200
                                     disabled:cursor-not-allowed
                                     disabled:opacity-50
                                 "

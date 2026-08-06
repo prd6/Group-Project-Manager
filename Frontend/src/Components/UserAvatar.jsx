@@ -27,7 +27,7 @@ const UserAvatar = ({ user, size = "md", className = "" }) => {
   const dimensions = sizeClasses[size] || sizeClasses.md;
 
   if (imageUrl && failedImageUrl !== imageUrl) {
-    return (
+        return (
       <img
         src={imageUrl}
         alt={user?.name ? `${user.name}'s profile picture` : "User profile picture"}
@@ -35,7 +35,7 @@ const UserAvatar = ({ user, size = "md", className = "" }) => {
         className={`
           ${dimensions}
           shrink-0 rounded-full object-cover
-          border border-violet-400/40 bg-violet-500/10
+          border border-[#222] bg-[#121212]
           ${className}
         `}
       />
@@ -48,12 +48,11 @@ const UserAvatar = ({ user, size = "md", className = "" }) => {
       className={`
         ${dimensions}
         shrink-0 rounded-full
-        border border-violet-400/40
-        bg-gradient-to-br from-violet-500/35 via-fuchsia-500/20 to-sky-500/20
-        text-violet-100
+        border border-[#222]
+        bg-[#121212]
+        text-white
         flex items-center justify-center
         font-semibold leading-none
-        shadow-[0_0_24px_rgba(139,92,246,0.22)]
         ${className}
       `}
     >

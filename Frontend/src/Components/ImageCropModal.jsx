@@ -359,7 +359,7 @@ const ImageCropModal = ({
                 bg-black/75
                 px-4
                 py-6
-                backdrop-blur-sm
+                
             "
             onMouseDown={(event) => {
                 if (event.target === event.currentTarget) {
@@ -367,10 +367,10 @@ const ImageCropModal = ({
                 }
             }}
         >
-            <div className="w-full max-w-3xl overflow-hidden rounded-3xl border border-white/10 bg-[#16121d] shadow-2xl shadow-violet-950/40">
+            <div className="w-full max-w-3xl overflow-hidden rounded-3xl border border-white/10 bg-[#16121d] shadow-2xl shadow-black/40">
                 <div className="flex items-center justify-between border-b border-white/10 px-5 py-4 sm:px-6">
                     <div>
-                        <p className="text-xs font-medium uppercase tracking-[0.22em] text-violet-400">
+                        <p className="text-xs font-medium uppercase tracking-[0.22em] text-gray-400">
                             Crop photo
                         </p>
                         <h2 className="mt-1 text-xl font-semibold text-white">
@@ -440,9 +440,9 @@ const ImageCropModal = ({
                             )}
 
                             <div className="pointer-events-none absolute inset-0 border border-white/5" />
-                            <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-violet-400/20" />
+                            <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-gray-400/20" />
 
-                            <div className="pointer-events-none absolute inset-x-4 top-4 rounded-full bg-black/30 px-4 py-2 text-xs text-white/80 backdrop-blur-md sm:inset-x-auto sm:left-4">
+                            <div className="pointer-events-none absolute inset-x-4 top-4 rounded-full bg-black/30 px-4 py-2 text-xs text-white/80  sm:inset-x-auto sm:left-4">
                                 <span className="inline-flex items-center gap-2">
                                     <Move size={14} />
                                     Drag to reposition
@@ -453,7 +453,7 @@ const ImageCropModal = ({
                         <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
                             <ZoomIn
                                 size={17}
-                                className="shrink-0 text-violet-300"
+                                className="shrink-0 text-gray-300"
                             />
 
                             <input
@@ -473,7 +473,7 @@ const ImageCropModal = ({
                                         clampPosition(prev, nextZoom)
                                     );
                                 }}
-                                className="h-2 w-full cursor-pointer accent-violet-500"
+                                className="h-2 w-full cursor-pointer accent-gray-500"
                             />
 
                             <span className="w-12 text-right text-xs text-gray-400">
@@ -485,7 +485,7 @@ const ImageCropModal = ({
                     <div className="flex flex-col justify-between gap-5">
                         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-600/15 text-violet-300">
+                                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gray-600/15 text-gray-300">
                                     <Crop size={18} />
                                 </div>
                                 <div>
@@ -526,7 +526,7 @@ const ImageCropModal = ({
                                 type="button"
                                 onClick={handleSave}
                                 disabled={saving}
-                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-violet-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gray-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 {saving ? (
                                     <Loader2

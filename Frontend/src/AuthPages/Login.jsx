@@ -250,12 +250,13 @@ export default function Login() {
       className="
         relative
         min-h-screen
+        w-screen
         bg-black
         flex
         items-center
-        justify-center
+        justify-start
         p-4
-        md:p-8
+        md:p-0
       "
     >
             <div className="absolute left-7 top-7 z-10">
@@ -268,75 +269,47 @@ export default function Login() {
       <div
         className="
           w-full
-          max-w-290
-          min-h-170
-          bg-violet-950/10
-          shadow-violet-800/20
+          min-h-full
+          bg-gray-950/10
+          shadow-black/20
           shadow-2xl
-          rounded-2xl
           overflow-hidden
           flex
+          justify-between
         "
       >
         {/* ==================================================
                            LEFT SIDE
         ================================================== */}
 
-        <div className="hidden lg:block w-[50%] p-4">
+        <div className="hidden lg:block w-1/2">
           <div
             className="
               relative
+              flex
+              h-screen
+              flex-col
+              justify-between
               w-full
-              h-full
-              min-h-[648px]
-              rounded-xl
               overflow-hidden
-              bg-black
+              border border-[#222]
+              bg-[#121212]
+              p-8
             "
           >
-            {/* HYPERSPEED */}
 
             <div className="absolute inset-0 z-0">
               <Hyperspeed
                 effectOptions={hyperspeedOptions}
               />
             </div>
+            <div className="space-y-6">
 
-            {/* DARK GRADIENT */}
-
-            <div
-              className="
-                absolute
-                inset-0
-                z-[1]
-                bg-gradient-to-b
-                from-black/10
-                via-transparent
-                to-black/80
-                pointer-events-none
-              "
-            />
-
-            {/* LOGO */}
-
-            <div
-              className="
-                absolute
-                top-8
-                left-8
-                z-10
-              "
-            >
-              <h2
-                className="
-                  text-white
-                  text-3xl
-                  font-bold
-                  tracking-tight
-                "
-              >
-                CodeGPM
-              </h2>
+              <div className="max-w-lg space-y-4 mt-20">
+                <h2 className="text-4xl font-semibold leading-tight text-white">
+                  Welcome back to the workspace.
+                </h2>
+              </div>
             </div>
 
             {/* BACK BUTTON */}
@@ -499,22 +472,11 @@ export default function Login() {
               Welcome back
             </h1>
 
-            <p
-              className="
-                text-[#a9a3b3]
-                mt-4
-                text-sm
-              "
-            >
+            <p className="mt-4 text-sm text-gray-400">
               Don't have an account?{" "}
               <Link
                 to="/signup"
-                className="
-                  text-[#b69cff]
-                  underline
-                  hover:text-white
-                  transition
-                "
+                className="text-white underline decoration-white/30 transition hover:text-gray-300"
               >
                 Sign up
               </Link>
@@ -523,24 +485,7 @@ export default function Login() {
             {/* MESSAGE */}
 
             {message && (
-              <div
-                className="
-                  mt-5
-
-                  px-4
-                  py-3
-
-                  rounded-lg
-
-                  bg-[#372f47]
-
-                  border
-                  border-[#574a70]
-
-                  text-[#c4b3ff]
-                  text-sm
-                "
-              >
+              <div className="mt-5 rounded-lg border border-[#222] bg-[#1b1b1b] px-4 py-3 text-sm text-gray-300">
                 {message}
               </div>
             )}
@@ -563,31 +508,7 @@ export default function Login() {
                 }
                 placeholder="Email"
                 autoComplete="email"
-                className="
-                  w-full
-
-                  bg-[#3b3449]
-
-                  border
-                  border-transparent
-
-                  text-white
-
-                  placeholder:text-[#8e879b]
-
-                  rounded-lg
-
-                  px-5
-                  py-4
-
-                  outline-none
-
-                  transition
-
-                  focus:border-[#8b6cff]
-                  focus:ring-1
-                  focus:ring-[#8b6cff]
-                "
+                className="w-full rounded-xl border border-transparent bg-black/20 px-5 py-4 text-white outline-none transition placeholder:text-gray-600 focus:border-white/20 focus:bg-[#1b1b1b]"
               />
 
               {/* PASSWORD */}
@@ -599,31 +520,7 @@ export default function Login() {
                 }
                 placeholder="Password"
                 autoComplete="current-password"
-                className="
-                  w-full
-
-                  bg-[#3b3449]
-
-                  border
-                  border-transparent
-
-                  text-white
-
-                  placeholder:text-[#8e879b]
-
-                  rounded-lg
-
-                  px-5
-                  py-4
-
-                  outline-none
-
-                  transition
-
-                  focus:border-[#8b6cff]
-                  focus:ring-1
-                  focus:ring-[#8b6cff]
-                "
+                className="w-full rounded-xl border border-transparent bg-black/20 px-5 py-4 text-white outline-none transition placeholder:text-gray-600 focus:border-white/20 focus:bg-[#1b1b1b]"
               />
 
               {/* FORGOT PASSWORD */}
@@ -632,16 +529,10 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowForgotPassword(true)}
-                  className="
-            cursor-pointer
-            text-sm
-            text-[#b69cff]
-            transition
-            hover:text-white
-        "
-                >
-                  Forgot password?
-                </button>
+                className="cursor-pointer text-sm text-gray-400 transition hover:text-white"
+              >
+                Forgot password?
+              </button>
               </div>
 
               {/* LOGIN BUTTON */}
@@ -649,24 +540,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loggingIn}
-                className="
-                  w-full
-                  py-4
-                  mt-2
-
-                  rounded-lg
-
-                  bg-[#7656d1]
-                  hover:bg-[#8565df]
-
-                  disabled:opacity-50
-                  disabled:cursor-not-allowed
-
-                  text-white
-                  font-medium
-
-                  transition
-                "
+                className="mt-2 w-full rounded-xl bg-white py-4 font-medium text-black transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loggingIn
                   ? "Logging in..."
@@ -676,50 +550,18 @@ export default function Login() {
 
             {/* DIVIDER */}
 
-            <div
-              className="
-                flex
-                items-center
-                gap-4
-                my-7
-              "
-            >
-              <div
-                className="
-                  h-px
-                  bg-[#50485e]
-                  flex-1
-                "
-              />
+            <div className="my-7 flex items-center gap-4">
+              <div className="h-px flex-1 bg-[#222]" />
 
-              <span
-                className="
-                  text-[#81798c]
-                  text-xs
-                  whitespace-nowrap
-                "
-              >
+              <span className="whitespace-nowrap text-xs text-gray-500">
                 Welcome back to CodeGPM
               </span>
 
-              <div
-                className="
-                  h-px
-                  bg-[#50485e]
-                  flex-1
-                "
-              />
+              <div className="h-px flex-1 bg-[#222]" />
             </div>
 
-            <p
-              className="
-                text-center
-                text-xs
-                text-[#756e80]
-              "
-            >
-              Continue building great projects with
-              your team.
+            <p className="text-center text-xs text-gray-500">
+              Continue building great projects with your team.
             </p>
           </div>
         </div>

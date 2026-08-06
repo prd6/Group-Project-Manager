@@ -90,7 +90,7 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#08080d] text-white">
+    <div className="min-h-screen bg-black text-white">
 
       <main className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
 
@@ -116,11 +116,12 @@ const Dashboard = () => {
               onClick={() => setShowCreateGroup(true)}
               className="
                     rounded-xl
-                    bg-violet-600
+                    bg-white
                     px-5 py-2.5
                     text-sm font-medium
+                    text-black
                     transition
-                    hover:bg-violet-500
+                    hover:bg-gray-200
                 "
             >
               + Create Group
@@ -130,14 +131,13 @@ const Dashboard = () => {
               onClick={() => setShowJoinGroup(true)}
               className="
                     rounded-xl
-                    border border-white/10
-                    bg-white/[0.04]
+                    border border-[#222]
+                    bg-[#121212]
                     px-5 py-2.5
                     text-sm font-medium
-                    text-gray-300
+                    text-white
                     transition
-                    hover:bg-white/[0.08]
-                    hover:text-white
+                    hover:bg-[#1b1b1b]
                 "
             >
               Join Group
@@ -180,8 +180,8 @@ const Dashboard = () => {
                         animate-spin
                         rounded-full
                         border-2
-                        border-white/10
-                        border-t-violet-500
+                        border-[#222]
+                        border-t-white
                     "
               />
 
@@ -197,8 +197,8 @@ const Dashboard = () => {
                     items-center
                     justify-center
                     rounded-2xl
-                    border border-dashed border-white/10
-                    bg-white/[0.02]
+                    border border-dashed border-[#222]
+                    bg-[#121212]
                     px-6
                     text-center
                 "
@@ -210,8 +210,8 @@ const Dashboard = () => {
                         flex h-12 w-12
                         items-center justify-center
                         rounded-xl
-                        bg-violet-500/10
-                        text-xl text-violet-400
+                        bg-[#1b1b1b]
+                        text-xl text-gray-300
                     "
               >
                 +
@@ -228,7 +228,7 @@ const Dashboard = () => {
 
               <button
                 onClick={() => setShowCreateGroup(true)}
-                className="mt-5 text-sm font-medium text-violet-400 hover:text-violet-300"
+                className="mt-5 text-sm font-medium text-gray-400 hover:text-gray-300"
               >
                 Create your first group →
               </button>
@@ -244,14 +244,14 @@ const Dashboard = () => {
 
                 <article
                   key={group._id}
-                  className="
+                className="
                             rounded-2xl
-                            border border-white/[0.08]
-                            bg-[#0d0d13]
+                            border border-[#222]
+                            bg-[#121212]
                             p-5
                             transition-all
                             duration-200
-                            hover:border-white/[0.15]
+                            hover:bg-[#1b1b1b]
                         "
                 >
 
@@ -265,9 +265,9 @@ const Dashboard = () => {
                                     shrink-0
                                     items-center justify-center
                                     rounded-xl
-                                    bg-violet-500/10
+                                    bg-[#1b1b1b]
                                     font-semibold
-                                    text-violet-400
+                                    text-white
                                 "
                     >
                       {group.groupName
@@ -289,13 +289,13 @@ const Dashboard = () => {
                           className="
                                             shrink-0
                                             rounded-md
-                                            bg-white/[0.05]
+                                            bg-[#1b1b1b]
                                             px-2 py-1
                                             text-[10px]
                                             font-medium
                                             uppercase
                                             tracking-wider
-                                            text-gray-500
+                                            text-gray-400
                                         "
                         >
                           {group.myRole}
@@ -331,7 +331,7 @@ const Dashboard = () => {
         justify-between
         rounded-xl
         border
-        border-white/[0.06]
+        border-[#222]
         bg-black/20
         px-4
         py-3
@@ -374,12 +374,11 @@ const Dashboard = () => {
         items-center
         justify-center
         rounded-lg
-        border
-        border-white/10
-        bg-white/[0.05]
-        text-gray-400
+        border border-[#222]
+        bg-[#121212]
+        text-gray-300
         transition
-        hover:bg-white/[0.1]
+        hover:bg-[#1b1b1b]
         hover:text-white
         transition-all
         duration-100
@@ -415,8 +414,8 @@ const Dashboard = () => {
                                         text-sm
                                         text-gray-500
                                         transition
-                                        hover:bg-red-500/10
-                                        hover:text-red-400
+                                        hover:bg-[#1b1b1b]
+                                        hover:text-white
                                         disabled:opacity-40
                                     "
                       >

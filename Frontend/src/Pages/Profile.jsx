@@ -372,7 +372,7 @@ const Profile = () => {
                 <DashboardNavbar fetchProfile={false} />
                 <main className="flex min-h-[75vh] items-center justify-center">
                     <div className="flex flex-col items-center gap-4">
-                        <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
+                        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
                         <p className="text-sm text-gray-500">
                             Loading your profile...
                         </p>
@@ -408,7 +408,7 @@ const Profile = () => {
                 </div>
 
                 <div className="mb-8">
-                    <p className="text-sm font-medium text-violet-400">
+                    <p className="text-sm font-medium text-gray-400">
                         Account
                     </p>
                     <h1 className="mt-1 text-3xl font-bold tracking-tight">
@@ -435,10 +435,9 @@ const Profile = () => {
 
                 <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
                     <aside>
-                        <div className="sticky top-24 overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.035]">
-                            <div className="relative h-28 overflow-hidden border-b border-white/[0.06] bg-gradient-to-br from-violet-950/80 via-purple-950/40 to-transparent">
-                                <div className="absolute -left-10 -top-20 h-48 w-48 rounded-full bg-violet-600/20 blur-3xl" />
-                                <div className="absolute -right-10 top-0 h-40 w-40 rounded-full bg-purple-500/10 blur-3xl" />
+                        <div className="sticky top-24 overflow-hidden rounded-3xl border border-[#222] bg-[#121212]">
+                            <div className="relative h-28 overflow-hidden border-b border-[#222] bg-[#1b1b1b]">
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#303030_0%,#1b1b1b_55%,#121212_100%)]" />
                             </div>
 
                             <div className="relative px-6 pb-6">
@@ -450,10 +449,10 @@ const Profile = () => {
                                     <UserAvatar
                                         user={user}
                                         size="xl"
-                                        className="ring-4 ring-[#0d0d14] transition group-hover:ring-violet-500/30"
+                                        className="ring-4 ring-[#121212] transition group-hover:ring-white/10"
                                     />
 
-                                    <span className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full border border-violet-400/30 bg-violet-600 text-white shadow-xl transition group-hover:bg-violet-500">
+                                    <span className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full border border-[#222] bg-white text-black transition group-hover:bg-gray-200">
                                         <Camera size={16} />
                                     </span>
                                 </button>
@@ -476,19 +475,19 @@ const Profile = () => {
                                 </div>
 
                                 <div className="mt-5 flex items-center gap-2">
-                                    <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
+                                    <span className="flex items-center gap-1.5 rounded-full border border-[#222] bg-[#1b1b1b] px-3 py-1 text-xs font-medium text-white">
                                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                                         Active
                                     </span>
 
                                     {user.role && (
-                                        <span className="rounded-full border border-violet-500/20 bg-violet-500/10 px-3 py-1 text-xs font-medium capitalize text-violet-300">
+                                        <span className="rounded-full border border-[#222] bg-[#1b1b1b] px-3 py-1 text-xs font-medium capitalize text-gray-300">
                                             {user.role}
                                         </span>
                                     )}
                                 </div>
 
-                                <div className="mt-6 space-y-4 border-t border-white/[0.06] pt-5">
+                                <div className="mt-6 space-y-4 border-t border-[#222] pt-5">
                                     <div className="flex items-center gap-3 text-sm">
                                         <Mail
                                             size={17}
@@ -524,9 +523,9 @@ const Profile = () => {
                     </aside>
 
                     <div className="space-y-6">
-                        <section className="overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.03]">
-                            <div className="flex items-center gap-4 border-b border-white/[0.06] px-6 py-5">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-300">
+                        <section className="overflow-hidden rounded-3xl border border-[#222] bg-[#121212]">
+                            <div className="flex items-center gap-4 border-b border-[#222] px-6 py-5">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1b1b1b] text-white">
                                     <User size={19} />
                                 </div>
                                 <div>
@@ -557,7 +556,7 @@ const Profile = () => {
                                                     setName(event.target.value)
                                                 }
                                                 maxLength={80}
-                                                className="w-full rounded-xl border border-white/[0.08] bg-black/20 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-gray-700 focus:border-violet-500/60 focus:bg-violet-500/[0.02]"
+                                                className="w-full rounded-xl border border-[#222] bg-black/20 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-white/20 focus:bg-[#1b1b1b]"
                                             />
                                         </div>
                                     </div>
@@ -575,20 +574,20 @@ const Profile = () => {
                                                 type="email"
                                                 value={user.email}
                                                 readOnly
-                                                className="w-full cursor-not-allowed rounded-xl border border-white/[0.06] bg-white/[0.02] py-3 pl-11 pr-4 text-sm text-gray-500 outline-none"
+                                                className="w-full cursor-not-allowed rounded-xl border border-[#222] bg-[#121212] py-3 pl-11 pr-4 text-sm text-gray-500 outline-none"
                                             />
                                         </div>
-                                        <p className="mt-2 text-xs text-gray-600">
+                                        <p className="mt-2 text-xs text-gray-500">
                                             Email cannot currently be changed.
                                         </p>
                                     </div>
                                 </div>
 
-                                <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-white/[0.06] pt-5">
+                                <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-[#222] pt-5">
                                     <button
                                         type="submit"
                                         disabled={savingProfile || !hasNameChanged}
-                                        className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+                                        className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-black transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-40"
                                     >
                                         {savingProfile ? (
                                             <Loader2 size={16} className="animate-spin" />
@@ -604,7 +603,7 @@ const Profile = () => {
                                             onClick={() =>
                                                 setName(user.name || "")
                                             }
-                                            className="rounded-xl px-4 py-2.5 text-sm text-gray-400 transition hover:bg-white/[0.05] hover:text-white"
+                                            className="rounded-xl px-4 py-2.5 text-sm text-gray-400 transition hover:bg-[#1b1b1b] hover:text-white"
                                         >
                                             Cancel
                                         </button>
@@ -613,9 +612,9 @@ const Profile = () => {
                             </form>
                         </section>
 
-                        <section className="overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.03]">
-                            <div className="flex items-center gap-4 border-b border-white/[0.06] px-6 py-5">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-300">
+                        <section className="overflow-hidden rounded-3xl border border-[#222] bg-[#121212]">
+                            <div className="flex items-center gap-4 border-b border-[#222] px-6 py-5">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1b1b1b] text-white">
                                     <Camera size={19} />
                                 </div>
                                 <div>
@@ -640,7 +639,7 @@ const Profile = () => {
                                         <p className="text-sm font-medium">
                                             {user.name}
                                         </p>
-                                        <p className="mt-1 text-xs text-gray-600">
+                                        <p className="mt-1 text-xs text-gray-500">
                                             Your profile photo is visible to
                                             other group members.
                                         </p>
@@ -652,7 +651,7 @@ const Profile = () => {
                                         type="button"
                                         onClick={removeProfilePicture}
                                         disabled={removingPicture}
-                                        className="inline-flex items-center gap-2 rounded-xl border border-red-500/15 bg-red-500/[0.07] px-4 py-2.5 text-sm font-medium text-red-300 transition hover:bg-red-500/15 disabled:opacity-50"
+                                        className="inline-flex items-center gap-2 rounded-xl border border-[#222] bg-[#1b1b1b] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#303030] disabled:opacity-50"
                                     >
                                         {removingPicture ? (
                                             <Loader2
@@ -672,9 +671,9 @@ const Profile = () => {
                             </div>
                         </section>
 
-                        <section className="overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.03]">
-                            <div className="flex items-center gap-4 border-b border-white/[0.06] px-6 py-5">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-300">
+                        <section className="overflow-hidden rounded-3xl border border-[#222] bg-[#121212]">
+                            <div className="flex items-center gap-4 border-b border-[#222] px-6 py-5">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1b1b1b] text-white">
                                     <LockKeyhole size={19} />
                                 </div>
                                 <div>
@@ -703,16 +702,16 @@ const Profile = () => {
                                     onClick={() =>
                                         setShowForgotPassword(true)
                                     }
-                                    className="shrink-0 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-gray-300 transition hover:bg-white/[0.08] hover:text-white"
+                                    className="shrink-0 rounded-xl border border-[#222] bg-[#121212] px-4 py-2.5 text-sm font-medium text-gray-300 transition hover:bg-[#1b1b1b] hover:text-white"
                                 >
                                     Change Password
                                 </button>
                             </div>
                         </section>
 
-                        <section className="overflow-hidden rounded-3xl border border-red-500/15 bg-red-500/[0.025]">
-                            <div className="border-b border-red-500/10 px-6 py-5">
-                                <h2 className="font-semibold text-red-300">
+                        <section className="overflow-hidden rounded-3xl border border-[#222] bg-[#121212]">
+                            <div className="border-b border-[#222] px-6 py-5">
+                                <h2 className="font-semibold text-white">
                                     Account Actions
                                 </h2>
                                 <p className="mt-1 text-sm text-gray-500">
@@ -736,7 +735,7 @@ const Profile = () => {
                                     onClick={() =>
                                         setShowLogoutConfirm(true)
                                     }
-                                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-5 py-2.5 text-sm font-medium text-red-300 transition hover:border-red-500/30 hover:bg-red-500/20"
+                                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-[#222] bg-white px-5 py-2.5 text-sm font-medium text-black transition hover:bg-gray-200"
                                 >
                                     <LogOut size={17} />
                                     Logout
@@ -748,9 +747,9 @@ const Profile = () => {
             </main>
 
             {showLogoutConfirm && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-                    <div className="w-full max-w-md rounded-3xl border border-white/[0.1] bg-[#111118] p-6 shadow-2xl">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-500/10 text-red-400">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 px-4">
+                    <div className="w-full max-w-md rounded-3xl border border-[#222] bg-[#121212] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.55)]">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1b1b1b] text-white">
                             <LogOut size={22} />
                         </div>
 
@@ -768,15 +767,15 @@ const Profile = () => {
                                 onClick={() =>
                                     setShowLogoutConfirm(false)
                                 }
-                                className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-5 py-2.5 text-sm font-medium text-gray-300 transition hover:bg-white/[0.08]"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleLogout}
-                                className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-red-500"
-                            >
+                            className="rounded-xl border border-[#222] bg-[#121212] px-5 py-2.5 text-sm font-medium text-gray-300 transition hover:bg-[#1b1b1b]"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                            className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-black transition hover:bg-gray-200"
+                        >
                                 <LogOut size={16} />
                                 Yes, Logout
                             </button>

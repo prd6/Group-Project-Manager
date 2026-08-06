@@ -222,7 +222,7 @@ function Admin() {
         return (
             <div className="flex min-h-screen items-center justify-center bg-[#08080d] text-white">
                 <div className="text-center">
-                    <RefreshCw className="mx-auto h-7 w-7 animate-spin text-violet-500" />
+                    <RefreshCw className="mx-auto h-7 w-7 animate-spin text-gray-500" />
 
                     <p className="mt-4 text-sm text-gray-500">
                         Loading admin dashboard...
@@ -249,7 +249,7 @@ function Admin() {
                         h-125
                         w-125
                         rounded-full
-                        bg-violet-700/8
+                        bg-gray-700/8
                         blur-[150px]
                     "
                 />
@@ -262,7 +262,7 @@ function Admin() {
                         h-100
                         w-100
                         rounded-full
-                        bg-purple-900/5
+                        bg-gray-900/5
                         blur-[140px]
                     "
                 />
@@ -282,10 +282,10 @@ function Admin() {
 
                             <LayoutDashboard
                                 size={15}
-                                className="text-violet-400"
+                                className="text-gray-400"
                             />
 
-                            <p className="text-sm font-medium text-violet-400">
+                            <p className="text-sm font-medium text-gray-400">
                                 Administration
                             </p>
 
@@ -363,6 +363,25 @@ function Admin() {
                             Refresh
                         </button>
 
+                        <button
+                        onClick={() => navigate("/dashboard")}
+                            className="
+                                hidden
+                                items-center
+                                gap-2
+                                rounded-xl
+                                border border-transparent
+                                bg-white
+                                p-4
+                                font-bold
+                                text-black
+                                sm:flex
+                            "
+                        >
+
+                            DashBoard
+                        </button>
+
                     </div>
 
                 </header>
@@ -418,8 +437,8 @@ function Admin() {
                                     transition-all
                                     duration-300
                                     hover:-translate-y-0.5
-                                    hover:border-violet-500/30
-                                    hover:bg-violet-500/[0.04]
+                                    hover:border-gray-500/30
+                                    hover:bg-[#1b1b1b]
                                 "
                             >
 
@@ -434,9 +453,9 @@ function Admin() {
                                             justify-center
                                             rounded-xl
                                             border
-                                            border-violet-500/10
-                                            bg-violet-500/10
-                                            text-violet-300
+                                            border-gray-500/10
+                                            bg-gray-500/10
+                                            text-gray-300
                                         "
                                     >
                                         <Icon size={20} />
@@ -452,7 +471,7 @@ function Admin() {
                                                     items-center
                                                     justify-center
                                                     rounded-full
-                                                    bg-violet-600
+                                                    bg-gray-600
                                                     px-1.5
                                                     py-0.5
                                                     text-[10px]
@@ -469,7 +488,7 @@ function Admin() {
                                             className="
                                                 text-gray-700
                                                 transition
-                                                group-hover:text-violet-300
+                                                group-hover:text-gray-300
                                             "
                                         />
 
@@ -627,8 +646,8 @@ function Admin() {
                                     items-center
                                     justify-center
                                     rounded-xl
-                                    bg-violet-500/10
-                                    text-violet-300
+                                    bg-gray-500/10
+                                    text-gray-300
                                 "
                             >
                                 <ShieldCheck size={19} />
@@ -714,8 +733,8 @@ function Admin() {
                                     items-center
                                     justify-center
                                     rounded-xl
-                                    bg-violet-500/10
-                                    text-violet-300
+                                    bg-gray-500/10
+                                    text-gray-300
                                 "
                             >
                                 <HardDrive size={20} />
@@ -744,9 +763,9 @@ function Admin() {
                                 items-center
                                 gap-1
                                 text-sm
-                                text-violet-400
+                                text-gray-400
                                 transition
-                                hover:text-violet-300
+                                hover:text-gray-300
                             "
                         >
                             View details
@@ -793,7 +812,7 @@ function Admin() {
                                 className="
                                     h-full
                                     rounded-full
-                                    bg-violet-500
+                                    bg-gray-500
                                     transition-all
                                     duration-700
                                 "
@@ -898,8 +917,8 @@ function AdminAction({
                     bg-white/[0.04]
                     text-gray-400
                     transition
-                    group-hover:bg-violet-500/10
-                    group-hover:text-violet-300
+                    group-hover:bg-gray-500/10
+                    group-hover:text-gray-300
                 "
             >
                 <Icon size={19} />
@@ -917,7 +936,7 @@ function AdminAction({
                         <span
                             className="
                                 rounded-full
-                                bg-violet-600
+                                bg-gray-600
                                 px-2
                                 py-0.5
                                 text-[10px]
@@ -944,7 +963,7 @@ function AdminAction({
                     text-gray-700
                     transition
                     group-hover:translate-x-0.5
-                    group-hover:text-violet-400
+                    group-hover:text-gray-400
                 "
             />
 

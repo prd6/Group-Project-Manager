@@ -230,7 +230,7 @@ const FilesPage = () => {
     if (fileType.startsWith("image/")) {
       return (
         <FaFileImage
-          className={`${size} text-sky-400`}
+          className={`${size} text-gray-400`}
         />
       );
     }
@@ -238,7 +238,7 @@ const FilesPage = () => {
     if (fileType.includes("word")) {
       return (
         <FaFileWord
-          className={`${size} text-blue-400`}
+          className={`${size} text-gray-400`}
         />
       );
     }
@@ -853,7 +853,7 @@ const FilesPage = () => {
 
   return (
     <div className="h-[calc(100vh-64px)] bg-[#08080a] text-white flex flex-col overflow-hidden">
-      <div className="shrink-0 border-b border-white/[0.07] bg-[#08080d]/80 backdrop-blur-xl">
+      <div className="shrink-0 border-b border-white/[0.07] bg-[#08080d]/80 ">
         <div className="flex min-h-[72px] items-center gap-5 px-5 md:px-7">
 
           {/* Back */}
@@ -899,7 +899,7 @@ const FilesPage = () => {
 
             <div className="mt-2 h-[4px] w-full overflow-hidden rounded-full bg-white/[0.07]">
               <div
-                className="h-full rounded-full bg-violet-500 transition-all duration-500"
+                className="h-full rounded-full bg-gray-500 transition-all duration-500"
                 style={{
                   width: `${storagePercentage}%`,
                 }}
@@ -950,7 +950,7 @@ const FilesPage = () => {
             type="button"
             onClick={handleUpload}
             disabled={uploading || !selectedUploadFile}
-            className="inline-flex shrink-0 items-center rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex shrink-0 items-center rounded-lg bg-gray-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-gray-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {uploading ? "Uploading..." : "Upload"}
           </button>
@@ -1009,7 +1009,7 @@ const FilesPage = () => {
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Search files..."
-                  className="w-full rounded-lg border border-white/[0.07] bg-white/[0.025] py-2.5 pl-9 pr-8 text-xs text-zinc-200 outline-none transition placeholder:text-zinc-600 focus:border-violet-500/40 focus:ring-1 focus:ring-violet-500/20"
+                  className="w-full rounded-lg border border-white/[0.07] bg-white/[0.025] py-2.5 pl-9 pr-8 text-xs text-zinc-200 outline-none transition placeholder:text-zinc-600 focus:border-gray-500/40 focus:ring-1 focus:ring-gray-500/20"
                 />
 
                 {searchTerm && (
@@ -1048,7 +1048,7 @@ const FilesPage = () => {
                         className={`
                           w-full rounded-lg border px-3 py-3 text-left transition
                           ${active
-                            ? "border-violet-500/30 bg-violet-500/[0.08]"
+                            ? "border-gray-500/30 bg-gray-500/[0.08]"
                             : "border-transparent hover:border-white/[0.06] hover:bg-white/[0.03]"
                           }
                         `}
@@ -1203,7 +1203,7 @@ const FilesPage = () => {
                       <button
                         type="button"
                         onClick={() => handleDownload(previewFile)}
-                        className="mt-4 rounded-lg bg-violet-600 px-4 py-2 text-xs font-medium text-white transition hover:bg-violet-500"
+                        className="mt-4 rounded-lg bg-gray-600 px-4 py-2 text-xs font-medium text-white transition hover:bg-gray-500"
                       >
                         Download file
                       </button>
@@ -1318,7 +1318,7 @@ const FilesPage = () => {
                       <button
                         type="button"
                         onClick={() => handleDownload(previewFile)}
-                        className="mt-4 rounded-lg bg-violet-600 px-4 py-2 text-xs font-medium text-white transition hover:bg-violet-500"
+                        className="mt-4 rounded-lg bg-gray-600 px-4 py-2 text-xs font-medium text-white transition hover:bg-gray-500"
                       >
                         Download file
                       </button>

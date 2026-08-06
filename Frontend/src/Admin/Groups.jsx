@@ -252,7 +252,7 @@ function Groups() {
 
                 <div className="text-center">
 
-                    <RefreshCw className="mx-auto h-7 w-7 animate-spin text-violet-500" />
+                    <RefreshCw className="mx-auto h-7 w-7 animate-spin text-gray-500" />
 
                     <p className="mt-4 text-sm text-gray-500">
                         Loading groups...
@@ -281,7 +281,7 @@ function Groups() {
                         h-125
                         w-125
                         rounded-full
-                        bg-violet-700/8
+                        bg-gray-700/8
                         blur-[150px]
                     "
                 />
@@ -294,7 +294,7 @@ function Groups() {
                         h-100
                         w-100
                         rounded-full
-                        bg-purple-800/5
+                        bg-gray-800/5
                         blur-[140px]
                     "
                 />
@@ -315,10 +315,10 @@ function Groups() {
 
                             <FolderKanban
                                 size={15}
-                                className="text-violet-400"
+                                className="text-gray-400"
                             />
 
-                            <p className="text-sm font-medium text-violet-400">
+                            <p className="text-sm font-medium text-gray-400">
                                 Administration
                             </p>
 
@@ -523,8 +523,8 @@ function Groups() {
                                     outline-none
                                     transition
                                     placeholder:text-gray-700
-                                    focus:border-violet-500/50
-                                    focus:bg-violet-500/[0.03]
+                                    focus:border-gray-500/50
+                                    focus:bg-[#1b1b1b]
                                 "
                             />
 
@@ -653,8 +653,8 @@ function Groups() {
                                                                         items-center
                                                                         justify-center
                                                                         rounded-xl
-                                                                        bg-violet-500/10
-                                                                        text-violet-300
+                                                                        bg-gray-500/10
+                                                                        text-gray-300
                                                                     "
                                                                 >
                                                                     <FolderKanban
@@ -710,8 +710,8 @@ function Groups() {
                                                                     text-xs
                                                                     text-gray-400
                                                                     transition
-                                                                    hover:border-violet-500/20
-                                                                    hover:text-violet-300
+                                                                    hover:border-gray-500/20
+                                                                    hover:text-gray-300
                                                                 "
                                                             >
                                                                 <KeyRound
@@ -730,7 +730,7 @@ function Groups() {
                                                                     className="
                                                                         text-gray-700
                                                                         transition
-                                                                        group-hover/key:text-violet-400
+                                                                        group-hover/key:text-gray-400
                                                                     "
                                                                 />
 
@@ -900,8 +900,8 @@ function Groups() {
                                                                 items-center
                                                                 justify-center
                                                                 rounded-xl
-                                                                bg-violet-500/10
-                                                                text-violet-300
+                                                                bg-gray-500/10
+                                                                text-gray-300
                                                             "
                                                         >
                                                             <FolderKanban
@@ -1062,7 +1062,7 @@ function Groups() {
                         justify-center
                         bg-black/75
                         px-4
-                        backdrop-blur-sm
+                        
                     "
                     onClick={() => {
                         if (!deletingId) {
@@ -1227,8 +1227,8 @@ function StatCard({
                     items-center
                     justify-center
                     rounded-xl
-                    bg-violet-500/10
-                    text-violet-300
+                    bg-gray-500/10
+                    text-gray-300
                 "
             >
                 <Icon size={18} />

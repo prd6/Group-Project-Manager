@@ -230,7 +230,7 @@ const Workspace = () => {
                             rounded-full
                             border-2
                             border-white/10
-                            border-t-violet-500
+                            border-t-gray-500
                         "
                     />
 
@@ -252,7 +252,7 @@ const Workspace = () => {
                 <div className="max-w-md text-center">
                     <FolderKanban
                         size={40}
-                        className="mx-auto text-violet-400"
+                        className="mx-auto text-gray-400"
                     />
 
                     <h1 className="mt-5 text-2xl font-semibold">
@@ -305,7 +305,7 @@ const Workspace = () => {
                         h-150
                         w-150
                         rounded-full
-                        bg-violet-700/[0.08]
+                        bg-gray-700/[0.08]
                         blur-[160px]
                     "
                 />
@@ -318,7 +318,7 @@ const Workspace = () => {
                         h-125
                         w-125
                         rounded-full
-                        bg-purple-800/[0.05]
+                        bg-gray-800/[0.05]
                         blur-[160px]
                     "
                 />
@@ -369,7 +369,7 @@ const Workspace = () => {
                             h-100
                             w-100
                             rounded-full
-                            bg-violet-600/10
+                            bg-gray-600/10
                             blur-[120px]
                         "
                     />
@@ -390,13 +390,13 @@ const Workspace = () => {
                                         justify-center
                                         rounded-3xl
                                         border
-                                        border-violet-400/20
+                                        border-gray-400/20
                                         bg-linear-to-br
-                                        from-violet-500
-                                        to-purple-800
+                                        from-gray-500
+                                        to-gray-800
                                         text-3xl
                                         font-bold
-                                        shadow-[0_20px_60px_rgba(124,58,237,0.2)]
+                                        shadow-[0_20px_60px_rgba(0,0,0,0.35)]
                                     "
                                 >
                                     {projectInitial}
@@ -406,7 +406,7 @@ const Workspace = () => {
 
                                     <div className="mb-3 flex flex-wrap items-center gap-2">
 
-                                        <span className="rounded-full border border-violet-500/20 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-300">
+                                        <span className="rounded-full border border-gray-500/20 bg-gray-500/10 px-3 py-1 text-xs font-medium text-gray-300">
                                             {group.groupName}
                                         </span>
 
@@ -449,14 +449,14 @@ const Workspace = () => {
                                         justify-center
                                         gap-2
                                         rounded-xl
-                                        bg-violet-600
+                                        bg-gray-600
                                         px-5
                                         py-3
                                         text-sm
                                         font-medium
-                                        shadow-[0_10px_30px_rgba(124,58,237,0.25)]
+                                        shadow-[0_20px_60px_rgba(0,0,0,0.35)]
                                         transition
-                                        hover:bg-violet-500
+                                        hover:bg-gray-500
                                     "
                                 >
                                     <Upload size={17} />
@@ -554,7 +554,7 @@ const Workspace = () => {
                                                     ? "bg-red-500"
                                                     : validMembers.length / group.maxMembers >= 0.8
                                                         ? "bg-yellow-500"
-                                                        : "bg-violet-500"
+                                                        : "bg-gray-500"
                                                 }`}
                                             style={{
                                                 width: `${(validMembers.length / group.maxMembers) * 100
@@ -570,7 +570,7 @@ const Workspace = () => {
                                             </span>
                                         ) : (
                                             <>
-                                                <span className="font-medium text-violet-400">
+                                                <span className="font-medium text-gray-400">
                                                     {group.maxMembers -
                                                         validMembers.length}
                                                 </span>{" "}
@@ -625,7 +625,7 @@ const Workspace = () => {
                                     <button
                                         type="button"
                                         onClick={copyJoinCode}
-                                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.05] text-gray-500 transition hover:bg-violet-500/10 hover:text-violet-300"
+                                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.05] text-gray-500 transition hover:bg-gray-500/10 hover:text-gray-300"
                                     >
                                         {copied ? (
                                             <Check
@@ -655,7 +655,7 @@ const Workspace = () => {
 
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-xs font-medium uppercase tracking-widest text-violet-400">
+                                <p className="text-xs font-medium uppercase tracking-widest text-gray-400">
                                     Overview
                                 </p>
 
@@ -708,7 +708,7 @@ const Workspace = () => {
                         <div className="mb-5 flex items-center justify-between">
 
                             <div>
-                                <p className="text-xs font-medium uppercase tracking-widest text-violet-400">
+                                <p className="text-xs font-medium uppercase tracking-widest text-gray-400">
                                     Team
                                 </p>
 
@@ -728,7 +728,7 @@ const Workspace = () => {
                             {validMembers.map((member) => (
                                 <div
                                     key={member.user._id}
-                                    className="flex items-center justify-between gap-3 rounded-2xl border border-white/[0.05] bg-black/20 p-3.5 transition hover:border-violet-500/15 hover:bg-violet-500/[0.025]"
+                                    className="flex items-center justify-between gap-3 rounded-2xl border border-white/[0.05] bg-black/20 p-3.5 transition hover:border-gray-500/15 hover:bg-gray-500/[0.025]"
                                 >
 
                                     <div className="flex min-w-0 items-center gap-3">
@@ -762,7 +762,7 @@ const Workspace = () => {
             py-1
             text-xs
             ${member.role?.toLowerCase() === "owner"
-                                                    ? "border-violet-500/15 bg-violet-500/10 text-violet-300"
+                                                    ? "border-gray-500/15 bg-gray-500/10 text-gray-300"
                                                     : "border-white/[0.06] bg-white/[0.03] text-gray-500"
                                                 }
         `}
@@ -805,7 +805,7 @@ const Workspace = () => {
                     <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
 
                         <div>
-                            <p className="text-xs font-medium uppercase tracking-widest text-violet-400">
+                            <p className="text-xs font-medium uppercase tracking-widest text-gray-400">
                                 Workspace
                             </p>
 
@@ -864,11 +864,11 @@ const Workspace = () => {
 
                 {/* FILE UPLOAD NOTE */}
 
-                <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-violet-500/10 bg-violet-500/[0.035] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-gray-500/10 bg-gray-500/[0.035] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
 
                     <div className="flex items-center gap-3">
 
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-violet-300">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-500/10 text-gray-300">
                             <Upload size={16} />
                         </div>
 
@@ -891,7 +891,7 @@ const Workspace = () => {
                                 `/workspace/${groupId}/files?upload=true`
                             )
                         }
-                        className="inline-flex items-center gap-2 text-sm font-medium text-violet-400 transition hover:text-violet-300"
+                        className="inline-flex items-center gap-2 text-sm font-medium text-gray-400 transition hover:text-gray-300"
                     >
                         Upload a file
                         <ArrowRight size={14} />
@@ -1003,7 +1003,7 @@ function ToolCard({
                 duration-300
                 ${comingSoon
                     ? "cursor-default opacity-60"
-                    : "hover:-translate-y-1 hover:border-violet-500/20 hover:bg-violet-500/[0.035]"
+                    : "hover:-translate-y-1 hover:border-gray-500/20 hover:bg-[#1b1b1b]"
                 }
             `}
         >
@@ -1014,7 +1014,7 @@ function ToolCard({
                 </span>
             )}
 
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-500/10 text-violet-300 transition group-hover:bg-violet-500/15">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gray-500/10 text-gray-300 transition group-hover:bg-gray-500/15">
                 <Icon size={19} />
             </div>
 
@@ -1027,7 +1027,7 @@ function ToolCard({
             </p>
 
             {!comingSoon && (
-                <div className="mt-5 flex items-center gap-2 text-xs font-medium text-violet-400">
+                <div className="mt-5 flex items-center gap-2 text-xs font-medium text-gray-400">
                     Open
 
                     <ArrowRight

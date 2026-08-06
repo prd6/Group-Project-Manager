@@ -291,7 +291,7 @@ export default function ForgotPasswordModal({ onClose }) {
                 justify-center
                 bg-black/70
                 p-4
-                backdrop-blur-sm
+                
             "
             onMouseDown={(e) => {
                 if (e.target === e.currentTarget) {
@@ -307,10 +307,10 @@ export default function ForgotPasswordModal({ onClose }) {
                     overflow-hidden
                     rounded-2xl
                     border
-                    border-white/10
-                    bg-[#17131f]
+                    border-[#222]
+                    bg-[#121212]
                     shadow-2xl
-                    shadow-violet-950/40
+                    shadow-black/40
                 "
             >
                 {/* ==========================================
@@ -331,11 +331,11 @@ export default function ForgotPasswordModal({ onClose }) {
                         items-center
                         justify-center
                         rounded-full
-                        bg-white/5
+                        bg-[#1b1b1b]
                         text-lg
-                        text-white/50
+                        text-gray-500
                         transition
-                        hover:bg-white/10
+                        hover:bg-[#222]
                         hover:text-white
                     "
                 >
@@ -357,7 +357,7 @@ export default function ForgotPasswordModal({ onClose }) {
                                         font-medium
                                         uppercase
                                         tracking-[0.18em]
-                                        text-[#9b7cff]
+                                        text-gray-500
                                     "
                                 >
                                     Account recovery
@@ -380,7 +380,7 @@ export default function ForgotPasswordModal({ onClose }) {
                                         mt-2
                                         text-sm
                                         leading-6
-                                        text-[#91899d]
+                                        text-gray-400
                                     "
                                 >
                                     Enter your email and we'll send
@@ -394,12 +394,12 @@ export default function ForgotPasswordModal({ onClose }) {
                                         mt-5
                                         rounded-lg
                                         border
-                                        border-[#574a70]
-                                        bg-[#372f47]
+                                        border-[#222]
+                                        bg-[#1b1b1b]
                                         px-4
                                         py-3
                                         text-sm
-                                        text-[#c4b3ff]
+                                        text-gray-300
                                     "
                                 >
                                     {message}
@@ -427,16 +427,16 @@ export default function ForgotPasswordModal({ onClose }) {
                                         rounded-lg
                                         border
                                         border-transparent
-                                        bg-[#3b3449]
+                                        bg-black/20
                                         px-5
                                         py-4
                                         text-white
                                         outline-none
                                         transition
-                                        placeholder:text-[#8e879b]
-                                        focus:border-[#8b6cff]
+                                        placeholder:text-gray-600
+                                        focus:border-white/20
                                         focus:ring-1
-                                        focus:ring-[#8b6cff]
+                                        focus:ring-0
                                     "
                                 />
 
@@ -448,12 +448,12 @@ export default function ForgotPasswordModal({ onClose }) {
                                         mt-4
                                         w-full
                                         rounded-lg
-                                        bg-[#7656d1]
+                                        bg-white
                                         py-4
                                         font-medium
-                                        text-white
+                                        text-black
                                         transition
-                                        hover:bg-[#8565df]
+                                        hover:bg-gray-200
                                         disabled:cursor-not-allowed
                                         disabled:opacity-50
                                     "
@@ -479,7 +479,7 @@ export default function ForgotPasswordModal({ onClose }) {
                                         font-medium
                                         uppercase
                                         tracking-[0.18em]
-                                        text-[#9b7cff]
+                                        text-gray-500
                                     "
                                 >
                                     Verification
@@ -502,7 +502,7 @@ export default function ForgotPasswordModal({ onClose }) {
                                         mt-2
                                         text-sm
                                         leading-6
-                                        text-[#91899d]
+                                        text-gray-400
                                     "
                                 >
                                     Enter the 6-digit code sent to
@@ -514,7 +514,7 @@ export default function ForgotPasswordModal({ onClose }) {
                                         truncate
                                         text-sm
                                         font-medium
-                                        text-[#c4b3ff]
+                                        text-gray-300
                                     "
                                 >
                                     {email}
@@ -527,12 +527,12 @@ export default function ForgotPasswordModal({ onClose }) {
                                         mt-5
                                         rounded-lg
                                         border
-                                        border-[#574a70]
-                                        bg-[#372f47]
+                                        border-[#222]
+                                        bg-[#1b1b1b]
                                         px-4
                                         py-3
                                         text-sm
-                                        text-[#c4b3ff]
+                                        text-gray-300
                                     "
                                 >
                                     {message}
@@ -633,17 +633,17 @@ export default function ForgotPasswordModal({ onClose }) {
                                             flex-1
                                             rounded-lg
                                             border
-                                            border-white/10
-                                            bg-[#3b3449]
+                                            border-[#222]
+                                            bg-black/20
                                             text-center
                                             text-lg
                                             font-semibold
                                             text-white
                                             outline-none
                                             transition
-                                            focus:border-[#8b6cff]
+                                            focus:border-white/20
                                             focus:ring-1
-                                            focus:ring-[#8b6cff]
+                                            focus:ring-0
                                         "
                                     />
                                 ))}
@@ -657,12 +657,12 @@ export default function ForgotPasswordModal({ onClose }) {
                                     mt-5
                                     w-full
                                     rounded-lg
-                                    bg-[#7656d1]
-                                    py-4
-                                    font-medium
-                                    text-white
+                                    bg-white
+                                        py-4
+                                        font-medium
+                                        text-black
                                     transition
-                                    hover:bg-[#8565df]
+                                    hover:bg-gray-200
                                     disabled:cursor-not-allowed
                                     disabled:opacity-50
                                 "
@@ -677,7 +677,7 @@ export default function ForgotPasswordModal({ onClose }) {
                                     mt-5
                                     text-center
                                     text-sm
-                                    text-[#81798c]
+                                    text-gray-500
                                 "
                             >
                                 {timer > 0 ? (
@@ -690,7 +690,7 @@ export default function ForgotPasswordModal({ onClose }) {
                                         onClick={sendOTP}
                                         disabled={loading}
                                         className="
-                                            text-[#b69cff]
+                                            text-white
                                             transition
                                             hover:text-white
                                             disabled:opacity-50
@@ -714,7 +714,7 @@ export default function ForgotPasswordModal({ onClose }) {
                                     w-full
                                     text-center
                                     text-xs
-                                    text-[#81798c]
+                                    text-gray-500
                                     transition
                                     hover:text-white
                                 "
@@ -738,7 +738,7 @@ export default function ForgotPasswordModal({ onClose }) {
                                         font-medium
                                         uppercase
                                         tracking-[0.18em]
-                                        text-[#9b7cff]
+                                        text-gray-500
                                     "
                                 >
                                     New password
@@ -761,7 +761,7 @@ export default function ForgotPasswordModal({ onClose }) {
                                         mt-2
                                         text-sm
                                         leading-6
-                                        text-[#91899d]
+                                        text-gray-400
                                     "
                                 >
                                     Choose a new password for your
@@ -775,12 +775,12 @@ export default function ForgotPasswordModal({ onClose }) {
                                         mt-5
                                         rounded-lg
                                         border
-                                        border-[#574a70]
-                                        bg-[#372f47]
+                                        border-[#222]
+                                        bg-[#1b1b1b]
                                         px-4
                                         py-3
                                         text-sm
-                                        text-[#c4b3ff]
+                                        text-gray-300
                                     "
                                 >
                                     {message}
@@ -803,16 +803,16 @@ export default function ForgotPasswordModal({ onClose }) {
                                         rounded-lg
                                         border
                                         border-transparent
-                                        bg-[#3b3449]
+                                        bg-black/20
                                         px-5
                                         py-4
                                         text-white
                                         outline-none
                                         transition
-                                        placeholder:text-[#8e879b]
-                                        focus:border-[#8b6cff]
+                                        placeholder:text-gray-600
+                                        focus:border-white/20
                                         focus:ring-1
-                                        focus:ring-[#8b6cff]
+                                        focus:ring-0
                                     "
                                 />
 
@@ -830,16 +830,16 @@ export default function ForgotPasswordModal({ onClose }) {
                                         rounded-lg
                                         border
                                         border-transparent
-                                        bg-[#3b3449]
+                                        bg-black/20
                                         px-5
                                         py-4
                                         text-white
                                         outline-none
                                         transition
-                                        placeholder:text-[#8e879b]
-                                        focus:border-[#8b6cff]
+                                        placeholder:text-gray-600
+                                        focus:border-white/20
                                         focus:ring-1
-                                        focus:ring-[#8b6cff]
+                                        focus:ring-0
                                     "
                                 />
 
@@ -852,12 +852,12 @@ export default function ForgotPasswordModal({ onClose }) {
                                     mt-5
                                     w-full
                                     rounded-lg
-                                    bg-[#7656d1]
-                                    py-4
-                                    font-medium
-                                    text-white
+                                    bg-white
+                                        py-4
+                                        font-medium
+                                        text-black
                                     transition
-                                    hover:bg-[#8565df]
+                                    hover:bg-gray-200
                                     disabled:cursor-not-allowed
                                     disabled:opacity-50
                                 "
@@ -885,9 +885,9 @@ export default function ForgotPasswordModal({ onClose }) {
                                     items-center
                                     justify-center
                                     rounded-full
-                                    bg-[#7656d1]/15
+                                    bg-white/15
                                     text-xl
-                                    text-[#b69cff]
+                                    text-white
                                 "
                             >
                                 ✓
@@ -909,7 +909,7 @@ export default function ForgotPasswordModal({ onClose }) {
                                     mt-2
                                     text-sm
                                     leading-6
-                                    text-[#91899d]
+                                    text-gray-400
                                 "
                             >
                                 Your password has been changed
@@ -924,12 +924,12 @@ export default function ForgotPasswordModal({ onClose }) {
                                     mt-7
                                     w-full
                                     rounded-lg
-                                    bg-[#7656d1]
-                                    py-4
-                                    font-medium
-                                    text-white
+                                    bg-white
+                                        py-4
+                                        font-medium
+                                        text-black
                                     transition
-                                    hover:bg-[#8565df]
+                                    hover:bg-gray-200
                                 "
                             >
                                 Back to login

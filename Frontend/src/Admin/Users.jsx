@@ -355,7 +355,7 @@ function Users() {
             <div className="flex min-h-screen items-center justify-center bg-[#08080d] text-white">
                 <div className="text-center">
 
-                    <RefreshCw className="mx-auto h-7 w-7 animate-spin text-violet-500" />
+                    <RefreshCw className="mx-auto h-7 w-7 animate-spin text-gray-500" />
 
                     <p className="mt-4 text-sm text-gray-500">
                         Loading users...
@@ -381,7 +381,7 @@ function Users() {
                         h-125
                         w-125
                         rounded-full
-                        bg-violet-700/8
+                        bg-gray-700/8
                         blur-[150px]
                     "
                 />
@@ -394,7 +394,7 @@ function Users() {
                         h-100
                         w-100
                         rounded-full
-                        bg-purple-800/5
+                        bg-gray-800/5
                         blur-[140px]
                     "
                 />
@@ -415,10 +415,10 @@ function Users() {
 
                             <UsersIcon
                                 size={15}
-                                className="text-violet-400"
+                                className="text-gray-400"
                             />
 
-                            <p className="text-sm font-medium text-violet-400">
+                            <p className="text-sm font-medium text-gray-400">
                                 Administration
                             </p>
 
@@ -603,7 +603,7 @@ function Users() {
                                     text-sm
                                     text-gray-300
                                     outline-none
-                                    focus:border-violet-500/50
+                                    focus:border-gray-500/50
                                 "
                             >
                                 <option value="all">
@@ -656,7 +656,7 @@ function Users() {
                                         text-white
                                         outline-none
                                         placeholder:text-gray-700
-                                        focus:border-violet-500/50
+                                        focus:border-gray-500/50
                                     "
                                 />
 
@@ -1123,7 +1123,7 @@ function Users() {
                         justify-center
                         bg-black/75
                         p-4
-                        backdrop-blur-sm
+                        
                     "
                     onClick={() => {
                         if (!saving) {
@@ -1162,7 +1162,7 @@ function Users() {
 
                                 <div>
 
-                                    <p className="text-xs font-medium uppercase tracking-widest text-violet-400">
+                                    <p className="text-xs font-medium uppercase tracking-widest text-gray-400">
                                         Edit Account
                                     </p>
 
@@ -1269,7 +1269,7 @@ function Users() {
                                         text-white
                                         outline-none
                                         transition
-                                        focus:border-violet-500/50
+                                        focus:border-gray-500/50
                                     "
                                 >
 
@@ -1355,14 +1355,14 @@ function Users() {
                                     items-center
                                     gap-2
                                     rounded-xl
-                                    bg-violet-600
+                                    bg-gray-600
                                     px-5
                                     py-2.5
                                     text-sm
                                     font-medium
                                     text-white
                                     transition
-                                    hover:bg-violet-500
+                                    hover:bg-gray-500
                                     disabled:cursor-not-allowed
                                     disabled:opacity-50
                                 "
@@ -1407,7 +1407,7 @@ function Users() {
                         justify-center
                         bg-black/75
                         p-4
-                        backdrop-blur-sm
+                        
                     "
                     onClick={() => {
                         if (!deletingId) {
@@ -1595,8 +1595,8 @@ function StatCard({
                     items-center
                     justify-center
                     rounded-xl
-                    bg-violet-500/10
-                    text-violet-300
+                    bg-gray-500/10
+                    text-gray-300
                 "
             >
                 <Icon size={18} />
@@ -1640,7 +1640,7 @@ function RoleBadge({ role }) {
 
                 ${
                     admin
-                        ? "border-violet-500/15 bg-violet-500/[0.08] text-violet-300"
+                        ? "border-gray-500/15 bg-gray-500/[0.08] text-gray-300"
                         : "border-white/[0.07] bg-white/[0.03] text-gray-400"
                 }
             `}
@@ -1729,9 +1729,9 @@ function ActionButton({
                 bg-white/[0.03]
                 text-gray-500
                 transition
-                hover:border-violet-500/20
-                hover:bg-violet-500/10
-                hover:text-violet-300
+                hover:border-gray-500/20
+                hover:bg-gray-500/10
+                hover:text-gray-300
             "
         >
             {children}
@@ -1819,7 +1819,7 @@ function FormField({
                     outline-none
                     transition
                     placeholder:text-gray-700
-                    focus:border-violet-500/50
+                    focus:border-gray-500/50
                 "
             />
 

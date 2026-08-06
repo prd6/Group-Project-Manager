@@ -297,7 +297,7 @@ function Files() {
             <div className="flex min-h-screen items-center justify-center bg-[#08080d] text-white">
                 <div className="text-center">
 
-                    <RefreshCw className="mx-auto h-7 w-7 animate-spin text-violet-500" />
+                    <RefreshCw className="mx-auto h-7 w-7 animate-spin text-gray-500" />
 
                     <p className="mt-4 text-sm text-gray-500">
                         Loading files...
@@ -325,7 +325,7 @@ function Files() {
                         h-125
                         w-125
                         rounded-full
-                        bg-violet-700/8
+                        bg-gray-700/8
                         blur-[150px]
                     "
                 />
@@ -338,7 +338,7 @@ function Files() {
                         h-100
                         w-100
                         rounded-full
-                        bg-purple-800/5
+                        bg-gray-800/5
                         blur-[140px]
                     "
                 />
@@ -359,10 +359,10 @@ function Files() {
 
                             <FilesIcon
                                 size={15}
-                                className="text-violet-400"
+                                className="text-gray-400"
                             />
 
-                            <p className="text-sm font-medium text-violet-400">
+                            <p className="text-sm font-medium text-gray-400">
                                 Administration
                             </p>
 
@@ -578,8 +578,8 @@ function Files() {
                                     outline-none
                                     transition
                                     placeholder:text-gray-700
-                                    focus:border-violet-500/50
-                                    focus:bg-violet-500/[0.03]
+                                    focus:border-gray-500/50
+                                    focus:bg-[#1b1b1b]
                                 "
                             />
 
@@ -704,8 +704,8 @@ function Files() {
                                                                         items-center
                                                                         justify-center
                                                                         rounded-xl
-                                                                        bg-violet-500/10
-                                                                        text-violet-300
+                                                                        bg-gray-500/10
+                                                                        text-gray-300
                                                                     "
                                                                 >
                                                                     <FileIcon
@@ -814,12 +814,12 @@ function Files() {
                                                                     truncate
                                                                     rounded-lg
                                                                     border
-                                                                    border-violet-500/10
-                                                                    bg-violet-500/[0.07]
+                                                                    border-gray-500/10
+                                                                    bg-gray-500/[0.07]
                                                                     px-2.5
                                                                     py-1.5
                                                                     text-xs
-                                                                    text-violet-300
+                                                                    text-gray-300
                                                                 "
                                                             >
                                                                 <FolderKanban
@@ -873,9 +873,9 @@ function Files() {
                                                                             bg-white/[0.03]
                                                                             text-gray-500
                                                                             transition
-                                                                            hover:border-violet-500/20
-                                                                            hover:bg-violet-500/10
-                                                                            hover:text-violet-300
+                                                                            hover:border-gray-500/20
+                                                                            hover:bg-gray-500/10
+                                                                            hover:text-gray-300
                                                                         "
                                                                     >
                                                                         <ExternalLink
@@ -957,8 +957,8 @@ function Files() {
                                                             items-center
                                                             justify-center
                                                             rounded-xl
-                                                            bg-violet-500/10
-                                                            text-violet-300
+                                                            bg-gray-500/10
+                                                            text-gray-300
                                                         "
                                                     >
                                                         <FileIcon
@@ -1061,8 +1061,8 @@ function Files() {
                                                                     items-center
                                                                     justify-center
                                                                     rounded-lg
-                                                                    bg-violet-500/10
-                                                                    text-violet-300
+                                                                    bg-gray-500/10
+                                                                    text-gray-300
                                                                 "
                                                             >
                                                                 <ExternalLink
@@ -1170,8 +1170,8 @@ function StatCard({
                         items-center
                         justify-center
                         rounded-xl
-                        bg-violet-500/10
-                        text-violet-300
+                        bg-gray-500/10
+                        text-gray-300
                     "
                 >
                     <Icon size={18} />

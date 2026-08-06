@@ -6,6 +6,7 @@ html {
 
 body {
     background-color: black;
+    color: white;
 }
 
 input:-webkit-autofill,
@@ -15,10 +16,15 @@ input:-webkit-autofill:active {
     -webkit-text-fill-color: white !important;
     caret-color: white;
 
-    -webkit-box-shadow: 0 0 0 1000px #3b3449 inset !important;
-    box-shadow: 0 0 0 1000px #3b3449 inset !important;
+    -webkit-box-shadow: 0 0 0 1000px #121212 inset !important;
+    box-shadow: 0 0 0 1000px #121212 inset !important;
 
     transition: background-color 9999s ease-in-out 0s;
+}
+
+::selection {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
 }
 
 * {

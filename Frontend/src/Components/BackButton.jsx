@@ -14,15 +14,14 @@ const BackButton = ({
                 items-center
                 gap-2
                 rounded-xl
-                border
-                border-white/[0.07]
-                bg-white/[0.03]
+                border border-[#222]
+                bg-[#121212]
                 px-4
                 py-2.5
                 text-sm
-                text-gray-400
+                text-gray-300
                 transition
-                hover:bg-white/[0.06]
+                hover:bg-[#1b1b1b]
                 hover:text-white
                 ${className}
             `}
