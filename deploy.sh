@@ -17,11 +17,11 @@ cd Backend
 npm ci
 
 echo "🔄 Restarting backend..."
-pm2 restart codegpm-api
+pm2 restart codegpm-api --update-env
 
 echo "📦 Installing frontend dependencies..."
 cd ../Frontend
-npm install
+npm ci
 
 echo "🏗️ Building frontend..."
 npm run build
