@@ -1,0 +1,131 @@
+#herobg {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  z-index: -10;
+  overflow: hidden;
+  pointer-events: none;
+
+  /* YOUR ORIGINAL GRADIENT */
+  background: linear-gradient(
+    326deg,
+    #0f1724 0%,
+    #162030 2%,
+    #1c2940 4%,
+    #24314c 6%,
+    #2a3242 8%,
+    #2e384a 10%,
+    #343f52 12%,
+    #394666 14%,
+    #3d4a6e 16%,
+    #414f75 18%,
+    #46547d 20%,
+    #4d5a8a 22%,
+    #555f90 24%,
+    #5b6496 26%,
+    #636aa4 28%,
+    #6b6aaf 30%,
+
+    #676db5 32%,
+    #656eb6 34%,
+    #6272bb 36%,
+    #5f75c0 38%,
+    #5c7ac4 40%,
+    #5980c8 42%,
+    #5b84ca 44%,
+    #5e87cb 46%,
+    #6490cf 48%,
+    #6b98d3 50%,
+    #7098d4 52%,
+    #75a0d7 54%,
+    #7a9fd8 56%,
+    #7e9cd7 58%,
+
+    #7897db 60%,
+    #708fdd 62%,
+    #6788df 64%,
+    #5d7ee2 66%,
+    #5675e7 68%,
+    #5368eb 70%,
+    #585cf0 72%,
+    #664df5 74%,
+    #7643fa 76%,
+    #8640ff 78%,
+    #944cff 80%,
+    #9e5dff 82%,
+    #a970ff 84%,
+    #b384ff 86%,
+    #bc98ff 88%,
+    #c4abff 90%,
+    #ccbaff 91%,
+    #d4c8ff 92%,
+    #dcd4ff 93%,
+    #e3ddff 94%,
+    #e8e6ff 95%,
+
+    #dff2ff 96%,
+    #d4efff 97%,
+    #c7ebff 97.5%,
+    #b8e6ff 98%,
+    #a7ddff 98.4%,
+    #91d2ff 98.8%,
+    #bce8ff 99.2%,
+    #e6f8ff 99.6%,
+    #ffffff 100%
+  );
+  background-size: 300% 300%;
+  background-position: 0% 50%;
+  animation: gradientMove 20s ease infinite;
+}
+
+#herobg::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+
+  height: 2000px;
+
+  background: linear-gradient(
+    to bottom,
+
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0) 5%,
+    rgba(0, 0, 0, 0.005) 10%,
+    rgba(0, 0, 0, 0.01) 15%,
+    rgba(0, 0, 0, 0.015) 20%,
+    rgba(0, 0, 0, 0.025) 25%,
+    rgba(0, 0, 0, 0.04) 30%,
+    rgba(0, 0, 0, 0.06) 35%,
+    rgba(0, 0, 0, 0.08) 40%,
+    rgba(0, 0, 0, 0.1) 45%,
+    rgba(0, 0, 0, 0.13) 50%,
+    rgba(0, 0, 0, 0.17) 55%,
+    rgba(0, 0, 0, 0.22) 60%,
+    rgba(0, 0, 0, 0.28) 65%,
+    rgba(0, 0, 0, 0.36) 70%,
+    rgba(0, 0, 0, 0.46) 75%,
+    rgba(0, 0, 0, 0.58) 80%,
+    rgba(0, 0, 0, 0.72) 85%,
+    rgba(0, 0, 0, 0.84) 90%,
+    rgba(0, 0, 0, 0.94) 95%,
+    #000 100%
+  );
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}

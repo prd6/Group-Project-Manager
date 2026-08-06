@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ContactAPI from "../services/contact";
-import Particles from "../Styles/Particles";
+import CountUp from "../Styles/CountUp"; // adjust the path
+import GalaxyBackground from "../Styles/GalaxyBackground"
 import CommunityAPI from "../services/community";
 import SignupGuide from "../assets/guide/signup.png";
 import GroupGuide from "../assets/guide/group.png";
@@ -10,6 +11,9 @@ import {
     FaGithub,
     FaEnvelope,
     FaPaperPlane,
+    FaFileAlt,
+    FaLayerGroup,
+    FaTeamspeak
 } from "react-icons/fa";
 
 function Home() {
@@ -95,80 +99,49 @@ function Home() {
         }));
     };
 
-const handleContactSubmit = async (e) => {
-    e.preventDefault();
+    const handleContactSubmit = async (e) => {
+        e.preventDefault();
 
-    if (sendingMessage) return;
+        if (sendingMessage) return;
 
-    try {
-        setSendingMessage(true);
-        setContactStatus("");
+        try {
+            setSendingMessage(true);
+            setContactStatus("");
 
-        const { data } = await ContactAPI.post(
-            "/",
-            contactForm
-        );
-
-        if (data.success) {
-            setContactStatus(
-                "Message sent successfully!"
+            const { data } = await ContactAPI.post(
+                "/",
+                contactForm
             );
 
-            setContactForm({
-                name: "",
-                email: "",
-                message: "",
-            });
-        }
+            if (data.success) {
+                setContactStatus(
+                    "Message sent successfully!"
+                );
 
-    } catch (error) {
-        setContactStatus(
-            error.response?.data?.message ||
-            "Something went wrong. Please try again."
-        );
-    } finally {
-        setSendingMessage(false);
-    }
-};
+                setContactForm({
+                    name: "",
+                    email: "",
+                    message: "",
+                });
+            }
+
+        } catch (error) {
+            setContactStatus(
+                error.response?.data?.message ||
+                "Something went wrong. Please try again."
+            );
+        } finally {
+            setSendingMessage(false);
+        }
+    };
 
     return (
         <div className="relative isolate min-h-screen overflow-hidden">
 
-            {/* Particles Background */}
-            <div className="absolute inset-0 z-0">
-                <Particles
-                    particleColors={["#ffffff"]}
-                    particleCount={500}
-                    particleSpread={8}
-                    speed={0.2}
-                    particleBaseSize={70}
-                    moveParticlesOnHover={true}
-                    particleHoverFactor={0.35}
-                    alphaParticles={true}
-                    disableRotation={false}
-                    pixelRatio={1}
-                    className="w-full h-full"
-                />
-            </div>
-
             {/* Hero Content */}
             <div id="home" className="relative z-10 flex min-h-screen items-center justify-center px-6">
 
-                <div className="absolute inset-0 z-0">
-                    <Particles
-                        particleColors={["#ffffff"]}
-                        particleCount={300}
-                        particleSpread={10}
-                        speed={0.1}
-                        particleBaseSize={70}
-                        moveParticlesOnHover={true}
-                        particleHoverFactor={0.35}
-                        alphaParticles={true}
-                        disableRotation={false}
-                        pixelRatio={1}
-                        className="w-full h-full"
-                    />
-                </div>
+                <GalaxyBackground />
 
                 <div className="max-w-3xl text-center">
 
@@ -186,36 +159,14 @@ const handleContactSubmit = async (e) => {
                         <Link to="/signup">
                             <button className="
                                 cursor-pointer
-                                rounded-xl
+                                border border-transparent
+                                rounded-full
                                 bg-white
                                 px-8
                                 py-4
-                                font-bold 
                                 text-black 
-                                hover:bg-violet-700/90 
-                                hover:text-white 
-                                transition-all
-                                duration-300
                             ">
                                 Get Started
-                            </button>
-                        </Link>
-
-                        <Link to="/features">
-                            <button
-                                className="
-                                    cursor-pointer
-                                    rounded-2xl
-                                    border border-white/10
-                                    bg-white/5
-                                    backdrop-blur-xl
-                                    px-8 py-4
-                                    font-medium text-white
-                                    hover:bg-white/10
-                                    transition-all
-                                    duration-300"
-                            >
-                                View Features
                             </button>
                         </Link>
 
@@ -223,16 +174,15 @@ const handleContactSubmit = async (e) => {
                             <button
                                 className="
                                     cursor-pointer
-                                    rounded-2xl
-                                    border border-violet-700/90
-                                    bg-violet-700
+                                    rounded-full
+                                    border border-transparent
+                                    bg-black
                                     backdrop-blur-xl
                                     px-8 py-4
                                     font-medium text-white
-                                    hover:bg-violet-800/90
-                                    hover:border-violet-800/90
+                                    hover:bg-[#121212]
                                     transition-all
-                                    duration-300"
+                                    duration-200"
                             >
                                 Sign In
                             </button>
@@ -250,9 +200,6 @@ const handleContactSubmit = async (e) => {
                 <div className="max-w-6xl w-full">
 
                     <div className="text-center mb-10">
-                        <p className="text-violet-500 text-2xl font-semibold mb-3">
-                            CodeGPM
-                        </p>
 
                         <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
                             Everything your team needs
@@ -268,13 +215,10 @@ const handleContactSubmit = async (e) => {
 
                     <div className="grid md:grid-cols-3 gap-6">
 
-                        <div className="rounded-3xl border border-white/5 bg-white/3 p-8 hover:border-violet-500/40 transition duration-300">
-                            <div className="w-12 h-12 rounded-xl bg-violet-600/15 flex items-center justify-center text-violet-400 text-xl mb-3">
-                                01
-                            </div>
+                        <div className="rounded-xl border border-trasparent bg-[#121212] p-8">
 
-                            <h3 className="text-xl font-semibold text-white mb-1.5">
-                                Create Groups
+                            <h3 className="text-xl font-semibold text-white mb-1.5 flex items-center gap-2">
+                                <FaLayerGroup /> Create Groups
                             </h3>
 
                             <p className="text-gray-400 leading-relaxed">
@@ -284,13 +228,10 @@ const handleContactSubmit = async (e) => {
                             </p>
                         </div>
 
-                        <div className="rounded-3xl border border-white/10 bg-white/3 p-8 hover:border-violet-500/40 transition duration-300">
-                            <div className="w-12 h-12 rounded-xl bg-violet-600/15 flex items-center justify-center text-violet-400 text-xl mb-3">
-                                02
-                            </div>
+                        <div className="rounded-xl border border-trasparent bg-[#121212] p-8">
 
-                            <h3 className="text-xl font-semibold text-white mb-1.5">
-                                Share Files
+                            <h3 className="text-xl font-semibold text-white mb-1.5 flex items-center gap-2">
+                                <FaFileAlt /> Share Files
                             </h3>
 
                             <p className="text-gray-400 leading-relaxed">
@@ -299,13 +240,10 @@ const handleContactSubmit = async (e) => {
                             </p>
                         </div>
 
-                        <div className="rounded-3xl border border-white/10 bg-white/3 p-8 hover:border-violet-500/40 transition duration-300">
-                            <div className="w-12 h-12 rounded-xl bg-violet-600/15 flex items-center justify-center text-violet-400 text-xl mb-3">
-                                03
-                            </div>
+                        <div className="rounded-xl border border-trasparent bg-[#121212] p-8">
 
-                            <h3 className="text-xl font-semibold text-white mb-1.5">
-                                Collaborate Together
+                            <h3 className="text-xl font-semibold text-white mb-1.5 flex items-center gap-2">
+                                <FaTeamspeak /> Collaborate Together
                             </h3>
 
                             <p className="text-gray-400 leading-relaxed">
@@ -328,36 +266,23 @@ const handleContactSubmit = async (e) => {
 
                     {/* Heading */}
                     <div className="text-center mb-24">
-                        <p className="text-violet-500 text-xl font-semibold mb-3">
-                            How It Works?
-                        </p>
 
                         <h2 className="text-4xl md:text-5xl font-bold text-white">
                             Get started and collaborate in minutes
                         </h2>
-
-                        <p className="text-gray-400 mt-5 max-w-2xl mx-auto text-lg">
-                            From creating your account to working with your team,
-                            CodeGPM keeps the entire process simple.
-                        </p>
                     </div>
-
 
                     {/* ================= STEP 01 ================= */}
 
-                    <div className="grid lg:grid-cols-[0.7fr_1.5fr] gap-16 items-center mb-40">
+                    <div className="grid lg:grid-cols-[0.9fr_1.3fr] gap-16 items-end mb-40">
 
                         {/* Content */}
                         <div>
-                            <span className="text-violet-500 font-semibold text-lg">
-                                01
-                            </span>
-
                             <h3 className="text-3xl md:text-4xl font-bold text-white mt-4 mb-5">
                                 Create your account
                             </h3>
 
-                            <p className="text-gray-400 text-lg leading-8">
+                            <p className="text-white text-lg leading-8">
                                 Create your CodeGPM account in just a few steps.
                                 Once you're signed in, you'll get access to your
                                 personal dashboard where you can manage your groups,
@@ -365,115 +290,43 @@ const handleContactSubmit = async (e) => {
                             </p>
                         </div>
 
-
-                        {/* Screenshot Card */}
-                        <div
+                        <img
+                            src={SignupGuide}
+                            alt="CodeGPM signup screen"
                             className="
-                    relative
-                    rounded-3xl
-                    border border-violet-500/20
-                    bg-linear-to-br
-                    from-violet-600/30
-                    via-violet-900/20
-                    to-white/5
-                    p-8
-                    md:p-10
-                    overflow-hidden
-                    max-w-187.5
-                "
-                        >
-
-                            {/* Background glow */}
-                            <div
-                                className="
-                        absolute
-                        w-80 h-80
-                        bg-violet-600/30
-                        blur-[120px]
-                        rounded-full
-                        top-0 right-0
-                        pointer-events-none
-                    "
-                            />
-
-                            <img
-                                src={SignupGuide}
-                                alt="CodeGPM signup screen"
-                                className="
-                        relative z-10
-                        w-full
-                        rounded-2xl
-                        border border-white/10
-                        shadow-2xl
-                    "
-                            />
-
-                        </div>
-
+                                relative z-10
+                                w-full
+                                rounded-2xl
+                                border border-transparent"
+                        />
                     </div>
 
 
                     {/* ================= STEP 02 ================= */}
 
-                    <div className="grid lg:grid-cols-[1.5fr_0.7fr] gap-16 items-center mb-40">
+                    <div className="grid lg:grid-cols-[1.3fr_0.9fr] gap-16 items-end mb-40">
 
-                        {/* Screenshot Card */}
-                        <div
+                        <img
+                            src={GroupGuide}
+                            alt="CodeGPM group screen"
                             className="
-                    relative
-                    rounded-3xl
-                    border border-violet-500/20
-                    bg-linear-to-br
-                    from-violet-600/30
-                    via-violet-900/20
-                    to-white/5
-                    p-8
-                    md:p-10
-                    overflow-hidden
-                    max-w-187.5
-                    order-2 lg:order-1
-                "
-                        >
-
-                            <div
-                                className="
-                        absolute
-                        w-80 h-80
-                        bg-violet-600/30
-                        blur-[120px]
-                        rounded-full
-                        bottom-0 left-0
-                        pointer-events-none
-                    "
-                            />
-
-                            <img
-                                src={GroupGuide}
-                                alt="CodeGPM group screen"
-                                className="
                         relative z-10
                         w-full
                         rounded-2xl
-                        border border-white/10
-                        shadow-2xl
+                        border border-transparent
                     "
-                            />
+                        />
 
-                        </div>
 
 
                         {/* Content */}
                         <div className="order-1 lg:order-2">
 
-                            <span className="text-violet-500 font-semibold text-lg">
-                                02
-                            </span>
-
                             <h3 className="text-3xl md:text-4xl font-bold text-white mt-4 mb-5">
                                 Create or join a group
                             </h3>
 
-                            <p className="text-gray-400 text-lg leading-8">
+                            <p className="text-white text-lg leading-8">
                                 Create a workspace for your own project or join your
                                 teammates using a group invite code. Everyone gets
                                 access to the same shared project environment.
@@ -486,20 +339,16 @@ const handleContactSubmit = async (e) => {
 
                     {/* ================= STEP 03 ================= */}
 
-                    <div className="grid lg:grid-cols-[0.7fr_1.5fr] gap-16 items-center">
+                    <div className="grid lg:grid-cols-[0.9fr_1.3fr] gap-16 items-end">
 
                         {/* Content */}
                         <div>
-
-                            <span className="text-violet-500 font-semibold text-lg">
-                                03
-                            </span>
 
                             <h3 className="text-3xl md:text-4xl font-bold text-white mt-4 mb-5">
                                 Build together
                             </h3>
 
-                            <p className="text-gray-400 text-lg leading-8">
+                            <p className="text-white text-lg leading-8">
                                 Your workspace becomes the central place for your
                                 project. Share files, collaborate with teammates,
                                 organize project resources, and keep everyone working
@@ -508,52 +357,17 @@ const handleContactSubmit = async (e) => {
 
                         </div>
 
-
-                        {/* Screenshot Card */}
-                        <div
+                        <img
+                            src={WorkspaceGuide}
+                            alt="CodeGPM workspace screen"
                             className="
-                    relative
-                    rounded-3xl
-                    border border-violet-500/20
-                    bg-linear-to-br
-                    from-violet-600/30
-                    via-violet-900/20
-                    to-white/5
-                    p-8
-                    md:p-10
-                    overflow-hidden
-                    max-w-187.5
-                "
-                        >
-
-                            <div
-                                className="
-                        absolute
-                        w-80 h-80
-                        bg-violet-600/30
-                        blur-[120px]
-                        rounded-full
-                        top-1/2 left-1/2
-                        -translate-x-1/2
-                        -translate-y-1/2
-                        pointer-events-none
-                    "
-                            />
-
-                            <img
-                                src={WorkspaceGuide}
-                                alt="CodeGPM workspace screen"
-                                className="
                         relative z-10
                         w-full
                         rounded-2xl
-                        border border-white/10
+                        border border-transparent
                         shadow-2xl
                     "
-                            />
-
-                        </div>
-
+                        />
                     </div>
 
                 </div>
@@ -569,20 +383,46 @@ const handleContactSubmit = async (e) => {
 
                     {/* Heading */}
                     <div className="text-center mb-20">
-                        <p className="text-violet-500 text-xl font-semibold mb-3">
-                            Our Community
-                        </p>
 
                         <h2 className="text-4xl md:text-5xl font-bold text-white mb-5">
                             Built by students, for students.
                         </h2>
 
-                        <p className="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
-                            CodeGPM started as an idea between two friends who wanted
-                            a simpler way to manage group projects. Now we're building
-                            it with feedback from the people who actually use it.
-                        </p>
                     </div>
+
+                    {/* ================= STATS ================= */}
+
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 mb-20">
+                        {communityStats.map((item, index) => (
+                            <div
+                                key={item.label}
+                                className={`text-center ${index > 1 ? "mt-8 md:mt-0" : ""}`}
+                            >
+                                <h3 className="text-4xl font-bold text-white">
+                                    <CountUp
+                                        from={0}
+                                        to={Number(item.value)}
+                                        separator=","
+                                        duration={2}
+                                        className="text-4xl font-bold text-white"
+                                    />
+                                    {typeof item.value === "string" &&
+                                        item.value.replace(/[0-9,]/g, "")}
+                                </h3>
+
+                                <p className="text-gray-500 mt-2">
+                                    {item.label}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+
+                    {statsError && (
+                        <p className="-mt-16 mb-20 text-center text-sm text-gray-500">
+                            {statsError}
+                        </p>
+                    )}
 
 
                     {/* ================= BUILDERS ================= */}
@@ -592,58 +432,50 @@ const handleContactSubmit = async (e) => {
                         {/* You */}
                         <div
                             className="
-                    rounded-3xl
-                    border border-white/10
-                    bg-white/3
-                    p-8
-                    text-center
-                    hover:border-violet-500/40
-                    transition
-                "
+        rounded-xl
+        border border-transparent
+        bg-[#121212]
+        p-8
+        text-center
+    "
                         >
-                            <div
-                                className="
-                        w-20 h-20
-                        mx-auto mb-5
-                        rounded-full
-                        bg-violet-600/20
-                        border border-violet-500/30
-                        flex items-center justify-center
-                        text-2xl font-bold text-violet-400
-                    "
-                            >
-                                P
+                            <div className="w-20 h-20 mx-auto mb-5 rounded-full border border-transparent overflow-hidden">
+                                <img
+                                    src="https://i.pinimg.com/736x/35/ab/1c/35ab1c1f01cafc4d40fa02508dbb4e1b.jpg"
+                                    alt="Priyangshu"
+                                    className="w-full h-full object-cover"
+                                />
                             </div>
 
                             <h3 className="text-xl font-semibold text-white">
                                 Priyangshu
                             </h3>
 
-                            <p className="text-violet-400 text-sm mt-1">
+                            <p className="text-white text-sm mt-1">
                                 Developer
                             </p>
 
                             <p className="text-gray-400 mt-4">
                                 “Working together sounded easy until we both decided to change the exact same file at the exact same time”💀
                             </p>
+
                             <a
                                 href="https://github.com/prd6"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="
-                                    inline-flex items-center gap-2
-                                    mt-6
-                                    px-5 py-2.5
-                                    rounded-xl
-                                    border border-white/10
-                                    bg-white/5
-                                    text-sm font-medium text-white
-                                    hover:bg-violet-600/15
-                                    hover:border-violet-500/50
-                                    hover:text-violet-300
-                                    transition-all duration-300
-                                    cursor-pointer
-                            ">
+            inline-flex items-center gap-2
+            mt-6
+            px-5 py-2.5
+            rounded-xl
+            border border-transparent
+            bg-black
+            text-sm font-medium text-white
+            hover:bg-[#1b1b1b]
+            transition-all duration-300
+            cursor-pointer
+        "
+                            >
                                 <FaGithub className="text-lg" />
                                 View GitHub
                             </a>
@@ -653,34 +485,23 @@ const handleContactSubmit = async (e) => {
                         {/* Friend */}
                         <div
                             className="
-                    rounded-3xl
-                    border border-white/10
-                    bg-white/3
+                    rounded-xl
+                    border border-transparent
+                    bg-[#121212]
                     p-8
                     text-center
-                    hover:border-violet-500/40
-                    transition
                 "
                         >
-                            <div
-                                className="
-                        w-20 h-20
-                        mx-auto mb-5
-                        rounded-full
-                        bg-violet-600/20
-                        border border-violet-500/30
-                        flex items-center justify-center
-                        text-2xl font-bold text-violet-400
-                    "
-                            >
-                                S
+                            <div className="w-20 h-20 mx-auto mb-5 rounded-full border border-transparent overflow-hidden">
+
+                                <img src="https://i.pinimg.com/1200x/85/a6/99/85a69912405712de7ecd3762c2d860ac.jpg" alt="" />
                             </div>
 
                             <h3 className="text-xl font-semibold text-white">
                                 Sabarna
                             </h3>
 
-                            <p className="text-violet-400 text-sm mt-1">
+                            <p className="text-white text-sm mt-1">
                                 Developer
                             </p>
 
@@ -696,12 +517,10 @@ const handleContactSubmit = async (e) => {
                                     mt-6
                                     px-5 py-2.5
                                     rounded-xl
-                                    border border-white/10
-                                    bg-white/5
+                                    border border-transparent
+                                    bg-black
                                     text-sm font-medium text-white
-                                    hover:bg-violet-600/15
-                                    hover:border-violet-500/50
-                                    hover:text-violet-300
+                                    hover:bg-[#1b1b1b]
                                     transition-all duration-300
                                     cursor-pointer
                             ">
@@ -712,169 +531,97 @@ const handleContactSubmit = async (e) => {
 
                     </div>
 
-
-                    {/* ================= STATS ================= */}
-
-
-                    <div
-                        className="
-                grid grid-cols-2 md:grid-cols-4
-                border-b border-white/10
-                py-12
-                mb-24
-            "
-                    >
-                        {communityStats.map((item, index) => (
-                            <div
-                                key={item.label}
-                                className={`text-center ${index > 1 ? "mt-8 md:mt-0" : ""}`}
-                            >
-                                <h3 className="text-4xl font-bold text-white">
-                                    {item.value}
-                                </h3>
-                                <p className="text-gray-500 mt-2">
-                                    {item.label}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-
-                    {statsError && (
-                        <p className="-mt-16 mb-20 text-center text-sm text-gray-500">
-                            {statsError}
-                        </p>
-                    )}
-
-
                     {/* ================= USER FEEDBACK ================= */}
 
                     <div>
                         <div className="mb-10">
-                            <p className="text-violet-500 font-semibold mb-2">
-                                What people say
-                            </p>
 
-                            <h2 className="text-3xl md:text-4xl font-bold text-white">
-                                Built with our users.
+                            <h2 className="text-3xl md:text-5xl font-bold text-white">
+                                What Others are Saying
                             </h2>
                         </div>
 
-
-{feedback.length === 0 ? (
-    <div className="rounded-3xl border border-white/10 bg-white/3 p-8 text-center">
-        <p className="text-gray-400">
-            No community feedback yet.
-        </p>
-    </div>
-) : (
-    <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {feedback.map((item) => (
-            <article
-                key={item._id}
-                className="
-                    group
-                    relative
-                    flex
-                    min-h-65
-                    flex-col
-                    overflow-hidden
-                    rounded-3xl
-                    border
-                    border-white/10
-                    bg-white/3
-                    p-7
-                    text-left
-                    transition-all
-                    duration-300
-                    hover:-translate-y-1
-                    hover:border-violet-500/40
-                    hover:bg-white/5
-                    hover:shadow-[0_20px_60px_rgba(124,58,237,0.12)]
-                "
-            >
-                {/* Glow */}
-                <div
-                    className="
-                        pointer-events-none
-                        absolute
-                        -right-16
-                        -top-16
-                        h-40
-                        w-40
-                        rounded-full
-                        bg-violet-600/10
-                        blur-3xl
-                        transition
-                        duration-300
-                        group-hover:bg-violet-600/20
+                        {feedback.length === 0 ? (
+                            <div className="rounded-xl border border-transparent bg-[#121212] p-8 text-center">
+                                <p className="text-white">
+                                    No community feedback yet.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                                {feedback.map((item) => (
+                                    <article
+                                        key={item._id}
+                                        className="
+                        group
+                        relative
+                        flex
+                        min-h-65
+                        flex-col
+                        overflow-hidden
+                        rounded-sm
+                        border
+                        border-transparent
+                        bg-[#303030]
+                        p-7
+                        text-left
                     "
-                />
+                                    >
+                                        {/* Quote */}
+                                        <div className="relative flex-1">
+                                            <div
+                                                className="
+                                flex
+                                h-11
+                                w-11
+                                shrink-0
+                                items-center
+                                justify-center
+                                rounded-full
+                                bg-[#121212]
+                                mb-5
+                                text-sm
+                                font-bold
+                                uppercase
+                                text-white
+                            "
+                                            >
+                                                {item.name?.charAt(0)}
+                                            </div>
 
-                {/* Feedback */}
-                <div className="relative flex-1">
-                    <span className="block font-serif text-5xl leading-none text-violet-500/50">
-                        “
-                    </span>
+                                            <p className="-mt-2 text-[15px] leading-7 text-white">
+                                                &ldquo;{item.message}&rdquo;
+                                            </p>
+                                        </div>
 
-                    <p className="-mt-2 text-[15px] leading-7 text-gray-300">
-                        {item.message}
-                    </p>
-                </div>
+                                        {/* User */}
+                                        <div className="relative mt-7 flex items-center gap-3 pt-5">
 
-                {/* User */}
-                <div className="relative mt-7 flex items-center gap-3 border-t border-white/8 pt-5">
 
-                    {/* Avatar */}
-                    <div
-                        className="
-                            flex
-                            h-11
-                            w-11
-                            shrink-0
-                            items-center
-                            justify-center
-                            rounded-full
-                            border
-                            border-violet-500/25
-                            bg-violet-600/15
-                            text-sm
-                            font-bold
-                            uppercase
-                            text-violet-300
-                        "
-                    >
-                        {item.name?.charAt(0)}
-                    </div>
+                                            {/* Name */}
+                                            <div className="min-w-0 flex-1">
+                                                <p className="truncate font-semibold text-white">
+                                                    ~{item.name}
+                                                </p>
+                                            </div>
 
-                    {/* Name */}
-                    <div className="min-w-0 flex-1">
-                        <p className="truncate font-semibold text-white">
-                            {item.name}
-                        </p>
-
-                        <p className="mt-0.5 text-xs text-gray-500">
-                            CodeGPM User
-                        </p>
-                    </div>
-
-                    {/* Date */}
-                    <p className="shrink-0 text-xs text-gray-600">
-                        {new Date(item.createdAt).toLocaleDateString(
-                            "en-IN",
-                            {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                            }
+                                            {/* Date */}
+                                            <p className="shrink-0 text-xs text-gray-500">
+                                                {new Date(item.createdAt).toLocaleDateString(
+                                                    "en-IN",
+                                                    {
+                                                        day: "2-digit",
+                                                        month: "short",
+                                                        year: "numeric",
+                                                    }
+                                                )}
+                                            </p>
+                                        </div>
+                                    </article>
+                                ))}
+                            </div>
                         )}
-                    </p>
-                </div>
-            </article>
-        ))}
-    </div>
-)}
                     </div>
-
                 </div>
             </section>
 
@@ -884,41 +631,17 @@ const handleContactSubmit = async (e) => {
                 id="contact"
                 className="relative px-6 py-28 scroll-mt-5"
             >
-                {/* Background glow */}
-                <div
-                    className="
-            pointer-events-none
-            absolute
-            left-1/2
-            top-1/2
-            h-125
-            w-125
-            -translate-x-1/2
-            -translate-y-1/2
-            rounded-full
-            bg-violet-700/10
-            blur-[140px]
-        "
-                />
 
                 <div className="relative mx-auto max-w-7xl">
 
                     {/* Heading */}
 
                     <div className="mb-16 text-center">
-                        <p className="mb-3 text-xl font-semibold text-violet-500">
-                            Contact Us
-                        </p>
 
-                        <h2 className="text-4xl font-bold text-white md:text-5xl">
+                        <h2 className="text-4xl font-bold text-white md:text-6xl">
                             Got something to say?
                         </h2>
 
-                        <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-gray-400">
-                            Found a bug, have an idea, or just want
-                            to talk about CodeGPM? We'd love to
-                            hear from you.
-                        </p>
                     </div>
 
                     {/* Main Card */}
@@ -929,11 +652,11 @@ const handleContactSubmit = async (e) => {
                 grid
                 max-w-5xl
                 overflow-hidden
-                rounded-3xl
+                rounded-xl
                 border
-                border-white/10
-                bg-white/3
-                lg:grid-cols-[0.8fr_1.2fr]
+                border-transparent
+                bg-[#121212]
+                lg:grid-cols-[0.9fr_1.5fr]
             "
                     >
 
@@ -944,34 +667,15 @@ const handleContactSubmit = async (e) => {
                     relative
                     overflow-hidden
                     border-b
-                    border-white/10
+                    border-transparent
                     p-8
                     md:p-10
                     lg:border-b-0
                     lg:border-r
                 "
                         >
-                            {/* Glow */}
-
-                            <div
-                                className="
-                        pointer-events-none
-                        absolute
-                        -left-20
-                        -top-20
-                        h-64
-                        w-64
-                        rounded-full
-                        bg-violet-600/20
-                        blur-[100px]
-                    "
-                            />
 
                             <div className="relative">
-
-                                <p className="text-sm font-medium uppercase tracking-[0.2em] text-violet-400">
-                                    Let's talk
-                                </p>
 
                                 <h3 className="mt-4 text-3xl font-semibold leading-tight text-white">
                                     Help us make
@@ -979,7 +683,7 @@ const handleContactSubmit = async (e) => {
                                     CodeGPM better.
                                 </h3>
 
-                                <p className="mt-5 leading-7 text-gray-400">
+                                <p className="mt-5 leading-7 text-white/60">
                                     Whether you've discovered an issue,
                                     have a feature request, or want to
                                     share feedback, send us a message.
@@ -1010,8 +714,8 @@ const handleContactSubmit = async (e) => {
                                     items-center
                                     justify-center
                                     rounded-xl
-                                    bg-violet-600/15
-                                    text-violet-400
+                                    bg-white
+                                    text-black
                                 "
                                         >
                                             <FaEnvelope />
@@ -1042,8 +746,7 @@ const handleContactSubmit = async (e) => {
                                 bg-white/3
                                 p-4
                                 transition
-                                hover:border-violet-500/30
-                                hover:bg-violet-600/5
+                                hover:bg-white/5
                             "
                                     >
                                         <div
@@ -1055,8 +758,8 @@ const handleContactSubmit = async (e) => {
                                     items-center
                                     justify-center
                                     rounded-xl
-                                    bg-violet-600/15
-                                    text-violet-400
+                                    bg-white
+                                    text-black
                                 "
                                         >
                                             <FaGithub />
@@ -1114,7 +817,7 @@ const handleContactSubmit = async (e) => {
                                 w-full
                                 rounded-xl
                                 border
-                                border-white/10
+                                border-transparent
                                 bg-black/20
                                 px-4
                                 py-3.5
@@ -1122,8 +825,7 @@ const handleContactSubmit = async (e) => {
                                 outline-none
                                 transition
                                 placeholder:text-gray-600
-                                focus:border-violet-500/60
-                                focus:bg-violet-600/5
+                                focus:bg-[#1b1b1b]
                             "
                                     />
                                 </div>
@@ -1150,7 +852,7 @@ const handleContactSubmit = async (e) => {
                                 w-full
                                 rounded-xl
                                 border
-                                border-white/10
+                                border-transparent
                                 bg-black/20
                                 px-4
                                 py-3.5
@@ -1158,8 +860,7 @@ const handleContactSubmit = async (e) => {
                                 outline-none
                                 transition
                                 placeholder:text-gray-600
-                                focus:border-violet-500/60
-                                focus:bg-violet-600/5
+                                focus:bg-[#1b1b1b]
                             "
                                     />
                                 </div>
@@ -1187,7 +888,7 @@ const handleContactSubmit = async (e) => {
                                 resize-none
                                 rounded-xl
                                 border
-                                border-white/10
+                                border-transparent
                                 bg-black/20
                                 px-4
                                 py-3.5
@@ -1195,8 +896,7 @@ const handleContactSubmit = async (e) => {
                                 outline-none
                                 transition
                                 placeholder:text-gray-600
-                                focus:border-violet-500/60
-                                focus:bg-violet-600/5
+                                focus:bg-[#1b1b1b]
                             "
                                     />
                                 </div>
@@ -1232,14 +932,14 @@ const handleContactSubmit = async (e) => {
                             justify-center
                             gap-2
                             rounded-xl
-                            bg-violet-600
+                            bg-white
                             px-6
                             py-4
                             font-medium
-                            text-white
+                            text-black
                             transition-all
                             duration-300
-                            hover:bg-violet-500
+                            hover:bg-white
                             disabled:cursor-not-allowed
                             disabled:opacity-50
                         "
