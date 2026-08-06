@@ -19,3 +19,4 @@ jobs:
           script: |
             cd /home/ubuntu/Group-Project-Manager
             ./deploy.sh
+            
