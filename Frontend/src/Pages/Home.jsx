@@ -201,7 +201,7 @@ function Home() {
 
                     <div className="text-center mb-10">
 
-                        <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
+                        <h2 className="text-4xl md:text-6xl font-bold text-white mb-2">
                             Everything your team needs
                             <br />
                             is one workspace
@@ -267,7 +267,7 @@ function Home() {
                     {/* Heading */}
                     <div className="text-center mb-24">
 
-                        <h2 className="text-4xl md:text-5xl font-bold text-white">
+                        <h2 className="text-4xl md:text-6xl font-bold text-white">
                             Get started and collaborate in minutes
                         </h2>
                     </div>
@@ -296,8 +296,8 @@ function Home() {
                             className="
                                 relative z-10
                                 w-full
-                                rounded-2xl
-                                border border-transparent"
+                                rounded-lg
+                                border border-white"
                         />
                     </div>
 
@@ -312,8 +312,8 @@ function Home() {
                             className="
                         relative z-10
                         w-full
-                        rounded-2xl
-                        border border-transparent
+                        rounded-lg
+                        border border-white
                     "
                         />
 
@@ -363,8 +363,8 @@ function Home() {
                             className="
                         relative z-10
                         w-full
-                        rounded-2xl
-                        border border-transparent
+                        rounded-lg
+                        border border-white
                         shadow-2xl
                     "
                         />
@@ -384,7 +384,7 @@ function Home() {
                     {/* Heading */}
                     <div className="text-center mb-20">
 
-                        <h2 className="text-4xl md:text-5xl font-bold text-white mb-5">
+                        <h2 className="text-4xl md:text-6xl font-bold text-white mb-5">
                             Built by students, for students.
                         </h2>
 
