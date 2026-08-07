@@ -21,7 +21,10 @@ pm2 restart codegpm-api --update-env
 
 echo "📦 Installing frontend dependencies..."
 cd ../Frontend
-npm ci || npm install
+if ! npm ci; then
+    echo "npm ci failed, falling back to npm install..."
+    npm install
+fi
 
 echo "🏗️ Building frontend..."
 npm run build
