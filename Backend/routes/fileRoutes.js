@@ -10,6 +10,9 @@ import {
   downloadFile,
   deleteFile,
 } from "../controllers/fileController.js";
+import {
+  updateFile,
+} from "../controllers/codeController.js";
 
 const router = express.Router();
 
@@ -62,6 +65,12 @@ router.delete(
   "/:fileId",
   authMiddleware,
   deleteFile
+);
+
+router.patch(
+  "/:fileId",
+  authMiddleware,
+  updateFile
 );
 
 export default router;

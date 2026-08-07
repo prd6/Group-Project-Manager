@@ -1,10 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import API from "../services/api";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import BackButton from "../Components/BackButton";
 import UserAvatar from "../Components/UserAvatar";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import CodeEditor from "../Components/CodeEditor";
+import EditorToolbar from "../Components/EditorToolbar";
+import Console from "../Components/Console";
+import {
+  MONACO_LANGUAGE_OPTIONS,
+  detectMonacoLanguage,
+  isCodeFileName,
+  isRunnableMonacoLanguage,
+} from "../utils/codeLanguages";
 
 import {
   FaBars,
@@ -22,78 +29,6 @@ import {
 
 const MAX_FILE_SIZE = 1 * 1024 * 1024;
 const MAX_STORAGE = 20 * 1024 * 1024;
-
-const codeExtensions = [
-  "js",
-  "jsx",
-  "ts",
-  "tsx",
-  "py",
-  "java",
-  "c",
-  "cpp",
-  "h",
-  "hpp",
-  "cs",
-  "php",
-  "rb",
-  "go",
-  "rs",
-  "swift",
-  "kt",
-  "kts",
-  "html",
-  "css",
-  "scss",
-  "sass",
-  "less",
-  "json",
-  "xml",
-  "yaml",
-  "yml",
-  "sql",
-  "sh",
-  "bash",
-  "md",
-  "txt",
-  "env",
-];
-
-const languageMap = {
-  js: "javascript",
-  jsx: "jsx",
-  ts: "typescript",
-  tsx: "tsx",
-  py: "python",
-  java: "java",
-  c: "c",
-  cpp: "cpp",
-  h: "c",
-  hpp: "cpp",
-  cs: "csharp",
-  php: "php",
-  rb: "ruby",
-  go: "go",
-  rs: "rust",
-  swift: "swift",
-  kt: "kotlin",
-  kts: "kotlin",
-  html: "html",
-  css: "css",
-  scss: "scss",
-  sass: "sass",
-  less: "less",
-  json: "json",
-  xml: "xml",
-  yaml: "yaml",
-  yml: "yaml",
-  sql: "sql",
-  sh: "bash",
-  bash: "bash",
-  md: "markdown",
-  txt: "text",
-  env: "text",
-};
 
 const FilesPage = () => {
   const { groupId } = useParams();
@@ -124,6 +59,15 @@ const FilesPage = () => {
   const [fileContent, setFileContent] = useState("");
   const [loadingContent, setLoadingContent] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [codeLanguage, setCodeLanguage] = useState("auto");
+  const [codeFontSize, setCodeFontSize] = useState(13);
+  const [codeStdin, setCodeStdin] = useState("");
+  const [runOutput, setRunOutput] = useState(null);
+  const [runLoading, setRunLoading] = useState(false);
+  const [runError, setRunError] = useState("");
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
+  const [initialCodeContent, setInitialCodeContent] = useState("");
 
   // ============================================
   // CURRENT USER
@@ -171,22 +115,18 @@ const FilesPage = () => {
   // FILE HELPERS
   // ============================================
 
-  const getFileExtension = (fileName = "") =>
-    fileName.split(".").pop()?.toLowerCase() || "";
-
   const isCodeFile = (file) => {
     if (!file) {
       return false;
     }
 
-    return codeExtensions.includes(
-      getFileExtension(file.originalName)
-    );
+    return isCodeFileName(file.originalName);
   };
 
-  const getLanguage = (fileName = "") =>
-    languageMap[getFileExtension(fileName)] ||
-    "text";
+  const isCodeDirty =
+    selectedFile &&
+    isCodeFile(selectedFile) &&
+    fileContent !== initialCodeContent;
 
   const formatFileSize = (bytes) => {
     if (!bytes) {
@@ -314,7 +254,7 @@ const FilesPage = () => {
           setSelectedFile(null);
           setPreviewFile(null);
           setPreviewError("");
-          setFileContent("");
+          resetCodeEditorState();
         } else {
           setSelectedFile(
             updatedSelectedFile
@@ -565,7 +505,7 @@ const FilesPage = () => {
       setSelectedFile(null);
       setPreviewFile(null);
       setPreviewError("");
-      setFileContent("");
+      resetCodeEditorState();
 
       setFiles((currentFiles) =>
         currentFiles.filter(
@@ -636,6 +576,60 @@ const FilesPage = () => {
     }
   };
 
+  const resetCodeEditorState = () => {
+    setFileContent("");
+    setInitialCodeContent("");
+    setCodeLanguage("auto");
+    setCodeStdin("");
+    setRunOutput(null);
+    setRunError("");
+    setRunLoading(false);
+    setSaveLoading(false);
+    setSaveMessage("");
+    setCopied(false);
+  };
+
+  const loadCodePreview = async (file) => {
+    if (!file?.fileUrl) {
+      throw new Error("File URL is missing.");
+    }
+
+    const response = await API.get(
+      `/files/view/${file.fileUrl}`,
+      {
+        responseType: "text",
+
+        /*
+         * Without this Axios may try to
+         * automatically parse JSON files.
+         */
+        transformResponse: [(data) => data],
+      }
+    );
+
+    const content =
+      typeof response.data === "string"
+        ? response.data
+        : JSON.stringify(
+            response.data,
+            null,
+            2
+          );
+
+    setFileContent(content);
+    setInitialCodeContent(content);
+    setCodeLanguage(
+      detectMonacoLanguage(
+        file.originalName,
+        content
+      )
+    );
+    setCodeStdin("");
+    setRunOutput(null);
+    setRunError("");
+    setSaveMessage("");
+  };
+
   // ============================================
   // SELECT / PREVIEW FILE
   // ============================================
@@ -651,8 +645,7 @@ const FilesPage = () => {
     setPreviewFile(file);
 
     setPreviewError("");
-    setFileContent("");
-    setCopied(false);
+    resetCodeEditorState();
     setLoadingContent(false);
 
     clearPreviewObjectUrl();
@@ -689,37 +682,7 @@ const FilesPage = () => {
 
       setLoadingContent(true);
 
-      const response = await API.get(
-        `/files/view/${file.fileUrl}`,
-        {
-          responseType: "text",
-
-          /*
-           * Without this Axios may try to
-           * automatically parse JSON files.
-           */
-          transformResponse: [
-            (data) => data,
-          ],
-        }
-      );
-
-      if (
-        typeof response.data ===
-        "string"
-      ) {
-        setFileContent(
-          response.data
-        );
-      } else {
-        setFileContent(
-          JSON.stringify(
-            response.data,
-            null,
-            2
-          )
-        );
-      }
+      await loadCodePreview(file);
     } catch (error) {
       console.error(
         "Failed to load file preview:",
@@ -820,6 +783,129 @@ const FilesPage = () => {
     }
   };
 
+  const handleSaveCode = async () => {
+    if (!selectedFile || !isCodeFile(selectedFile)) {
+      return;
+    }
+
+    try {
+      setSaveLoading(true);
+      setRunError("");
+      setSaveMessage("");
+
+      const response = await API.patch(
+        `/files/${selectedFile._id}`,
+        {
+          content: fileContent,
+        }
+      );
+
+      const updatedFile = {
+        ...selectedFile,
+        ...(response.data?.file || {}),
+        currentUserRole:
+          selectedFile.currentUserRole,
+      };
+
+      setSelectedFile(updatedFile);
+      setPreviewFile(updatedFile);
+      setInitialCodeContent(fileContent);
+      setSaveMessage(
+        response.data?.message ||
+          "File saved successfully."
+      );
+
+      setFiles((currentFiles) =>
+        currentFiles.map((file) =>
+          file._id === updatedFile._id
+            ? {
+                ...file,
+                ...updatedFile,
+                currentUserRole:
+                  file.currentUserRole,
+              }
+            : file
+        )
+      );
+
+      window.setTimeout(() => {
+        setSaveMessage("");
+      }, 2500);
+    } catch (error) {
+      console.error(
+        "Failed to save file:",
+        error.response?.data || error
+      );
+
+      setRunError(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to save file."
+      );
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  const handleRunCode = async () => {
+    if (!selectedFile || !isCodeFile(selectedFile)) {
+      return;
+    }
+
+    const resolvedLanguage =
+      codeLanguage === "auto"
+        ? detectMonacoLanguage(
+            selectedFile.originalName,
+            fileContent
+          )
+        : codeLanguage;
+
+    if (
+      !isRunnableMonacoLanguage(resolvedLanguage)
+    ) {
+      setRunError(
+        "This language is not supported by Judge0 execution."
+      );
+      setRunOutput(null);
+      return;
+    }
+
+    try {
+      setRunLoading(true);
+      setRunError("");
+      setRunOutput(null);
+      setSaveMessage("");
+
+      const response = await API.post("/code/run", {
+        sourceCode: fileContent,
+        stdin: codeStdin,
+        language: resolvedLanguage,
+        fileName: selectedFile.originalName,
+      });
+
+      setRunOutput(response.data);
+    } catch (error) {
+      console.error(
+        "Failed to run code:",
+        error.response?.data || error
+      );
+
+      setRunError(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to execute code."
+      );
+    } finally {
+      setRunLoading(false);
+    }
+  };
+
+  const handleEditorChange = (value) => {
+    setFileContent(value);
+    setRunError("");
+    setSaveMessage("");
+  };
+
   // ============================================
   // FILTER + STORAGE
   // ============================================
@@ -850,6 +936,23 @@ const FilesPage = () => {
       "Owner" ||
       selectedFile.uploadedBy?._id ===
       currentUser?._id);
+
+  const activeEditorLanguage =
+    selectedFile && isCodeFile(selectedFile)
+      ? codeLanguage === "auto"
+        ? detectMonacoLanguage(
+            selectedFile.originalName,
+            fileContent
+          )
+        : codeLanguage
+      : "plaintext";
+
+  const canRunCode =
+    isCodeFile(selectedFile) &&
+    !loadingContent &&
+    isRunnableMonacoLanguage(
+      activeEditorLanguage
+    );
 
   return (
     <div className="h-[calc(100vh-64px)] bg-[#08080a] text-white flex flex-col overflow-hidden">
@@ -1239,66 +1342,54 @@ const FilesPage = () => {
                       />
                     )
                   ) : isCodeFile(previewFile) ? (
-                    <div className="flex h-full flex-col">
-                      <div className="flex h-11 shrink-0 items-center justify-between border-b border-white/[0.07] bg-[#0d0d10] px-4">
-                        <span className="max-w-[70%] truncate text-[11px] font-medium text-zinc-400">
-                          {previewFile.originalName}
-                        </span>
+                    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+                      <EditorToolbar
+                        fileName={previewFile.originalName}
+                        language={codeLanguage}
+                        languageOptions={MONACO_LANGUAGE_OPTIONS}
+                        onLanguageChange={setCodeLanguage}
+                        fontSize={codeFontSize}
+                        onFontSizeChange={setCodeFontSize}
+                        onRun={handleRunCode}
+                        onSave={handleSaveCode}
+                        onCopy={handleCopyFile}
+                        isRunning={runLoading}
+                        isSaving={saveLoading}
+                        copied={copied}
+                        isDirty={isCodeDirty}
+                        canRun={canRunCode}
+                      />
 
-                        <div className="flex items-center gap-3">
-                          {!loadingContent && (
-                            <span className="text-[10px] text-zinc-600">
-                              {fileContent ? `${fileContent.split("\n").length} lines` : ""}
-                            </span>
+                      <div className="min-h-0 flex-1 overflow-hidden p-3">
+                        <div className="flex h-full min-h-0 flex-col gap-3">
+                          {saveMessage && (
+                            <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/[0.08] px-3 py-2 text-[11px] text-emerald-300">
+                              {saveMessage}
+                            </div>
                           )}
 
-                          <button
-                            onClick={handleCopyFile}
-                            disabled={!fileContent || loadingContent}
-                            className="rounded-md border border-white/[0.08] bg-white/[0.03] px-2.5 py-1.5 text-[10px] font-medium text-zinc-400 transition hover:bg-white/[0.07] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-                          >
-                            {copied ? "Copied!" : "Copy"}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="min-h-0 flex-1 overflow-auto">
-                        {loadingContent ? (
-                          <div className="flex h-full items-center justify-center">
-                            <span className="text-xs text-zinc-600">
-                              Loading file...
-                            </span>
+                          <div className="min-h-[320px] flex-[3]">
+                            <CodeEditor
+                              value={fileContent}
+                              onChange={handleEditorChange}
+                              language={activeEditorLanguage}
+                              fileName={previewFile.originalName}
+                              editorKey={codeLanguage}
+                              fontSize={codeFontSize}
+                              loading={loadingContent}
+                            />
                           </div>
-                        ) : (
-                          <SyntaxHighlighter
-                            language={getLanguage(previewFile.originalName)}
-                            style={vscDarkPlus}
-                            showLineNumbers
-                            wrapLongLines={false}
-                            customStyle={{
-                              margin: 0,
-                              minHeight: "100%",
-                              background: "#09090b",
-                              padding: "16px 0",
-                              fontSize: "13px",
-                              lineHeight: "1.65",
-                            }}
-                            lineNumberStyle={{
-                              minWidth: "50px",
-                              paddingRight: "18px",
-                              color: "#52525b",
-                              userSelect: "none",
-                            }}
-                            codeTagProps={{
-                              style: {
-                                fontFamily:
-                                  "'JetBrains Mono', 'Fira Code', Consolas, monospace",
-                              },
-                            }}
-                          >
-                            {fileContent}
-                          </SyntaxHighlighter>
-                        )}
+
+                          <div className="min-h-[260px] flex-[2]">
+                            <Console
+                              stdin={codeStdin}
+                              onStdinChange={setCodeStdin}
+                              output={runOutput}
+                              isRunning={runLoading}
+                              error={runError}
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ) : (

@@ -17,6 +17,7 @@ import groupRoutes from "./routes/groupRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import fileRoutes from "./routes/fileRoutes.js";
+import codeRoutes from "./routes/codeRoutes.js";
 
 import { getAuthorizedGroup } from "./utils/groupAccess.js";
 
@@ -157,7 +158,7 @@ app.use(
  */
 app.use(
   express.json({
-    limit: "100kb",
+    limit: "2mb",
   })
 );
 
@@ -236,6 +237,11 @@ app.use(
 app.use(
   "/api/files",
   fileRoutes
+);
+
+app.use(
+  "/api/code",
+  codeRoutes
 );
 
 // ==========================================
