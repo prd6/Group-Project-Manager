@@ -1,161 +1,114 @@
 import { createHttpError } from "../utils/groupAccess.js";
 
-const JUDGE0_BASE_URL = (
-  process.env.JUDGE0_API_URL || "https://ce.judge0.com"
-).replace(/\/$/, "");
+const PISTON_BASE_URL =
+  process.env.PISTON_API_URL || "http://localhost:2000";
 
-const JUDGE0_AUTH_HEADER =
-  process.env.JUDGE0_AUTH_HEADER || "X-Auth-User";
+const PISTON_TIMEOUT_MS =
+  Number(process.env.PISTON_TIMEOUT_MS) || 15000;
 
-const JUDGE0_AUTH_TOKEN =
-  process.env.JUDGE0_AUTH_TOKEN || "";
+const LANGUAGE_CONFIG = {
+  python: {
+    language: "python",
+    version: "3.12.0",
+    extension: "py",
+    fileName: "main.py",
+  },
 
-const JUDGE0_TIMEOUT_MS =
-  Number(process.env.JUDGE0_TIMEOUT_MS) || 30000;
+  c: {
+    language: "c",
+    version: "10.2.0",
+    extension: "c",
+    fileName: "main.c",
+  },
 
-const LANGUAGE_CACHE_TTL_MS =
-  Number(process.env.JUDGE0_LANGUAGE_CACHE_TTL_MS) ||
-  60 * 60 * 1000;
-
-let cachedLanguages = null;
-let cachedLanguagesAt = 0;
-
-const EDITOR_TO_JUDGE0_MATCHERS = {
-  javascript: [/javascript/i, /node\.?js/i],
-  jsx: [/javascript/i, /node\.?js/i],
-  typescript: [/typescript/i],
-  tsx: [/typescript/i],
-  python: [/python/i],
-  java: [/java/i],
-  c: [/^c\s*\(/i, /\bc\s*\(/i],
-  cpp: [/c\+\+/i],
-  csharp: [/c#/i, /csharp/i],
-  php: [/php/i],
-  ruby: [/ruby/i],
-  go: [/\bgo\b/i],
-  rust: [/rust/i],
-  swift: [/swift/i],
-  kotlin: [/kotlin/i],
-  shell: [/bash/i, /shell/i],
+  cpp: {
+    language: "c++",
+    version: "10.2.0",
+    extension: "cpp",
+    fileName: "main.cpp",
+  },
 };
 
-const SUPPORTED_EDITOR_LANGUAGES = new Set(
-  Object.keys(EDITOR_TO_JUDGE0_MATCHERS)
-);
-
-const EXTENSION_TO_EDITOR_LANGUAGE = {
-  js: "javascript",
-  jsx: "jsx",
-  ts: "typescript",
-  tsx: "tsx",
+const EXTENSION_TO_LANGUAGE = {
   py: "python",
-  java: "java",
   c: "c",
   cpp: "cpp",
   h: "c",
   hpp: "cpp",
-  cs: "csharp",
-  php: "php",
-  rb: "ruby",
-  go: "go",
-  rs: "rust",
-  swift: "swift",
-  kt: "kotlin",
-  kts: "kotlin",
-  sh: "shell",
-  bash: "shell",
 };
 
-const getFileExtension = (fileName = "") =>
-  String(fileName)
-    .split(".")
-    .pop()
-    .toLowerCase();
-
-const looksLikeJavaScript = (content = "") =>
-  /(?:\bimport\b|\bexport\b|=>|function\s+\w+\s*\(|console\.(log|error|warn)|React\.createElement)/.test(
-    content
-  );
-
-const looksLikeTypeScript = (content = "") =>
-  /(?:interface\s+\w+|type\s+\w+\s*=|:\s*(string|number|boolean|unknown|any)\b)/.test(
-    content
-  );
-
-const looksLikePython = (content = "") =>
-  /(?:^\s*def\s+\w+\s*\(|^\s*class\s+\w+\s*\(|^\s*print\s*\(|^\s*import\s+\w+)/m.test(
-    content
-  );
-
-const looksLikeShell = (content = "") =>
-  /(?:^\s*#!\/usr\/bin\/env\s+(bash|sh)|^\s*echo\s+|^\s*export\s+\w+=)/m.test(
-    content
-  );
-
-const looksLikeCFamily = (content = "") =>
-  /(?:#include\s*[<"]|\bint\s+main\s*\(|\busing\s+namespace\s+std\b)/.test(
-    content
-  );
-
-const getDefaultEditorLanguage = (
+const normalizeLanguage = (
+  editorLanguage = "auto",
   fileName = "",
   sourceCode = ""
 ) => {
-  const extension =
-    EXTENSION_TO_EDITOR_LANGUAGE[
-      getFileExtension(fileName)
-    ];
+  let language = String(editorLanguage || "")
+    .trim()
+    .toLowerCase();
 
-  if (extension) {
-    return extension;
+  if (language === "auto" || !language) {
+    const extension = String(fileName)
+      .split(".")
+      .pop()
+      .toLowerCase();
+
+    if (EXTENSION_TO_LANGUAGE[extension]) {
+      return EXTENSION_TO_LANGUAGE[extension];
+    }
+
+    const code = String(sourceCode || "");
+
+    if (
+      /#include\s*[<"]/.test(code) ||
+      /\bint\s+main\s*\(/.test(code)
+    ) {
+      return /\bcout\b|using\s+namespace\s+std/.test(code)
+        ? "cpp"
+        : "c";
+    }
+
+    if (
+      /^\s*def\s+\w+\s*\(/m.test(code) ||
+      /^\s*print\s*\(/m.test(code) ||
+      /^\s*import\s+\w+/m.test(code)
+    ) {
+      return "python";
+    }
   }
 
-  const content = String(sourceCode || "");
-
-  if (looksLikePython(content)) {
+  // Normalize common frontend language names.
+  if (
+    language === "py" ||
+    language === "python3"
+  ) {
     return "python";
   }
 
-  if (looksLikeShell(content)) {
-    return "shell";
-  }
-
-  if (looksLikeTypeScript(content)) {
-    return "typescript";
-  }
-
-  if (looksLikeJavaScript(content)) {
-    return "javascript";
-  }
-
-  if (looksLikeCFamily(content)) {
+  if (
+    language === "c++" ||
+    language === "g++" ||
+    language === "cpp"
+  ) {
     return "cpp";
   }
 
-  return "plaintext";
-};
-
-const buildRequestHeaders = () => {
-  const headers = {
-    "Content-Type": "application/json",
-  };
-
-  if (JUDGE0_AUTH_TOKEN) {
-    headers[JUDGE0_AUTH_HEADER] = JUDGE0_AUTH_TOKEN;
+  if (language === "gcc") {
+    return "c";
   }
 
-  return headers;
+  return language;
 };
 
-const readResponseError = async (response) => {
+const readPistonError = async (response) => {
   const text = await response.text();
 
   if (!text) {
-    return response.statusText || "Judge0 request failed";
+    return response.statusText || "Piston request failed.";
   }
 
   try {
     const parsed = JSON.parse(text);
+
     return (
       parsed?.message ||
       parsed?.error ||
@@ -165,80 +118,6 @@ const readResponseError = async (response) => {
   } catch {
     return text;
   }
-};
-
-const fetchJudge0Languages = async () => {
-  const now = Date.now();
-
-  if (
-    cachedLanguages &&
-    now - cachedLanguagesAt < LANGUAGE_CACHE_TTL_MS
-  ) {
-    return cachedLanguages;
-  }
-
-  const response = await fetch(`${JUDGE0_BASE_URL}/languages`);
-
-  if (!response.ok) {
-    throw createHttpError(
-      502,
-      await readResponseError(response)
-    );
-  }
-
-  const languages = await response.json();
-
-  cachedLanguages = Array.isArray(languages)
-    ? languages
-    : [];
-
-  cachedLanguagesAt = now;
-
-  return cachedLanguages;
-};
-
-const matchesAny = (value, matchers = []) =>
-  matchers.some((matcher) => matcher.test(value));
-
-export const resolveJudge0LanguageId = async ({
-  editorLanguage = "auto",
-  fileName = "",
-  sourceCode = "",
-}) => {
-  const normalizedLanguage = (
-    String(editorLanguage || "").trim() === "auto"
-      ? getDefaultEditorLanguage(fileName, sourceCode)
-      : String(editorLanguage || "").trim()
-  );
-
-  if (!SUPPORTED_EDITOR_LANGUAGES.has(normalizedLanguage)) {
-    throw createHttpError(
-      400,
-      "Selected language is not supported for execution."
-    );
-  }
-
-  const activeLanguages =
-    await fetchJudge0Languages();
-
-  const matchers =
-    EDITOR_TO_JUDGE0_MATCHERS[normalizedLanguage] || [];
-
-  const candidate = activeLanguages.find((language) =>
-    matchesAny(
-      String(language?.name || ""),
-      matchers
-    )
-  );
-
-  if (!candidate?.id) {
-    throw createHttpError(
-      400,
-      "No matching Judge0 runtime is available for the selected language."
-    );
-  }
-
-  return candidate.id;
 };
 
 export const runJudge0Code = async ({
@@ -283,58 +162,149 @@ export const runJudge0Code = async ({
     );
   }
 
-  const judge0LanguageId =
-    await resolveJudge0LanguageId({
+  const normalizedLanguage =
+    normalizeLanguage(
       editorLanguage,
       fileName,
-      sourceCode: normalizedSource,
-    });
+      normalizedSource
+    );
+
+  const config =
+    LANGUAGE_CONFIG[normalizedLanguage];
+
+  if (!config) {
+    throw createHttpError(
+      400,
+      "Only Python, C, and C++ are supported for execution."
+    );
+  }
+
+  const args = String(
+    commandLineArguments || ""
+  )
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
 
   const payload = {
-    source_code: normalizedSource,
-    language_id: judge0LanguageId,
+    language: config.language,
+    version: config.version,
+
+    files: [
+      {
+        name: config.fileName,
+        content: normalizedSource,
+      },
+    ],
+
     stdin: normalizedStdin,
-    compiler_options: String(compilerOptions || ""),
-    command_line_arguments: String(
-      commandLineArguments || ""
-    ),
+
+    args,
+
+    run_timeout: 3000,
+    run_cpu_time: 3000,
+
+    compile_timeout: 10000,
+    compile_cpu_time: 10000,
   };
 
-  const controller = new AbortController();
+  const controller =
+    new AbortController();
+
   const timeoutId = setTimeout(
     () => controller.abort(),
-    JUDGE0_TIMEOUT_MS
+    PISTON_TIMEOUT_MS
   );
 
   try {
     const response = await fetch(
-      `${JUDGE0_BASE_URL}/submissions?base64_encoded=false&wait=true`,
+      `${PISTON_BASE_URL}/api/v2/execute`,
       {
         method: "POST",
-        headers: buildRequestHeaders(),
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
         body: JSON.stringify(payload),
+
         signal: controller.signal,
       }
     );
 
     if (!response.ok) {
       throw createHttpError(
-        response.status >= 500 ? 502 : response.status,
-        await readResponseError(response)
+        response.status >= 500
+          ? 502
+          : response.status,
+        await readPistonError(response)
       );
     }
 
-    const data = await response.json();
+    const data =
+      await response.json();
+
+    const stage =
+      data?.compile || data?.run || {};
 
     return {
-      ...data,
-      judge0LanguageId,
+      language: data.language,
+      version: data.version,
+
+      stdout:
+        data?.run?.stdout || "",
+
+      stderr:
+        data?.run?.stderr ||
+        data?.compile?.stderr ||
+        "",
+
+      output:
+        data?.run?.output ||
+        data?.compile?.output ||
+        "",
+
+      code:
+        data?.run?.code ??
+        data?.compile?.code ??
+        null,
+
+      signal:
+        data?.run?.signal ??
+        data?.compile?.signal ??
+        null,
+
+      message:
+        data?.run?.message ||
+        data?.compile?.message ||
+        null,
+
+      status:
+        data?.run?.status ||
+        data?.compile?.status ||
+        null,
+
+      cpu_time:
+        data?.run?.cpu_time ??
+        data?.compile?.cpu_time ??
+        null,
+
+      wall_time:
+        data?.run?.wall_time ??
+        data?.compile?.wall_time ??
+        null,
+
+      memory:
+        data?.run?.memory ??
+        data?.compile?.memory ??
+        null,
     };
   } catch (error) {
     if (error?.name === "AbortError") {
       throw createHttpError(
         504,
-        "Judge0 execution timed out."
+        "Code execution timed out."
       );
     }
 
