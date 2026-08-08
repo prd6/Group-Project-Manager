@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import API from "../services/api";
+import {
+  CODE_EXECUTION_EVENTS,
+  ensureSocketConnected,
+  sendInteractiveInput,
+  socket,
+  startInteractiveExecution,
+  stopInteractiveExecution,
+} from "../services/codeExecution";
 import BackButton from "../Components/BackButton";
 import UserAvatar from "../Components/UserAvatar";
 import CodeEditor from "../Components/CodeEditor";
@@ -9,8 +17,8 @@ import Console from "../Components/Console";
 import {
   MONACO_LANGUAGE_OPTIONS,
   detectMonacoLanguage,
+  getExecutionLanguage,
   isCodeFileName,
-  isRunnableMonacoLanguage,
 } from "../utils/codeLanguages";
 
 import {
@@ -61,13 +69,35 @@ const FilesPage = () => {
   const [copied, setCopied] = useState(false);
   const [codeLanguage, setCodeLanguage] = useState("auto");
   const [codeFontSize, setCodeFontSize] = useState(13);
-  const [codeStdin, setCodeStdin] = useState("");
-  const [runOutput, setRunOutput] = useState(null);
+  const [terminalEntries, setTerminalEntries] = useState(
+    []
+  );
+  const [runState, setRunState] = useState("idle");
   const [runLoading, setRunLoading] = useState(false);
+  const [runResult, setRunResult] = useState(null);
+  const [activeSessionId, setActiveSessionId] =
+    useState("");
   const [runError, setRunError] = useState("");
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const [initialCodeContent, setInitialCodeContent] = useState("");
+  const terminalScrollRef = useRef(null);
+  const activeSessionIdRef = useRef("");
+
+  const updateActiveSessionId = (sessionId) => {
+    activeSessionIdRef.current = sessionId || "";
+    setActiveSessionId(sessionId || "");
+  };
+
+  const stopActiveExecution = () => {
+    if (!activeSessionIdRef.current) {
+      return;
+    }
+
+    void stopInteractiveExecution("SIGTERM").catch(
+      () => {}
+    );
+  };
 
   // ============================================
   // CURRENT USER
@@ -108,6 +138,8 @@ const FilesPage = () => {
 
         previewObjectUrlRef.current = "";
       }
+
+      stopActiveExecution();
     };
   }, []);
 
@@ -576,18 +608,21 @@ const FilesPage = () => {
     }
   };
 
-  const resetCodeEditorState = () => {
+  function resetCodeEditorState() {
+    stopActiveExecution();
     setFileContent("");
     setInitialCodeContent("");
     setCodeLanguage("auto");
-    setCodeStdin("");
-    setRunOutput(null);
+    setTerminalEntries([]);
+    setRunResult(null);
     setRunError("");
     setRunLoading(false);
+    setRunState("idle");
+    updateActiveSessionId("");
     setSaveLoading(false);
     setSaveMessage("");
     setCopied(false);
-  };
+  }
 
   const loadCodePreview = async (file) => {
     if (!file?.fileUrl) {
@@ -624,10 +659,262 @@ const FilesPage = () => {
         content
       )
     );
-    setCodeStdin("");
-    setRunOutput(null);
+    setTerminalEntries([]);
+    setRunResult(null);
     setRunError("");
     setSaveMessage("");
+  };
+
+  const appendTerminalEntry = (kind, text) => {
+    const normalizedText = String(text ?? "");
+
+    if (!normalizedText && kind !== "input") {
+      return;
+    }
+
+    setTerminalEntries((currentEntries) => [
+      ...currentEntries,
+      {
+        id: `${Date.now()}-${Math.random()}`,
+        kind,
+        text: normalizedText,
+      },
+    ]);
+  };
+
+  const appendSystemMessage = (message) => {
+    appendTerminalEntry("system", message);
+  };
+
+  const isCurrentSession = (sessionId) =>
+    Boolean(
+      sessionId &&
+        activeSessionIdRef.current &&
+        sessionId === activeSessionIdRef.current
+    );
+
+  const handleExecutionState = (payload) => {
+    if (
+      payload?.sessionId &&
+      !isCurrentSession(payload.sessionId)
+    ) {
+      return;
+    }
+
+    if (payload?.state) {
+      setRunState(payload.state);
+      setRunLoading(
+        [
+          "starting",
+          "running",
+          "waiting",
+          "stopping",
+        ].includes(payload.state)
+      );
+    }
+
+    if (payload?.state === "waiting") {
+      return;
+    }
+
+    if (payload?.state === "completed") {
+      setRunState("completed");
+      setRunLoading(false);
+    }
+  };
+
+  const handleExecutionOutput = (payload) => {
+    if (
+      payload?.sessionId &&
+      !isCurrentSession(payload.sessionId)
+    ) {
+      return;
+    }
+
+    if (
+      payload?.stream === "stdout" ||
+      payload?.stream === "stderr"
+    ) {
+      appendTerminalEntry(
+        payload.stream,
+        payload.data
+      );
+      setRunState("running");
+      setRunLoading(true);
+      return;
+    }
+
+    appendTerminalEntry("system", payload?.data);
+  };
+
+  const handleExecutionRuntime = (payload) => {
+    if (
+      payload?.sessionId &&
+      !isCurrentSession(payload.sessionId)
+    ) {
+      return;
+    }
+
+    const runtimeLanguage =
+      payload?.runtime?.language || "unknown";
+    const runtimeVersion =
+      payload?.runtime?.version || "";
+
+    appendSystemMessage(
+      `Connected to Piston runtime ${runtimeLanguage}${runtimeVersion ? ` ${runtimeVersion}` : ""}.`
+    );
+  };
+
+  const handleExecutionCompleted = (payload) => {
+    if (
+      payload?.sessionId &&
+      !isCurrentSession(payload.sessionId)
+    ) {
+      return;
+    }
+
+    setRunResult(payload || null);
+    setRunState("completed");
+    setRunLoading(false);
+    updateActiveSessionId("");
+  };
+
+  const handleExecutionError = (payload) => {
+    if (
+      payload?.sessionId &&
+      !isCurrentSession(payload.sessionId)
+    ) {
+      return;
+    }
+
+    const message =
+      payload?.message ||
+      "Interactive execution failed.";
+
+    setRunError(message);
+    setRunLoading(false);
+    setRunState("error");
+    updateActiveSessionId("");
+    appendSystemMessage(message);
+  };
+
+  const handleRunCode = async () => {
+    if (!selectedFile || !isCodeFile(selectedFile)) {
+      return;
+    }
+
+    const resolvedLanguage =
+      codeLanguage === "auto"
+        ? detectMonacoLanguage(
+            selectedFile.originalName,
+            fileContent
+          )
+        : codeLanguage;
+
+    const executionLanguage =
+      getExecutionLanguage(resolvedLanguage);
+
+    if (!executionLanguage) {
+      setRunError(
+        "Only Python, C, and C++ are supported for execution."
+      );
+      setRunResult(null);
+      setRunState("error");
+      setRunLoading(false);
+      return;
+    }
+
+    try {
+      setRunLoading(true);
+      setRunError("");
+      setRunResult(null);
+      setRunState("starting");
+      setTerminalEntries([]);
+      setSaveMessage("");
+
+      await ensureSocketConnected();
+
+      const response =
+        await startInteractiveExecution({
+          sourceCode: fileContent,
+          language: executionLanguage,
+          fileName: selectedFile.originalName,
+        });
+
+      updateActiveSessionId(response.sessionId);
+      setRunState("running");
+      setRunLoading(true);
+      appendSystemMessage(
+        "Interactive session started. Type input in the terminal and press Enter."
+      );
+    } catch (error) {
+      console.error(
+        "Failed to start interactive execution:",
+        error
+      );
+
+      setRunError(
+        error?.message ||
+          "Failed to execute code."
+      );
+      setRunState("error");
+      setRunLoading(false);
+      updateActiveSessionId("");
+    }
+  };
+
+  const handleStopCode = async () => {
+    if (!activeSessionId) {
+      return;
+    }
+
+    try {
+      setRunState("stopping");
+      setRunLoading(true);
+      await stopInteractiveExecution("SIGTERM");
+      appendSystemMessage("Stop requested.");
+    } catch (error) {
+      console.error(
+        "Failed to stop interactive execution:",
+        error
+      );
+
+      setRunError(
+        error?.message ||
+          "Failed to stop execution."
+      );
+      setRunState("error");
+      setRunLoading(false);
+    }
+  };
+
+  const handleSendInteractiveInput = async (line) => {
+    if (
+      runState !== "starting" &&
+      runState !== "running" &&
+      runState !== "waiting"
+    ) {
+      return;
+    }
+
+    try {
+      appendTerminalEntry("input", line);
+      setRunState("running");
+      setRunLoading(true);
+      await sendInteractiveInput(line);
+    } catch (error) {
+      console.error(
+        "Failed to send interactive input:",
+        error
+      );
+
+      setRunError(
+        error?.message ||
+          "Failed to send input."
+      );
+      setRunState("error");
+      setRunLoading(false);
+    }
   };
 
   // ============================================
@@ -847,64 +1134,84 @@ const FilesPage = () => {
     }
   };
 
-  const handleRunCode = async () => {
-    if (!selectedFile || !isCodeFile(selectedFile)) {
-      return;
-    }
-
-    const resolvedLanguage =
-      codeLanguage === "auto"
-        ? detectMonacoLanguage(
-            selectedFile.originalName,
-            fileContent
-          )
-        : codeLanguage;
-
-    if (
-      !isRunnableMonacoLanguage(resolvedLanguage)
-    ) {
-      setRunError(
-        "This language is not supported by Judge0 execution."
-      );
-      setRunOutput(null);
-      return;
-    }
-
-    try {
-      setRunLoading(true);
-      setRunError("");
-      setRunOutput(null);
-      setSaveMessage("");
-
-      const response = await API.post("/code/run", {
-        sourceCode: fileContent,
-        stdin: codeStdin,
-        language: resolvedLanguage,
-        fileName: selectedFile.originalName,
-      });
-
-      setRunOutput(response.data);
-    } catch (error) {
-      console.error(
-        "Failed to run code:",
-        error.response?.data || error
-      );
-
-      setRunError(
-        error.response?.data?.message ||
-          error.message ||
-          "Failed to execute code."
-      );
-    } finally {
-      setRunLoading(false);
-    }
-  };
-
   const handleEditorChange = (value) => {
     setFileContent(value);
     setRunError("");
     setSaveMessage("");
   };
+
+  useEffect(() => {
+    const handleStarted = (payload) => {
+      if (payload?.sessionId) {
+        updateActiveSessionId(payload.sessionId);
+        setRunState(payload.state || "starting");
+        setRunLoading(true);
+      }
+    };
+
+    socket.on(
+      CODE_EXECUTION_EVENTS.STARTED,
+      handleStarted
+    );
+    socket.on(
+      CODE_EXECUTION_EVENTS.STATE,
+      handleExecutionState
+    );
+    socket.on(
+      CODE_EXECUTION_EVENTS.OUTPUT,
+      handleExecutionOutput
+    );
+    socket.on(
+      CODE_EXECUTION_EVENTS.RUNTIME,
+      handleExecutionRuntime
+    );
+    socket.on(
+      CODE_EXECUTION_EVENTS.COMPLETED,
+      handleExecutionCompleted
+    );
+    socket.on(
+      CODE_EXECUTION_EVENTS.ERROR,
+      handleExecutionError
+    );
+
+    return () => {
+      socket.off(
+        CODE_EXECUTION_EVENTS.STARTED,
+        handleStarted
+      );
+      socket.off(
+        CODE_EXECUTION_EVENTS.STATE,
+        handleExecutionState
+      );
+      socket.off(
+        CODE_EXECUTION_EVENTS.OUTPUT,
+        handleExecutionOutput
+      );
+      socket.off(
+        CODE_EXECUTION_EVENTS.RUNTIME,
+        handleExecutionRuntime
+      );
+      socket.off(
+        CODE_EXECUTION_EVENTS.COMPLETED,
+        handleExecutionCompleted
+      );
+      socket.off(
+        CODE_EXECUTION_EVENTS.ERROR,
+        handleExecutionError
+      );
+    };
+    // The handlers are intentionally stable and only need to be wired once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!terminalScrollRef.current) {
+      return;
+    }
+
+    terminalScrollRef.current.scrollTop =
+      terminalScrollRef.current.scrollHeight;
+  }, [terminalEntries, runState, runError]);
 
   // ============================================
   // FILTER + STORAGE
@@ -947,15 +1254,17 @@ const FilesPage = () => {
         : codeLanguage
       : "plaintext";
 
+  const executionLanguage = getExecutionLanguage(
+    activeEditorLanguage
+  );
+
   const canRunCode =
     isCodeFile(selectedFile) &&
     !loadingContent &&
-    isRunnableMonacoLanguage(
-      activeEditorLanguage
-    );
+    Boolean(executionLanguage);
 
   return (
-    <div className="h-[calc(100vh-64px)] bg-[#08080a] text-white flex flex-col overflow-hidden">
+    <div className=" bg-[#08080a] text-white flex flex-col overflow-hidden">
       <div className="shrink-0 border-b border-white/[0.07] bg-[#08080d]/80 ">
         <div className="flex min-h-[72px] items-center gap-5 px-5 md:px-7">
 
@@ -1351,9 +1660,11 @@ const FilesPage = () => {
                         fontSize={codeFontSize}
                         onFontSizeChange={setCodeFontSize}
                         onRun={handleRunCode}
+                        onStop={handleStopCode}
                         onSave={handleSaveCode}
                         onCopy={handleCopyFile}
                         isRunning={runLoading}
+                        isStopping={runState === "stopping"}
                         isSaving={saveLoading}
                         copied={copied}
                         isDirty={isCodeDirty}
@@ -1361,14 +1672,14 @@ const FilesPage = () => {
                       />
 
                       <div className="min-h-0 flex-1 overflow-hidden p-3">
-                        <div className="flex h-full min-h-0 flex-col gap-3">
+                        <div className="grid h-full min-h-0 gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.65fr)]">
                           {saveMessage && (
-                            <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/[0.08] px-3 py-2 text-[11px] text-emerald-300">
+                            <div className="col-span-full rounded-lg border border-emerald-500/20 bg-emerald-500/[0.08] px-3 py-2 text-[11px] text-emerald-300">
                               {saveMessage}
                             </div>
                           )}
 
-                          <div className="min-h-[320px] flex-[3]">
+                          <div className="min-h-[320px] min-w-0">
                             <CodeEditor
                               value={fileContent}
                               onChange={handleEditorChange}
@@ -1380,13 +1691,15 @@ const FilesPage = () => {
                             />
                           </div>
 
-                          <div className="min-h-[260px] flex-[2]">
+                          <div className="min-h-[260px] min-w-0">
                             <Console
-                              stdin={codeStdin}
-                              onStdinChange={setCodeStdin}
-                              output={runOutput}
-                              isRunning={runLoading}
+                              entries={terminalEntries}
+                              onSendInput={
+                                handleSendInteractiveInput
+                              }
+                              state={runState}
                               error={runError}
+                              result={runResult}
                             />
                           </div>
                         </div>

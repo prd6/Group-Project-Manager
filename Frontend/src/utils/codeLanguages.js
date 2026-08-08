@@ -166,19 +166,18 @@ export const detectMonacoLanguage = (
   return "plaintext";
 };
 
+const MONACO_TO_EXECUTION_LANGUAGE = {
+  python: "python",
+  c: "c",
+  cpp: "cpp",
+  h: "c",
+  hpp: "cpp",
+};
+
+export const getExecutionLanguage = (language = "") =>
+  MONACO_TO_EXECUTION_LANGUAGE[
+    String(language).toLowerCase()
+  ] || null;
+
 export const isRunnableMonacoLanguage = (language = "") =>
-  [
-    "javascript",
-    "python",
-    "java",
-    "c",
-    "cpp",
-    "csharp",
-    "php",
-    "ruby",
-    "go",
-    "rust",
-    "swift",
-    "kotlin",
-    "shell",
-  ].includes(language);
+  Boolean(getExecutionLanguage(language));

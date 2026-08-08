@@ -2,6 +2,7 @@ import {
   FaCopy,
   FaPlay,
   FaSave,
+  FaStop,
 } from "react-icons/fa";
 
 const EditorToolbar = ({
@@ -15,11 +16,19 @@ const EditorToolbar = ({
   onSave,
   onCopy,
   isRunning,
+  isStopping,
   isSaving,
   copied,
   isDirty,
   canRun,
+  onStop,
 }) => {
+  const primaryActionLabel = isRunning
+    ? isStopping
+      ? "Stopping..."
+      : "Stop"
+    : "Run";
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.07] bg-[#0d0d10] px-4 py-3">
       <div className="min-w-0">
@@ -35,12 +44,19 @@ const EditorToolbar = ({
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
-          onClick={onRun}
-          disabled={isRunning || !canRun}
+          onClick={isRunning ? onStop : onRun}
+          disabled={
+            (isRunning && isStopping) ||
+            (!isRunning && !canRun)
+          }
           className="inline-flex items-center gap-2 rounded-lg bg-emerald-500/15 px-3 py-2 text-[11px] font-medium text-emerald-300 transition hover:bg-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <FaPlay className="text-[10px]" />
-          {isRunning ? "Running..." : "Run"}
+          {isRunning ? (
+            <FaStop className="text-[10px]" />
+          ) : (
+            <FaPlay className="text-[10px]" />
+          )}
+          {primaryActionLabel}
         </button>
 
         <button

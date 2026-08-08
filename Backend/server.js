@@ -18,6 +18,9 @@ import userRoutes from "./routes/userRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import fileRoutes from "./routes/fileRoutes.js";
 import codeRoutes from "./routes/codeRoutes.js";
+import {
+  registerInteractiveCodeRunner,
+} from "./services/pistonInteractiveService.js";
 
 import { getAuthorizedGroup } from "./utils/groupAccess.js";
 
@@ -638,6 +641,8 @@ io.on(
     // ========================================
     // JOIN GROUP
     // ========================================
+
+    registerInteractiveCodeRunner(socket);
 
     socket.on(
       SOCKET_EVENTS.GROUP_JOIN,

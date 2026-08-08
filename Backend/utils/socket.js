@@ -13,6 +13,17 @@ export const SOCKET_EVENTS = {
   CHAT_UPDATED: "chat:updated",
   CHAT_DELETED: "chat:deleted",
   CHAT_CLEARED: "chat:cleared",
+
+  CODE_EXECUTION_START: "code:interactive:start",
+  CODE_EXECUTION_STARTED: "code:interactive:started",
+  CODE_EXECUTION_INPUT: "code:interactive:input",
+  CODE_EXECUTION_STOP: "code:interactive:stop",
+  CODE_EXECUTION_STATE: "code:interactive:state",
+  CODE_EXECUTION_OUTPUT: "code:interactive:output",
+  CODE_EXECUTION_RUNTIME: "code:interactive:runtime",
+  CODE_EXECUTION_COMPLETED: "code:interactive:completed",
+  CODE_EXECUTION_ERROR: "code:interactive:error",
+  CODE_EXECUTION_CLEAR: "code:interactive:clear",
 };
 
 // ==========================================
